@@ -1,0 +1,9 @@
+short_name = "Godot 2D"
+name = "Godot Engine 2D"
+major = 4
+minor = 1
+patch = 1
+status = "alpha"
+module_config = ""
+year = 2023
+docs = "4.1"
