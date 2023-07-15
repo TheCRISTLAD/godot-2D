@@ -6,4 +6,5 @@ patch = 1
 status = "alpha"
 module_config = ""
 year = 2023
+website = "https://godotengine.org"
 docs = "4.1"

@@ -7492,7 +7492,7 @@ EditorNode::EditorNode() {
 	help_menu = memnew(PopupMenu);
 	help_menu->set_name(TTR("Help"));
 	main_menu->add_child(help_menu);
-	main_menu->set_menu_hidden(help_menu->get_index(), true);
+	// main_menu->set_menu_hidden(help_menu->get_index(), true);
 
 	help_menu->connect("id_pressed", callable_mp(this, &EditorNode::_menu_option));
 
