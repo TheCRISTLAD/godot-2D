@@ -49,6 +49,7 @@
 #include "scene/gui/spin_box.h"
 
 #ifdef DEBUG_ENABLED
+// TODO: find a way to remove this !
 #include "servers/navigation_server_3d.h"
 #endif // DEBUG_ENABLED
 
