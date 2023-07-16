@@ -50,9 +50,7 @@
 #include "editor/inspector_dock.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/editor_debugger_plugin.h"
-// #include "editor/plugins/node_3d_editor_plugin.h"
 #include "main/performance.h"
-#include "scene/3d/camera_3d.h"
 #include "scene/debugger/scene_debugger.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/grid_container.h"
@@ -1368,14 +1366,6 @@ void ScriptEditorDebugger::set_camera_override(CameraOverride p_override) {
 		Array msg;
 		msg.push_back(false);
 		_put_msg("scene:override_camera_2D:set", msg);
-	} else if (p_override >= CameraOverride::OVERRIDE_3D_1 && camera_override < CameraOverride::OVERRIDE_3D_1) {
-		Array msg;
-		msg.push_back(true);
-		_put_msg("scene:override_camera_3D:set", msg);
-	} else if (p_override < CameraOverride::OVERRIDE_3D_1 && camera_override >= CameraOverride::OVERRIDE_3D_1) {
-		Array msg;
-		msg.push_back(false);
-		_put_msg("scene:override_camera_3D:set", msg);
 	}
 
 	camera_override = p_override;

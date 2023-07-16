@@ -33,7 +33,6 @@
 
 #include "editor/editor_plugin.h"
 #include "scene/2d/animated_sprite_2d.h"
-#include "scene/3d/sprite_3d.h"
 #include "scene/gui/button.h"
 #include "scene/gui/check_button.h"
 #include "scene/gui/dialogs.h"

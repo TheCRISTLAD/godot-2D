@@ -71,8 +71,6 @@ void TextureRegionEditor::_region_draw() {
 		base_tex = atlas_tex->get_atlas();
 	} else if (node_sprite_2d) {
 		base_tex = node_sprite_2d->get_texture();
-	} else if (node_sprite_3d) {
-		base_tex = node_sprite_3d->get_texture();
 	} else if (node_ninepatch) {
 		base_tex = node_ninepatch->get_texture();
 	} else if (obj_styleBox.is_valid()) {
@@ -355,8 +353,6 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 									r = atlas_tex->get_region();
 								} else if (node_sprite_2d) {
 									r = node_sprite_2d->get_region_rect();
-								} else if (node_sprite_3d) {
-									r = node_sprite_3d->get_region_rect();
 								} else if (node_ninepatch) {
 									r = node_ninepatch->get_region_rect();
 								} else if (obj_styleBox.is_valid()) {
@@ -372,9 +368,6 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 							} else if (node_sprite_2d) {
 								undo_redo->add_do_method(node_sprite_2d, "set_region_rect", rect);
 								undo_redo->add_undo_method(node_sprite_2d, "set_region_rect", node_sprite_2d->get_region_rect());
-							} else if (node_sprite_3d) {
-								undo_redo->add_do_method(node_sprite_3d, "set_region_rect", rect);
-								undo_redo->add_undo_method(node_sprite_3d, "set_region_rect", node_sprite_3d->get_region_rect());
 							} else if (node_ninepatch) {
 								undo_redo->add_do_method(node_ninepatch, "set_region_rect", rect);
 								undo_redo->add_undo_method(node_ninepatch, "set_region_rect", node_ninepatch->get_region_rect());
@@ -402,8 +395,6 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 						rect_prev = atlas_tex->get_region();
 					} else if (node_sprite_2d) {
 						rect_prev = node_sprite_2d->get_region_rect();
-					} else if (node_sprite_3d) {
-						rect_prev = node_sprite_3d->get_region_rect();
 					} else if (node_ninepatch) {
 						rect_prev = node_ninepatch->get_region_rect();
 					} else if (obj_styleBox.is_valid()) {
@@ -444,9 +435,6 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 					} else if (node_sprite_2d) {
 						undo_redo->add_do_method(node_sprite_2d, "set_region_rect", node_sprite_2d->get_region_rect());
 						undo_redo->add_undo_method(node_sprite_2d, "set_region_rect", rect_prev);
-					} else if (node_sprite_3d) {
-						undo_redo->add_do_method(node_sprite_3d, "set_region_rect", node_sprite_3d->get_region_rect());
-						undo_redo->add_undo_method(node_sprite_3d, "set_region_rect", rect_prev);
 					} else if (node_ninepatch) {
 						undo_redo->add_do_method(node_ninepatch, "set_region_rect", node_ninepatch->get_region_rect());
 						undo_redo->add_undo_method(node_ninepatch, "set_region_rect", rect_prev);
@@ -717,8 +705,6 @@ void TextureRegionEditor::apply_rect(const Rect2 &p_rect) {
 		atlas_tex->set_region(p_rect);
 	} else if (node_sprite_2d) {
 		node_sprite_2d->set_region_rect(p_rect);
-	} else if (node_sprite_3d) {
-		node_sprite_3d->set_region_rect(p_rect);
 	} else if (node_ninepatch) {
 		node_ninepatch->set_region_rect(p_rect);
 	} else if (obj_styleBox.is_valid()) {
@@ -731,8 +717,6 @@ void TextureRegionEditor::_update_rect() {
 		rect = atlas_tex->get_region();
 	} else if (node_sprite_2d) {
 		rect = node_sprite_2d->get_region_rect();
-	} else if (node_sprite_3d) {
-		rect = node_sprite_3d->get_region_rect();
 	} else if (node_ninepatch) {
 		rect = node_ninepatch->get_region_rect();
 		if (rect == Rect2()) {
@@ -755,8 +739,6 @@ void TextureRegionEditor::_update_autoslice() {
 		texture = atlas_tex->get_atlas();
 	} else if (node_sprite_2d) {
 		texture = node_sprite_2d->get_texture();
-	} else if (node_sprite_3d) {
-		texture = node_sprite_3d->get_texture();
 	} else if (node_ninepatch) {
 		texture = node_ninepatch->get_texture();
 	} else if (obj_styleBox.is_valid()) {
@@ -866,9 +848,8 @@ void TextureRegionEditor::_notification(int p_what) {
 }
 
 void TextureRegionEditor::_node_removed(Object *p_obj) {
-	if (p_obj == node_sprite_2d || p_obj == node_sprite_3d || p_obj == node_ninepatch || p_obj == obj_styleBox.ptr() || p_obj == atlas_tex.ptr()) {
+	if (p_obj == node_sprite_2d || p_obj == node_ninepatch || p_obj == obj_styleBox.ptr() || p_obj == atlas_tex.ptr()) {
 		node_sprite_2d = nullptr;
-		node_sprite_3d = nullptr;
 		node_ninepatch = nullptr;
 		obj_styleBox = Ref<StyleBox>(nullptr);
 		atlas_tex = Ref<AtlasTexture>(nullptr);
@@ -898,16 +879,9 @@ Sprite2D *TextureRegionEditor::get_sprite_2d() {
 	return node_sprite_2d;
 }
 
-Sprite3D *TextureRegionEditor::get_sprite_3d() {
-	return node_sprite_3d;
-}
-
 void TextureRegionEditor::edit(Object *p_obj) {
 	if (node_sprite_2d) {
 		node_sprite_2d->disconnect("texture_changed", callable_mp(this, &TextureRegionEditor::_texture_changed));
-	}
-	if (node_sprite_3d) {
-		node_sprite_3d->disconnect("texture_changed", callable_mp(this, &TextureRegionEditor::_texture_changed));
 	}
 	if (node_ninepatch) {
 		node_ninepatch->disconnect("texture_changed", callable_mp(this, &TextureRegionEditor::_texture_changed));
@@ -920,14 +894,12 @@ void TextureRegionEditor::edit(Object *p_obj) {
 	}
 
 	node_sprite_2d = nullptr;
-	node_sprite_3d = nullptr;
 	node_ninepatch = nullptr;
 	obj_styleBox = Ref<StyleBoxTexture>(nullptr);
 	atlas_tex = Ref<AtlasTexture>(nullptr);
 
 	if (p_obj) {
 		node_sprite_2d = Object::cast_to<Sprite2D>(p_obj);
-		node_sprite_3d = Object::cast_to<Sprite3D>(p_obj);
 		node_ninepatch = Object::cast_to<NinePatchRect>(p_obj);
 
 		bool is_resource = false;
@@ -969,35 +941,6 @@ void TextureRegionEditor::_edit_region() {
 	} else if (node_sprite_2d) {
 		texture = node_sprite_2d->get_texture();
 		filter = node_sprite_2d->get_texture_filter_in_tree();
-	} else if (node_sprite_3d) {
-		texture = node_sprite_3d->get_texture();
-
-		StandardMaterial3D::TextureFilter filter_3d = node_sprite_3d->get_texture_filter();
-
-		switch (filter_3d) {
-			case StandardMaterial3D::TEXTURE_FILTER_NEAREST:
-				filter = CanvasItem::TEXTURE_FILTER_NEAREST;
-				break;
-			case StandardMaterial3D::TEXTURE_FILTER_LINEAR:
-				filter = CanvasItem::TEXTURE_FILTER_LINEAR;
-				break;
-			case StandardMaterial3D::TEXTURE_FILTER_NEAREST_WITH_MIPMAPS:
-				filter = CanvasItem::TEXTURE_FILTER_NEAREST_WITH_MIPMAPS;
-				break;
-			case StandardMaterial3D::TEXTURE_FILTER_LINEAR_WITH_MIPMAPS:
-				filter = CanvasItem::TEXTURE_FILTER_LINEAR_WITH_MIPMAPS;
-				break;
-			case StandardMaterial3D::TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC:
-				filter = CanvasItem::TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC;
-				break;
-			case StandardMaterial3D::TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC:
-				filter = CanvasItem::TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC;
-				break;
-			default:
-				// fallback to project default
-				filter = CanvasItem::TEXTURE_FILTER_PARENT_NODE;
-				break;
-		}
 	} else if (node_ninepatch) {
 		texture = node_ninepatch->get_texture();
 		filter = node_ninepatch->get_texture_filter_in_tree();
@@ -1074,7 +1017,6 @@ TextureRegionEditor::TextureRegionEditor() {
 	VBoxContainer *vb = memnew(VBoxContainer);
 	add_child(vb);
 	node_sprite_2d = nullptr;
-	node_sprite_3d = nullptr;
 	node_ninepatch = nullptr;
 	obj_styleBox = Ref<StyleBoxTexture>(nullptr);
 	atlas_tex = Ref<AtlasTexture>(nullptr);
@@ -1224,7 +1166,7 @@ TextureRegionEditor::TextureRegionEditor() {
 ////////////////////////
 
 bool EditorInspectorPluginTextureRegion::can_handle(Object *p_object) {
-	return Object::cast_to<Sprite2D>(p_object) || Object::cast_to<Sprite3D>(p_object) || Object::cast_to<NinePatchRect>(p_object) || Object::cast_to<StyleBoxTexture>(p_object) || Object::cast_to<AtlasTexture>(p_object);
+	return Object::cast_to<Sprite2D>(p_object) || Object::cast_to<NinePatchRect>(p_object) || Object::cast_to<StyleBoxTexture>(p_object) || Object::cast_to<AtlasTexture>(p_object);
 }
 
 void EditorInspectorPluginTextureRegion::_region_edit(Object *p_object) {
@@ -1233,7 +1175,7 @@ void EditorInspectorPluginTextureRegion::_region_edit(Object *p_object) {
 
 bool EditorInspectorPluginTextureRegion::parse_property(Object *p_object, const Variant::Type p_type, const String &p_path, const PropertyHint p_hint, const String &p_hint_text, const BitField<PropertyUsageFlags> p_usage, const bool p_wide) {
 	if ((p_type == Variant::RECT2 || p_type == Variant::RECT2I)) {
-		if (((Object::cast_to<Sprite2D>(p_object) || Object::cast_to<Sprite3D>(p_object) || Object::cast_to<NinePatchRect>(p_object) || Object::cast_to<StyleBoxTexture>(p_object)) && p_path == "region_rect") || (Object::cast_to<AtlasTexture>(p_object) && p_path == "region")) {
+		if (((Object::cast_to<Sprite2D>(p_object) || Object::cast_to<NinePatchRect>(p_object) || Object::cast_to<StyleBoxTexture>(p_object)) && p_path == "region_rect") || (Object::cast_to<AtlasTexture>(p_object) && p_path == "region")) {
 			Button *button = EditorInspector::create_inspector_action_button(TTR("Edit Region"));
 			button->set_icon(texture_region_editor->get_theme_icon(SNAME("RegionEdit"), SNAME("EditorIcons")));
 			button->connect("pressed", callable_mp(this, &EditorInspectorPluginTextureRegion::_region_edit).bind(p_object));

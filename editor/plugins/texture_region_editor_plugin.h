@@ -35,7 +35,6 @@
 #include "editor/editor_inspector.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/sprite_2d.h"
-#include "scene/3d/sprite_3d.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/nine_patch_rect.h"
 #include "scene/resources/style_box.h"
@@ -81,7 +80,6 @@ class TextureRegionEditor : public AcceptDialog {
 	Vector2 snap_separation;
 
 	Sprite2D *node_sprite_2d = nullptr;
-	Sprite3D *node_sprite_3d = nullptr;
 	NinePatchRect *node_ninepatch = nullptr;
 	Ref<StyleBoxTexture> obj_styleBox;
 	Ref<AtlasTexture> atlas_tex;
@@ -139,7 +137,6 @@ public:
 	bool is_atlas_texture();
 	bool is_ninepatch();
 	Sprite2D *get_sprite_2d();
-	Sprite3D *get_sprite_3d();
 
 	void edit(Object *p_obj);
 	TextureRegionEditor();
