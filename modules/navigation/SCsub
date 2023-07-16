@@ -74,8 +74,6 @@ env.modules_sources += thirdparty_obj
 module_obj = []
 
 env_navigation.add_source_files(module_obj, "*.cpp")
-if env.editor_build:
-    env_navigation.add_source_files(module_obj, "editor/*.cpp")
 env.modules_sources += module_obj
 
 # Needed to force rebuilding the module files when the thirdparty library is updated.

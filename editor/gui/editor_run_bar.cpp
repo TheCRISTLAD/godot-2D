@@ -270,7 +270,6 @@ void EditorRunBar::play_main_scene(bool p_from_native) {
 }
 
 void EditorRunBar::play_current_scene(bool p_reload) {
-	EditorNode::get_singleton()->save_default_environment();
 	stop_playing();
 
 	current_mode = RunMode::RUN_CURRENT;

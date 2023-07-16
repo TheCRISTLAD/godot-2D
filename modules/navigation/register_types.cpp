@@ -36,10 +36,6 @@
 #include "navigation_mesh_generator.h"
 #endif
 
-#ifdef TOOLS_ENABLED
-#include "editor/navigation_mesh_editor_plugin.h"
-#endif
-
 #include "core/config/engine.h"
 #include "servers/navigation_server_3d.h"
 
@@ -61,12 +57,6 @@ void initialize_navigation_module(ModuleInitializationLevel p_level) {
 		Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationMeshGenerator", NavigationMeshGenerator::get_singleton()));
 #endif
 	}
-
-#ifdef TOOLS_ENABLED
-	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
-		EditorPlugins::add_by_type<NavigationMeshEditorPlugin>();
-	}
-#endif
 }
 
 void uninitialize_navigation_module(ModuleInitializationLevel p_level) {

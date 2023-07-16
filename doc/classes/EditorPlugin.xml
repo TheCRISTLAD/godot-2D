@@ -741,18 +741,6 @@
 		<constant name="CONTAINER_TOOLBAR" value="0" enum="CustomControlContainer">
 			Main editor toolbar, next to play buttons.
 		</constant>
-		<constant name="CONTAINER_SPATIAL_EDITOR_MENU" value="1" enum="CustomControlContainer">
-			The toolbar that appears when 3D editor is active.
-		</constant>
-		<constant name="CONTAINER_SPATIAL_EDITOR_SIDE_LEFT" value="2" enum="CustomControlContainer">
-			Left sidebar of the 3D editor.
-		</constant>
-		<constant name="CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT" value="3" enum="CustomControlContainer">
-			Right sidebar of the 3D editor.
-		</constant>
-		<constant name="CONTAINER_SPATIAL_EDITOR_BOTTOM" value="4" enum="CustomControlContainer">
-			Bottom panel of the 3D editor.
-		</constant>
 		<constant name="CONTAINER_CANVAS_EDITOR_MENU" value="5" enum="CustomControlContainer">
 			The toolbar that appears when 2D editor is active.
 		</constant>

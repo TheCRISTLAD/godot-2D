@@ -132,7 +132,7 @@ public:
 
 	enum EditorTable {
 		EDITOR_2D = 0,
-		EDITOR_3D,
+		// EDITOR_3D,
 		EDITOR_SCRIPT,
 		EDITOR_ASSETLIB
 	};
@@ -166,7 +166,7 @@ private:
 		FILE_RUN_SCENE,
 		FILE_SHOW_IN_FILESYSTEM,
 		FILE_EXPORT_PROJECT,
-		FILE_EXPORT_MESH_LIBRARY,
+		// FILE_EXPORT_MESH_LIBRARY,
 		FILE_INSTALL_ANDROID_SOURCE,
 		FILE_EXPLORE_ANDROID_BUILD_TEMPLATES,
 		FILE_SAVE_OPTIMIZED,
@@ -346,7 +346,7 @@ private:
 	PopupMenu *settings_menu = nullptr;
 	PopupMenu *help_menu = nullptr;
 	PopupMenu *tool_menu = nullptr;
-	PopupMenu *export_as_menu = nullptr;
+	// PopupMenu *export_as_menu = nullptr;
 	Button *export_button = nullptr;
 	Button *prev_scene = nullptr;
 	Button *search_button = nullptr;
@@ -546,7 +546,7 @@ private:
 	void _save_screenshot(NodePath p_path);
 
 	void _tool_menu_option(int p_idx);
-	void _export_as_menu_option(int p_idx);
+	// void _export_as_menu_option(int p_idx);
 	void _update_file_menu_opened();
 	void _update_file_menu_closed();
 
@@ -616,7 +616,7 @@ private:
 	void _save_edited_subresources(Node *scene, HashMap<Ref<Resource>, bool> &processed, int32_t flags);
 	void _mark_unsaved_scenes();
 
-	void _find_node_types(Node *p_node, int &count_2d, int &count_3d);
+	void _find_node_types(Node *p_node, int &count_2d);
 	void _save_scene_with_preview(String p_file, int p_idx = -1);
 
 	bool _find_scene_in_use(Node *p_node, const String &p_path) const;
@@ -818,7 +818,7 @@ public:
 		int index = 0;
 		// Used if the original parent node is lost
 		Transform2D transform_2d;
-		Transform3D transform_3d;
+		// Transform3D transform_3d;
 		// Used to keep track of the ownership of all ancestor nodes so they can be restored later.
 		HashMap<Node *, Node *> ownership_table;
 	};
@@ -890,7 +890,6 @@ public:
 	bool is_scene_in_use(const String &p_path);
 
 	void save_editor_layout_delayed();
-	void save_default_environment();
 
 	void open_export_template_manager();
 
@@ -914,7 +913,7 @@ public:
 	void add_tool_submenu_item(const String &p_name, PopupMenu *p_submenu);
 	void remove_tool_menu_item(const String &p_name);
 
-	PopupMenu *get_export_as_menu();
+	// PopupMenu *get_export_as_menu();
 
 	void save_all_scenes();
 	void save_scene_list(Vector<String> p_scene_filenames);
@@ -971,9 +970,9 @@ public:
 	bool forward_gui_input(const Ref<InputEvent> &p_event);
 	void forward_canvas_draw_over_viewport(Control *p_overlay);
 	void forward_canvas_force_draw_over_viewport(Control *p_overlay);
-	EditorPlugin::AfterGUIInput forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled);
-	void forward_3d_draw_over_viewport(Control *p_overlay);
-	void forward_3d_force_draw_over_viewport(Control *p_overlay);
+	// EditorPlugin::AfterGUIInput forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled);
+	// void forward_3d_draw_over_viewport(Control *p_overlay);
+	// void forward_3d_force_draw_over_viewport(Control *p_overlay);
 	void add_plugin(EditorPlugin *p_plugin);
 	void remove_plugin(EditorPlugin *p_plugin);
 	void clear();

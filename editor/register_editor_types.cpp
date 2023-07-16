@@ -56,50 +56,50 @@
 #include "editor/plugins/audio_stream_randomizer_editor_plugin.h"
 #include "editor/plugins/bit_map_editor_plugin.h"
 #include "editor/plugins/bone_map_editor_plugin.h"
-#include "editor/plugins/camera_3d_editor_plugin.h"
+// #include "editor/plugins/camera_3d_editor_plugin.h"
 #include "editor/plugins/cast_2d_editor_plugin.h"
 #include "editor/plugins/collision_polygon_2d_editor_plugin.h"
 #include "editor/plugins/collision_shape_2d_editor_plugin.h"
 #include "editor/plugins/control_editor_plugin.h"
 #include "editor/plugins/cpu_particles_2d_editor_plugin.h"
-#include "editor/plugins/cpu_particles_3d_editor_plugin.h"
+// #include "editor/plugins/cpu_particles_3d_editor_plugin.h"
 #include "editor/plugins/curve_editor_plugin.h"
 #include "editor/plugins/editor_debugger_plugin.h"
 #include "editor/plugins/editor_resource_tooltip_plugins.h"
 #include "editor/plugins/font_config_plugin.h"
 #include "editor/plugins/gpu_particles_2d_editor_plugin.h"
-#include "editor/plugins/gpu_particles_3d_editor_plugin.h"
-#include "editor/plugins/gpu_particles_collision_sdf_editor_plugin.h"
+// #include "editor/plugins/gpu_particles_3d_editor_plugin.h"
+// #include "editor/plugins/gpu_particles_collision_sdf_editor_plugin.h"
 #include "editor/plugins/gradient_editor_plugin.h"
 #include "editor/plugins/gradient_texture_2d_editor_plugin.h"
 #include "editor/plugins/input_event_editor_plugin.h"
 #include "editor/plugins/light_occluder_2d_editor_plugin.h"
-#include "editor/plugins/lightmap_gi_editor_plugin.h"
+// #include "editor/plugins/lightmap_gi_editor_plugin.h"
 #include "editor/plugins/line_2d_editor_plugin.h"
 #include "editor/plugins/material_editor_plugin.h"
-#include "editor/plugins/mesh_editor_plugin.h"
-#include "editor/plugins/mesh_instance_3d_editor_plugin.h"
-#include "editor/plugins/mesh_library_editor_plugin.h"
-#include "editor/plugins/multimesh_editor_plugin.h"
+// #include "editor/plugins/mesh_editor_plugin.h"
+// #include "editor/plugins/mesh_instance_3d_editor_plugin.h"
+// #include "editor/plugins/mesh_library_editor_plugin.h"
+// #include "editor/plugins/multimesh_editor_plugin.h"
 #include "editor/plugins/navigation_link_2d_editor_plugin.h"
 #include "editor/plugins/navigation_obstacle_2d_editor_plugin.h"
-#include "editor/plugins/navigation_obstacle_3d_editor_plugin.h"
+// #include "editor/plugins/navigation_obstacle_3d_editor_plugin.h"
 #include "editor/plugins/navigation_polygon_editor_plugin.h"
-#include "editor/plugins/node_3d_editor_gizmos.h"
-#include "editor/plugins/occluder_instance_3d_editor_plugin.h"
+// #include "editor/plugins/node_3d_editor_gizmos.h"
+// #include "editor/plugins/occluder_instance_3d_editor_plugin.h"
 #include "editor/plugins/packed_scene_editor_plugin.h"
 #include "editor/plugins/path_2d_editor_plugin.h"
-#include "editor/plugins/path_3d_editor_plugin.h"
-#include "editor/plugins/physical_bone_3d_editor_plugin.h"
+// #include "editor/plugins/path_3d_editor_plugin.h"
+// #include "editor/plugins/physical_bone_3d_editor_plugin.h"
 #include "editor/plugins/polygon_2d_editor_plugin.h"
-#include "editor/plugins/polygon_3d_editor_plugin.h"
+// #include "editor/plugins/polygon_3d_editor_plugin.h"
 #include "editor/plugins/resource_preloader_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/plugins/shader_editor_plugin.h"
 #include "editor/plugins/shader_file_editor_plugin.h"
 #include "editor/plugins/skeleton_2d_editor_plugin.h"
-#include "editor/plugins/skeleton_3d_editor_plugin.h"
-#include "editor/plugins/skeleton_ik_3d_editor_plugin.h"
+// #include "editor/plugins/skeleton_3d_editor_plugin.h"
+// #include "editor/plugins/skeleton_ik_3d_editor_plugin.h"
 #include "editor/plugins/sprite_2d_editor_plugin.h"
 #include "editor/plugins/sprite_frames_editor_plugin.h"
 #include "editor/plugins/style_box_editor_plugin.h"
@@ -112,7 +112,7 @@
 #include "editor/plugins/tiles/tiles_editor_plugin.h"
 #include "editor/plugins/version_control_editor_plugin.h"
 #include "editor/plugins/visual_shader_editor_plugin.h"
-#include "editor/plugins/voxel_gi_editor_plugin.h"
+// #include "editor/plugins/voxel_gi_editor_plugin.h"
 #include "editor/register_exporters.h"
 
 void register_editor_types() {
@@ -129,8 +129,8 @@ void register_editor_types() {
 	GDREGISTER_CLASS(EditorSelection);
 	GDREGISTER_CLASS(EditorFileDialog);
 	GDREGISTER_ABSTRACT_CLASS(EditorSettings);
-	GDREGISTER_CLASS(EditorNode3DGizmo);
-	GDREGISTER_CLASS(EditorNode3DGizmoPlugin);
+	// GDREGISTER_CLASS(EditorNode3DGizmo);
+	// GDREGISTER_CLASS(EditorNode3DGizmoPlugin);
 	GDREGISTER_ABSTRACT_CLASS(EditorResourcePreview);
 	GDREGISTER_CLASS(EditorResourcePreviewGenerator);
 	GDREGISTER_CLASS(EditorResourceTooltipPlugin);
@@ -174,34 +174,34 @@ void register_editor_types() {
 	EditorPlugins::add_by_type<AudioStreamRandomizerEditorPlugin>();
 	EditorPlugins::add_by_type<BitMapEditorPlugin>();
 	EditorPlugins::add_by_type<BoneMapEditorPlugin>();
-	EditorPlugins::add_by_type<Camera3DEditorPlugin>();
+	// EditorPlugins::add_by_type<Camera3DEditorPlugin>();
 	EditorPlugins::add_by_type<ControlEditorPlugin>();
-	EditorPlugins::add_by_type<CPUParticles3DEditorPlugin>();
+	// EditorPlugins::add_by_type<CPUParticles3DEditorPlugin>();
 	EditorPlugins::add_by_type<CurveEditorPlugin>();
 	EditorPlugins::add_by_type<DebugAdapterServer>();
 	EditorPlugins::add_by_type<FontEditorPlugin>();
-	EditorPlugins::add_by_type<GPUParticles3DEditorPlugin>();
-	EditorPlugins::add_by_type<GPUParticlesCollisionSDF3DEditorPlugin>();
+	// EditorPlugins::add_by_type<GPUParticles3DEditorPlugin>();
+	// EditorPlugins::add_by_type<GPUParticlesCollisionSDF3DEditorPlugin>();
 	EditorPlugins::add_by_type<GradientEditorPlugin>();
 	EditorPlugins::add_by_type<GradientTexture2DEditorPlugin>();
 	EditorPlugins::add_by_type<InputEventEditorPlugin>();
-	EditorPlugins::add_by_type<LightmapGIEditorPlugin>();
+	// EditorPlugins::add_by_type<LightmapGIEditorPlugin>();
 	EditorPlugins::add_by_type<MaterialEditorPlugin>();
-	EditorPlugins::add_by_type<MeshEditorPlugin>();
-	EditorPlugins::add_by_type<MeshInstance3DEditorPlugin>();
-	EditorPlugins::add_by_type<MeshLibraryEditorPlugin>();
-	EditorPlugins::add_by_type<MultiMeshEditorPlugin>();
-	EditorPlugins::add_by_type<NavigationObstacle3DEditorPlugin>();
-	EditorPlugins::add_by_type<OccluderInstance3DEditorPlugin>();
+	// EditorPlugins::add_by_type<MeshEditorPlugin>();
+	// EditorPlugins::add_by_type<MeshInstance3DEditorPlugin>();
+	// EditorPlugins::add_by_type<MeshLibraryEditorPlugin>();
+	// EditorPlugins::add_by_type<MultiMeshEditorPlugin>();
+	// EditorPlugins::add_by_type<NavigationObstacle3DEditorPlugin>();
+	// EditorPlugins::add_by_type<OccluderInstance3DEditorPlugin>();
 	EditorPlugins::add_by_type<PackedSceneEditorPlugin>();
-	EditorPlugins::add_by_type<Path3DEditorPlugin>();
-	EditorPlugins::add_by_type<PhysicalBone3DEditorPlugin>();
-	EditorPlugins::add_by_type<Polygon3DEditorPlugin>();
+	// EditorPlugins::add_by_type<Path3DEditorPlugin>();
+	// EditorPlugins::add_by_type<PhysicalBone3DEditorPlugin>();
+	// EditorPlugins::add_by_type<Polygon3DEditorPlugin>();
 	EditorPlugins::add_by_type<ResourcePreloaderEditorPlugin>();
 	EditorPlugins::add_by_type<ShaderEditorPlugin>();
 	EditorPlugins::add_by_type<ShaderFileEditorPlugin>();
-	EditorPlugins::add_by_type<Skeleton3DEditorPlugin>();
-	EditorPlugins::add_by_type<SkeletonIK3DEditorPlugin>();
+	// EditorPlugins::add_by_type<Skeleton3DEditorPlugin>();
+	// EditorPlugins::add_by_type<SkeletonIK3DEditorPlugin>();
 	EditorPlugins::add_by_type<SpriteFramesEditorPlugin>();
 	EditorPlugins::add_by_type<StyleBoxEditorPlugin>();
 	EditorPlugins::add_by_type<SubViewportPreviewEditorPlugin>();
@@ -210,7 +210,7 @@ void register_editor_types() {
 	EditorPlugins::add_by_type<TextureLayeredEditorPlugin>();
 	EditorPlugins::add_by_type<TextureRegionEditorPlugin>();
 	EditorPlugins::add_by_type<ThemeEditorPlugin>();
-	EditorPlugins::add_by_type<VoxelGIEditorPlugin>();
+	// EditorPlugins::add_by_type<VoxelGIEditorPlugin>();
 
 	// 2D
 	EditorPlugins::add_by_type<CollisionPolygon2DEditorPlugin>();

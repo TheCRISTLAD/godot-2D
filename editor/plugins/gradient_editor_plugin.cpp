@@ -35,7 +35,7 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_undo_redo_manager.h"
-#include "node_3d_editor_plugin.h"
+// #include "node_3d_editor_plugin.h"
 
 void GradientReverseButton::_notification(int p_what) {
 	switch (p_what) {

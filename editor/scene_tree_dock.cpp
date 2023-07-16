@@ -49,7 +49,7 @@
 #include "editor/multi_node_edit.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
-#include "editor/plugins/node_3d_editor_plugin.h"
+// #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/reparent_dialog.h"
 #include "editor/shader_create_dialog.h"
@@ -1290,10 +1290,6 @@ void SceneTreeDock::_notification(int p_what) {
 				scene_tree->connect("node_changed", callable_mp((CanvasItem *)canvas_item_plugin->get_canvas_item_editor()->get_viewport_control(), &CanvasItem::queue_redraw));
 			}
 
-			Node3DEditorPlugin *spatial_editor_plugin = Object::cast_to<Node3DEditorPlugin>(editor_data->get_editor("3D"));
-			spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
-			spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", callable_mp(scene_tree, &SceneTreeEditor::_update_tree).bind(false));
-
 			filter->set_clear_button_enabled(true);
 
 			// create_root_dialog
@@ -2133,7 +2129,7 @@ void SceneTreeDock::_toggle_editable_children(Node *p_node) {
 			p_node->set_scene_instance_load_placeholder(false);
 		}
 
-		Node3DEditor::get_singleton()->update_all_gizmos(p_node);
+		// Node3DEditor::get_singleton()->update_all_gizmos(p_node);
 
 		scene_tree->update_tree();
 	}
@@ -3121,9 +3117,6 @@ void SceneTreeDock::_focus_node() {
 	if (node->is_class("CanvasItem")) {
 		CanvasItemEditorPlugin *editor = Object::cast_to<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
 		editor->get_canvas_item_editor()->focus_selection();
-	} else {
-		Node3DEditorPlugin *editor = Object::cast_to<Node3DEditorPlugin>(editor_data->get_editor("3D"));
-		editor->get_spatial_editor()->get_editor_viewport(0)->focus_selection();
 	}
 }
 
