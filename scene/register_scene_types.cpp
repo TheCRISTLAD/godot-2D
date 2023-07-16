@@ -222,11 +222,8 @@
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/collision_polygon_3d.h"
 #include "scene/3d/collision_shape_3d.h"
-#include "scene/3d/cpu_particles_3d.h"
 #include "scene/3d/decal.h"
 #include "scene/3d/fog_volume.h"
-#include "scene/3d/gpu_particles_3d.h"
-#include "scene/3d/gpu_particles_collision_3d.h"
 #include "scene/3d/importer_mesh_instance_3d.h"
 #include "scene/3d/joint_3d.h"
 #include "scene/3d/label_3d.h"
@@ -512,17 +509,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(LightmapGIData);
 	GDREGISTER_CLASS(LightmapProbe);
 	GDREGISTER_ABSTRACT_CLASS(Lightmapper);
-	GDREGISTER_CLASS(GPUParticles3D);
-	GDREGISTER_ABSTRACT_CLASS(GPUParticlesCollision3D);
-	GDREGISTER_CLASS(GPUParticlesCollisionBox3D);
-	GDREGISTER_CLASS(GPUParticlesCollisionSphere3D);
-	GDREGISTER_CLASS(GPUParticlesCollisionSDF3D);
-	GDREGISTER_CLASS(GPUParticlesCollisionHeightField3D);
-	GDREGISTER_ABSTRACT_CLASS(GPUParticlesAttractor3D);
-	GDREGISTER_CLASS(GPUParticlesAttractorBox3D);
-	GDREGISTER_CLASS(GPUParticlesAttractorSphere3D);
-	GDREGISTER_CLASS(GPUParticlesAttractorVectorField3D);
-	GDREGISTER_CLASS(CPUParticles3D);
 	GDREGISTER_CLASS(Marker3D);
 	GDREGISTER_CLASS(RootMotionView);
 
