@@ -31,7 +31,6 @@
 #include "editor_about.h"
 
 #include "core/authors.gen.h"
-#include "core/donors.gen.h"
 #include "core/license.gen.h"
 #include "core/version.h"
 
@@ -177,22 +176,6 @@ EditorAbout::EditorAbout() {
 	const char *const *dev_src[] = { AUTHORS_FOUNDERS, AUTHORS_LEAD_DEVELOPERS,
 		AUTHORS_PROJECT_MANAGERS, AUTHORS_DEVELOPERS };
 	tc->add_child(_populate_list(TTR("Authors"), dev_sections, dev_src, 1));
-
-	// Donors
-
-	List<String> donor_sections;
-	donor_sections.push_back(TTR("Platinum Sponsors"));
-	donor_sections.push_back(TTR("Gold Sponsors"));
-	donor_sections.push_back(TTR("Silver Sponsors"));
-	donor_sections.push_back(TTR("Bronze Sponsors"));
-	donor_sections.push_back(TTR("Mini Sponsors"));
-	donor_sections.push_back(TTR("Gold Donors"));
-	donor_sections.push_back(TTR("Silver Donors"));
-	donor_sections.push_back(TTR("Bronze Donors"));
-	const char *const *donor_src[] = { DONORS_SPONSOR_PLATINUM, DONORS_SPONSOR_GOLD,
-		DONORS_SPONSOR_SILVER, DONORS_SPONSOR_BRONZE, DONORS_SPONSOR_MINI,
-		DONORS_GOLD, DONORS_SILVER, DONORS_BRONZE };
-	tc->add_child(_populate_list(TTR("Donors"), donor_sections, donor_src, 3));
 
 	// License
 
