@@ -127,36 +127,6 @@ void EditorPropertyRootMotion::_node_assign() {
 		if (!node) {
 			continue; //no node, can't edit
 		}
-
-		Skeleton3D *skeleton = Object::cast_to<Skeleton3D>(node);
-		if (skeleton) {
-			HashMap<int, TreeItem *> items;
-			items.insert(-1, ti);
-			Ref<Texture> bone_icon = get_theme_icon(SNAME("BoneAttachment3D"), SNAME("EditorIcons"));
-			Vector<int> bones_to_process = skeleton->get_parentless_bones();
-			while (bones_to_process.size() > 0) {
-				int current_bone_idx = bones_to_process[0];
-				bones_to_process.erase(current_bone_idx);
-
-				Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
-				int child_bone_size = current_bone_child_bones.size();
-				for (int i = 0; i < child_bone_size; i++) {
-					bones_to_process.push_back(current_bone_child_bones[i]);
-				}
-
-				const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
-				TreeItem *parent_item = items.find(parent_idx)->value;
-
-				TreeItem *joint_item = filters->create_item(parent_item);
-				items.insert(current_bone_idx, joint_item);
-
-				joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
-				joint_item->set_icon(0, bone_icon);
-				joint_item->set_selectable(0, true);
-				joint_item->set_metadata(0, accum + ":" + skeleton->get_bone_name(current_bone_idx));
-				joint_item->set_collapsed(true);
-			}
-		}
 	}
 
 	filters->ensure_cursor_is_visible();

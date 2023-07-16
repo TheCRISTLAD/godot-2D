@@ -1629,24 +1629,6 @@ void GodotPhysicsServer3D::init() {
 }
 
 void GodotPhysicsServer3D::step(real_t p_step) {
-#ifndef _3D_DISABLED
-
-	if (!active) {
-		return;
-	}
-
-	_update_shapes();
-
-	island_count = 0;
-	active_objects = 0;
-	collision_pairs = 0;
-	for (const GodotSpace3D *E : active_spaces) {
-		stepper->step(const_cast<GodotSpace3D *>(E), p_step);
-		island_count += E->get_island_count();
-		active_objects += E->get_active_objects();
-		collision_pairs += E->get_collision_pairs();
-	}
-#endif
 }
 
 void GodotPhysicsServer3D::sync() {
@@ -1654,56 +1636,6 @@ void GodotPhysicsServer3D::sync() {
 }
 
 void GodotPhysicsServer3D::flush_queries() {
-#ifndef _3D_DISABLED
-
-	if (!active) {
-		return;
-	}
-
-	flushing_queries = true;
-
-	uint64_t time_beg = OS::get_singleton()->get_ticks_usec();
-
-	for (const GodotSpace3D *E : active_spaces) {
-		GodotSpace3D *space = const_cast<GodotSpace3D *>(E);
-		space->call_queries();
-	}
-
-	flushing_queries = false;
-
-	if (EngineDebugger::is_profiling("servers")) {
-		uint64_t total_time[GodotSpace3D::ELAPSED_TIME_MAX];
-		static const char *time_name[GodotSpace3D::ELAPSED_TIME_MAX] = {
-			"integrate_forces",
-			"generate_islands",
-			"setup_constraints",
-			"solve_constraints",
-			"integrate_velocities"
-		};
-
-		for (int i = 0; i < GodotSpace3D::ELAPSED_TIME_MAX; i++) {
-			total_time[i] = 0;
-		}
-
-		for (const GodotSpace3D *E : active_spaces) {
-			for (int i = 0; i < GodotSpace3D::ELAPSED_TIME_MAX; i++) {
-				total_time[i] += E->get_elapsed_time(GodotSpace3D::ElapsedTime(i));
-			}
-		}
-
-		Array values;
-		values.resize(GodotSpace3D::ELAPSED_TIME_MAX * 2);
-		for (int i = 0; i < GodotSpace3D::ELAPSED_TIME_MAX; i++) {
-			values[i * 2 + 0] = time_name[i];
-			values[i * 2 + 1] = USEC_TO_SEC(total_time[i]);
-		}
-		values.push_back("flush_queries");
-		values.push_back(USEC_TO_SEC(OS::get_singleton()->get_ticks_usec() - time_beg));
-
-		values.push_front("physics_3d");
-		EngineDebugger::profiler_add_frame_data("servers", values);
-	}
-#endif
 }
 
 void GodotPhysicsServer3D::end_sync() {

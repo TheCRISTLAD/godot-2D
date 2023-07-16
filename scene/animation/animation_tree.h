@@ -217,10 +217,6 @@ private:
 	};
 
 	struct TrackCacheTransform : public TrackCache {
-#ifndef _3D_DISABLED
-		Node3D *node_3d = nullptr;
-		Skeleton3D *skeleton = nullptr;
-#endif // _3D_DISABLED
 		int bone_idx = -1;
 		bool loc_used = false;
 		bool rot_used = false;

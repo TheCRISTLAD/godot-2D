@@ -115,12 +115,12 @@
 #include "editor/import/resource_importer_image.h"
 #include "editor/import/resource_importer_imagefont.h"
 #include "editor/import/resource_importer_layered_texture.h"
-#include "editor/import/resource_importer_obj.h"
+// #include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_shader_file.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_texture_atlas.h"
 #include "editor/import/resource_importer_wav.h"
-#include "editor/import/scene_import_settings.h"
+// #include "editor/import/scene_import_settings.h"
 #include "editor/import_dock.h"
 #include "editor/inspector_dock.h"
 #include "editor/multi_node_edit.h"
@@ -606,7 +606,6 @@ void EditorNode::_notification(int p_what) {
 			}
 
 			OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(int(EDITOR_GET("interface/editor/low_processor_mode_sleep_usec")));
-			// get_tree()->get_root()->set_as_audio_listener_3d(false);
 			get_tree()->get_root()->set_as_audio_listener_2d(false);
 			get_tree()->get_root()->set_snap_2d_transforms_to_pixel(false);
 			get_tree()->get_root()->set_snap_2d_vertices_to_pixel(false);
@@ -6851,31 +6850,9 @@ EditorNode::EditorNode() {
 		import_wav.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_wav);
 
-		Ref<ResourceImporterOBJ> import_obj;
-		import_obj.instantiate();
-		ResourceFormatImporter::get_singleton()->add_importer(import_obj);
-
 		Ref<ResourceImporterShaderFile> import_shader_file;
 		import_shader_file.instantiate();
 		ResourceFormatImporter::get_singleton()->add_importer(import_shader_file);
-
-		Ref<ResourceImporterScene> import_scene;
-		import_scene.instantiate();
-		ResourceFormatImporter::get_singleton()->add_importer(import_scene);
-
-		Ref<ResourceImporterScene> import_animation;
-		import_animation = Ref<ResourceImporterScene>(memnew(ResourceImporterScene(true)));
-		ResourceFormatImporter::get_singleton()->add_importer(import_animation);
-
-		{
-			Ref<EditorOBJImporter> import_obj2;
-			import_obj2.instantiate();
-			ResourceImporterScene::add_importer(import_obj2);
-
-			Ref<EditorSceneFormatImporterESCN> import_escn;
-			import_escn.instantiate();
-			ResourceImporterScene::add_importer(import_escn);
-		}
 
 		Ref<ResourceImporterBitMap> import_bitmap;
 		import_bitmap.instantiate();
@@ -7209,7 +7186,6 @@ EditorNode::EditorNode() {
 
 	scene_root = memnew(SubViewport);
 	scene_root->set_embedding_subwindows(true);
-	scene_root->set_disable_3d(true);
 
 	scene_root->set_disable_input(true);
 	scene_root->set_as_audio_listener_2d(true);
@@ -7275,9 +7251,6 @@ EditorNode::EditorNode() {
 
 	project_settings_editor = memnew(ProjectSettingsEditor(&editor_data));
 	gui_base->add_child(project_settings_editor);
-
-	scene_import_settings = memnew(SceneImportSettings);
-	gui_base->add_child(scene_import_settings);
 
 	audio_stream_import_settings = memnew(AudioStreamImportSettings);
 	gui_base->add_child(audio_stream_import_settings);
@@ -8019,7 +7992,6 @@ EditorNode::EditorNode() {
 EditorNode::~EditorNode() {
 	EditorInspector::cleanup_plugins();
 	EditorTranslationParser::get_singleton()->clean_parsers();
-	ResourceImporterScene::clean_up_importer_plugins();
 
 	remove_print_handler(&print_handler);
 	EditorHelp::cleanup_doc();

@@ -108,10 +108,6 @@ private:
 			enabled = true;
 			global_pose_override_amount = 0;
 			global_pose_override_reset = false;
-#ifndef _3D_DISABLED
-			physical_bone = nullptr;
-			cache_parent_physical_bone = nullptr;
-#endif // _3D_DISABLED
 			child_bones = Vector<int>();
 		}
 	};

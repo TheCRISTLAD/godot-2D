@@ -208,10 +208,6 @@ Node *SceneState::instantiate(GenEditState p_edit_state) const {
 							obj = memnew(Control);
 						} else if (Object::cast_to<Node2D>(ret_nodes[n.parent])) {
 							obj = memnew(Node2D);
-#ifndef _3D_DISABLED
-						} else if (Object::cast_to<Node3D>(ret_nodes[n.parent])) {
-							obj = memnew(Node3D);
-#endif // _3D_DISABLED
 						}
 					}
 

@@ -408,7 +408,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 				if (preferred_types.is_empty()) {
 					preferred_types.push_back("Control");
 					preferred_types.push_back("Node2D");
-					preferred_types.push_back("Node3D");
+					// preferred_types.push_back("Node3D");
 				}
 
 				for (int i = 0; i < preferred_types.size(); i++) {
@@ -1180,7 +1180,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 			}
 		} break;
 		case TOOL_CREATE_2D_SCENE:
-		case TOOL_CREATE_3D_SCENE:
+		// case TOOL_CREATE_3D_SCENE:
 		case TOOL_CREATE_USER_INTERFACE:
 		case TOOL_CREATE_FAVORITE: {
 			Node *new_node = nullptr;
@@ -1209,9 +1209,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 					case TOOL_CREATE_2D_SCENE:
 						new_node = memnew(Node2D);
 						break;
-					case TOOL_CREATE_3D_SCENE:
-						new_node = memnew(Node3D);
-						break;
+					// case TOOL_CREATE_3D_SCENE:
+					// 	new_node = memnew(Node3D);
+					// 	break;
 					case TOOL_CREATE_USER_INTERFACE: {
 						Control *node = memnew(Control);
 						// Making the root control full rect by default is more useful for resizable UIs.
@@ -1330,11 +1330,11 @@ void SceneTreeDock::_notification(int p_what) {
 			button_2d->set_icon(get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons")));
 			button_2d->connect("pressed", callable_mp(this, &SceneTreeDock::_tool_selected).bind(TOOL_CREATE_2D_SCENE, false));
 
-			button_3d = memnew(Button);
-			beginner_node_shortcuts->add_child(button_3d);
-			button_3d->set_text(TTR("3D Scene"));
-			button_3d->set_icon(get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons")));
-			button_3d->connect("pressed", callable_mp(this, &SceneTreeDock::_tool_selected).bind(TOOL_CREATE_3D_SCENE, false));
+			// button_3d = memnew(Button);
+			// beginner_node_shortcuts->add_child(button_3d);
+			// button_3d->set_text(TTR("3D Scene"));
+			// button_3d->set_icon(get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons")));
+			// button_3d->connect("pressed", callable_mp(this, &SceneTreeDock::_tool_selected).bind(TOOL_CREATE_3D_SCENE, false));
 
 			button_ui = memnew(Button);
 			beginner_node_shortcuts->add_child(button_ui);
@@ -1386,9 +1386,9 @@ void SceneTreeDock::_notification(int p_what) {
 			if (button_2d) {
 				button_2d->set_icon(get_theme_icon(SNAME("Node2D"), SNAME("EditorIcons")));
 			}
-			if (button_3d) {
-				button_3d->set_icon(get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons")));
-			}
+			// if (button_3d) {
+			// 	button_3d->set_icon(get_theme_icon(SNAME("Node3D"), SNAME("EditorIcons")));
+			// }
 			if (button_ui) {
 				button_ui->set_icon(get_theme_icon(SNAME("Control"), SNAME("EditorIcons")));
 			}
@@ -1984,9 +1984,9 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 			if (Object::cast_to<Node2D>(node)) {
 				undo_redo->add_do_method(node, "set_global_transform", Object::cast_to<Node2D>(node)->get_global_transform());
 			}
-			if (Object::cast_to<Node3D>(node)) {
-				undo_redo->add_do_method(node, "set_global_transform", Object::cast_to<Node3D>(node)->get_global_transform());
-			}
+			// if (Object::cast_to<Node3D>(node)) {
+			// 	undo_redo->add_do_method(node, "set_global_transform", Object::cast_to<Node3D>(node)->get_global_transform());
+			// }
 			if (Object::cast_to<Control>(node)) {
 				undo_redo->add_do_method(node, "set_global_position", Object::cast_to<Control>(node)->get_global_position());
 			}
@@ -2028,9 +2028,9 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 			if (Object::cast_to<Node2D>(node)) {
 				undo_redo->add_undo_method(node, "set_transform", Object::cast_to<Node2D>(node)->get_transform());
 			}
-			if (Object::cast_to<Node3D>(node)) {
-				undo_redo->add_undo_method(node, "set_transform", Object::cast_to<Node3D>(node)->get_transform());
-			}
+			// if (Object::cast_to<Node3D>(node)) {
+			// 	undo_redo->add_undo_method(node, "set_transform", Object::cast_to<Node3D>(node)->get_transform());
+			// }
 			if (Object::cast_to<Control>(node)) {
 				undo_redo->add_undo_method(node, "set_position", Object::cast_to<Control>(node)->get_position());
 			}
@@ -3440,15 +3440,15 @@ void SceneTreeDock::_feature_profile_changed() {
 	if (profile.is_valid()) {
 		profile_allow_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCENE_TREE);
 		profile_allow_script_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT);
-		bool profile_allow_3d = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D);
+		// bool profile_allow_3d = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D);
 
-		button_3d->set_visible(profile_allow_3d);
+		// button_3d->set_visible(profile_allow_3d);
 		button_add->set_visible(profile_allow_editing);
 		button_instance->set_visible(profile_allow_editing);
 		scene_tree->set_can_rename(profile_allow_editing);
 
 	} else {
-		button_3d->set_visible(true);
+		// button_3d->set_visible(true);
 		button_add->set_visible(true);
 		button_instance->set_visible(true);
 		scene_tree->set_can_rename(true);

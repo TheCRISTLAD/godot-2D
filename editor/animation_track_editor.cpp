@@ -132,35 +132,6 @@ bool AnimationTrackKeyEdit::_set(const StringName &p_name, const Variant &p_valu
 		case Animation::TYPE_POSITION_3D:
 		case Animation::TYPE_ROTATION_3D:
 		case Animation::TYPE_SCALE_3D: {
-			if (name == "position" || name == "rotation" || name == "scale") {
-				Variant old = animation->track_get_key_value(track, key);
-				setting = true;
-				String chan;
-				switch (animation->track_get_type(track)) {
-					case Animation::TYPE_POSITION_3D:
-						chan = "Position3D";
-						break;
-					case Animation::TYPE_ROTATION_3D:
-						chan = "Rotation3D";
-						break;
-					case Animation::TYPE_SCALE_3D:
-						chan = "Scale3D";
-						break;
-					default: {
-					}
-				}
-
-				undo_redo->create_action(vformat(TTR("Animation Change %s"), chan));
-				undo_redo->add_do_method(animation.ptr(), "track_set_key_value", track, key, p_value);
-				undo_redo->add_undo_method(animation.ptr(), "track_set_key_value", track, key, old);
-				undo_redo->add_do_method(this, "_update_obj", animation);
-				undo_redo->add_undo_method(this, "_update_obj", animation);
-				undo_redo->commit_action();
-
-				setting = false;
-				return true;
-			}
-
 		} break;
 		case Animation::TYPE_BLEND_SHAPE:
 		case Animation::TYPE_VALUE: {
@@ -400,10 +371,6 @@ bool AnimationTrackKeyEdit::_get(const StringName &p_name, Variant &r_ret) const
 		case Animation::TYPE_POSITION_3D:
 		case Animation::TYPE_ROTATION_3D:
 		case Animation::TYPE_SCALE_3D: {
-			if (name == "position" || name == "rotation" || name == "scale") {
-				r_ret = animation->track_get_key_value(track, key);
-				return true;
-			}
 		} break;
 		case Animation::TYPE_BLEND_SHAPE:
 		case Animation::TYPE_VALUE: {
@@ -510,16 +477,12 @@ void AnimationTrackKeyEdit::_get_property_list(List<PropertyInfo> *p_list) const
 
 	switch (animation->track_get_type(track)) {
 		case Animation::TYPE_POSITION_3D: {
-			p_list->push_back(PropertyInfo(Variant::VECTOR3, PNAME("position")));
 		} break;
 		case Animation::TYPE_ROTATION_3D: {
-			p_list->push_back(PropertyInfo(Variant::QUATERNION, PNAME("rotation")));
 		} break;
 		case Animation::TYPE_SCALE_3D: {
-			p_list->push_back(PropertyInfo(Variant::VECTOR3, PNAME("scale")));
 		} break;
 		case Animation::TYPE_BLEND_SHAPE: {
-			p_list->push_back(PropertyInfo(Variant::FLOAT, PNAME("value")));
 		} break;
 		case Animation::TYPE_VALUE: {
 			Variant v = animation->track_get_key_value(track, key);
@@ -727,29 +690,6 @@ bool AnimationMultiTrackKeyEdit::_set(const StringName &p_name, const Variant &p
 				case Animation::TYPE_POSITION_3D:
 				case Animation::TYPE_ROTATION_3D:
 				case Animation::TYPE_SCALE_3D: {
-					Variant old = animation->track_get_key_value(track, key);
-					if (!setting) {
-						String chan;
-						switch (animation->track_get_type(track)) {
-							case Animation::TYPE_POSITION_3D:
-								chan = "Position3D";
-								break;
-							case Animation::TYPE_ROTATION_3D:
-								chan = "Rotation3D";
-								break;
-							case Animation::TYPE_SCALE_3D:
-								chan = "Scale3D";
-								break;
-							default: {
-							}
-						}
-
-						setting = true;
-						undo_redo->create_action(vformat(TTR("Animation Multi Change %s"), chan));
-					}
-					undo_redo->add_do_method(animation.ptr(), "track_set_key_value", track, key, p_value);
-					undo_redo->add_undo_method(animation.ptr(), "track_set_key_value", track, key, old);
-					update_obj = true;
 				} break;
 				case Animation::TYPE_BLEND_SHAPE:
 				case Animation::TYPE_VALUE: {
@@ -970,11 +910,6 @@ bool AnimationMultiTrackKeyEdit::_get(const StringName &p_name, Variant &r_ret) 
 				case Animation::TYPE_POSITION_3D:
 				case Animation::TYPE_ROTATION_3D:
 				case Animation::TYPE_SCALE_3D: {
-					if (name == "position" || name == "rotation" || name == "scale") {
-						r_ret = animation->track_get_key_value(track, key);
-						return true;
-					}
-
 				} break;
 				case Animation::TYPE_BLEND_SHAPE:
 				case Animation::TYPE_VALUE: {
@@ -1113,16 +1048,12 @@ void AnimationMultiTrackKeyEdit::_get_property_list(List<PropertyInfo> *p_list) 
 	if (same_track_type) {
 		switch (animation->track_get_type(first_track)) {
 			case Animation::TYPE_POSITION_3D: {
-				p_list->push_back(PropertyInfo(Variant::VECTOR3, "position"));
 			} break;
 			case Animation::TYPE_ROTATION_3D: {
-				p_list->push_back(PropertyInfo(Variant::QUATERNION, "rotation"));
 			} break;
 			case Animation::TYPE_SCALE_3D: {
-				p_list->push_back(PropertyInfo(Variant::VECTOR3, "scale"));
 			} break;
 			case Animation::TYPE_BLEND_SHAPE: {
-				p_list->push_back(PropertyInfo(Variant::FLOAT, "value"));
 			} break;
 			case Animation::TYPE_VALUE: {
 				if (same_key_type) {
@@ -1337,9 +1268,6 @@ void AnimationTimelineEdit::_notification(int p_what) {
 
 			add_track->get_popup()->clear();
 			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyValue"), SNAME("EditorIcons")), TTR("Property Track"));
-			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyXPosition"), SNAME("EditorIcons")), TTR("3D Position Track"));
-			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyXRotation"), SNAME("EditorIcons")), TTR("3D Rotation Track"));
-			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyXScale"), SNAME("EditorIcons")), TTR("3D Scale Track"));
 			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyBlendShape"), SNAME("EditorIcons")), TTR("Blend Shape Track"));
 			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyCall"), SNAME("EditorIcons")), TTR("Call Method Track"));
 			add_track->get_popup()->add_icon_item(get_theme_icon(SNAME("KeyBezier"), SNAME("EditorIcons")), TTR("Bezier Curve Track"));
@@ -2509,16 +2437,10 @@ String AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 			String text = TTR("Time (s):") + " " + TS->format_number(rtos(Math::snapped(animation->track_get_key_time(track, key_idx), 0.0001))) + "\n";
 			switch (animation->track_get_type(track)) {
 				case Animation::TYPE_POSITION_3D: {
-					Vector3 t = animation->track_get_key_value(track, key_idx);
-					text += TTR("Position:") + " " + String(t) + "\n";
 				} break;
 				case Animation::TYPE_ROTATION_3D: {
-					Quaternion t = animation->track_get_key_value(track, key_idx);
-					text += TTR("Rotation:") + " " + String(t) + "\n";
 				} break;
 				case Animation::TYPE_SCALE_3D: {
-					Vector3 t = animation->track_get_key_value(track, key_idx);
-					text += TTR("Scale:") + " " + String(t) + "\n";
 				} break;
 				case Animation::TYPE_BLEND_SHAPE: {
 					float t = animation->track_get_key_value(track, key_idx);
@@ -3564,11 +3486,11 @@ static bool track_type_is_resettable(Animation::TrackType p_type) {
 		case Animation::TYPE_BEZIER:
 			[[fallthrough]];
 		case Animation::TYPE_POSITION_3D:
-			[[fallthrough]];
+			return false;
 		case Animation::TYPE_ROTATION_3D:
-			[[fallthrough]];
+			return false;
 		case Animation::TYPE_SCALE_3D:
-			return true;
+			return false;
 		default:
 			return false;
 	}
@@ -4622,13 +4544,7 @@ void AnimationTrackEditor::_new_track_node_selected(NodePath p_path) {
 	ERR_FAIL_COND(!node);
 	NodePath path_to = root->get_path_to(node, true);
 
-	if (adding_track_type == Animation::TYPE_BLEND_SHAPE && !node->is_class("MeshInstance3D")) {
-		EditorNode::get_singleton()->show_warning(TTR("Blend Shape tracks only apply to MeshInstance3D nodes."));
-		return;
-	}
-
-	if ((adding_track_type == Animation::TYPE_POSITION_3D || adding_track_type == Animation::TYPE_ROTATION_3D || adding_track_type == Animation::TYPE_SCALE_3D) && !node->is_class("Node3D")) {
-		EditorNode::get_singleton()->show_warning(TTR("Position/Rotation/Scale 3D tracks only apply to 3D-based nodes."));
+	if (adding_track_type == Animation::TYPE_BLEND_SHAPE) {
 		return;
 	}
 
@@ -4639,11 +4555,6 @@ void AnimationTrackEditor::_new_track_node_selected(NodePath p_path) {
 			prop_selector->select_property_from_instance(node);
 		} break;
 		case Animation::TYPE_BLEND_SHAPE: {
-			adding_track_path = path_to;
-			Vector<Variant::Type> filter;
-			filter.push_back(Variant::FLOAT);
-			prop_selector->set_type_filter(filter);
-			prop_selector->select_property_from_instance(node);
 		} break;
 		case Animation::TYPE_POSITION_3D:
 		case Animation::TYPE_ROTATION_3D:
@@ -4672,8 +4583,8 @@ void AnimationTrackEditor::_new_track_node_selected(NodePath p_path) {
 			prop_selector->select_property_from_instance(node);
 		} break;
 		case Animation::TYPE_AUDIO: {
-			if (!node->is_class("AudioStreamPlayer") && !node->is_class("AudioStreamPlayer2D") && !node->is_class("AudioStreamPlayer3D")) {
-				EditorNode::get_singleton()->show_warning(TTR("Audio tracks can only point to nodes of type:\n-AudioStreamPlayer\n-AudioStreamPlayer2D\n-AudioStreamPlayer3D"));
+			if (!node->is_class("AudioStreamPlayer") && !node->is_class("AudioStreamPlayer2D")) {
+				EditorNode::get_singleton()->show_warning(TTR("Audio tracks can only point to nodes of type:\n-AudioStreamPlayer\n-AudioStreamPlayer2D"));
 				return;
 			}
 
@@ -4815,62 +4726,10 @@ void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	switch (animation->track_get_type(p_track)) {
 		case Animation::TYPE_POSITION_3D: {
-			if (!root->has_node(animation->track_get_path(p_track))) {
-				EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
-				return;
-			}
-			Node3D *base = Object::cast_to<Node3D>(root->get_node(animation->track_get_path(p_track)));
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			Vector3 pos = base->get_position();
-
-			undo_redo->create_action(TTR("Add Position Key"));
-			undo_redo->add_do_method(animation.ptr(), "position_track_insert_key", p_track, p_ofs, pos);
-			undo_redo->add_undo_method(animation.ptr(), "track_remove_key_at_time", p_track, p_ofs);
-			undo_redo->commit_action();
-
 		} break;
 		case Animation::TYPE_ROTATION_3D: {
-			if (!root->has_node(animation->track_get_path(p_track))) {
-				EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
-				return;
-			}
-			Node3D *base = Object::cast_to<Node3D>(root->get_node(animation->track_get_path(p_track)));
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			Quaternion rot = base->get_transform().basis.operator Quaternion();
-
-			undo_redo->create_action(TTR("Add Rotation Key"));
-			undo_redo->add_do_method(animation.ptr(), "rotation_track_insert_key", p_track, p_ofs, rot);
-			undo_redo->add_undo_method(animation.ptr(), "track_remove_key_at_time", p_track, p_ofs);
-			undo_redo->commit_action();
-
 		} break;
 		case Animation::TYPE_SCALE_3D: {
-			if (!root->has_node(animation->track_get_path(p_track))) {
-				EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
-				return;
-			}
-			Node3D *base = Object::cast_to<Node3D>(root->get_node(animation->track_get_path(p_track)));
-
-			if (!base) {
-				EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
-				return;
-			}
-
-			undo_redo->create_action(TTR("Add Scale Key"));
-			undo_redo->add_do_method(animation.ptr(), "scale_track_insert_key", p_track, p_ofs, base->get_scale());
-			undo_redo->add_undo_method(animation.ptr(), "track_remove_key_at_time", p_track, p_ofs);
-			undo_redo->commit_action();
-
 		} break;
 		case Animation::TYPE_BLEND_SHAPE:
 		case Animation::TYPE_VALUE: {
@@ -6015,44 +5874,12 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
 					switch (type) {
 						case Animation::TYPE_POSITION_3D: {
-							for (double delta_t = 0.0; delta_t <= anim_len; delta_t += dur_step) {
-								Pair<real_t, Variant> keydata;
-								keydata.first = delta_t;
-								Vector3 v;
-								animation->try_position_track_interpolate(i, delta_t, &v);
-								keydata.second = v;
-								insert_queue_new.append(keydata);
-							}
 						} break;
 						case Animation::TYPE_ROTATION_3D: {
-							for (double delta_t = 0.0; delta_t <= anim_len; delta_t += dur_step) {
-								Pair<real_t, Variant> keydata;
-								keydata.first = delta_t;
-								Quaternion v;
-								animation->try_rotation_track_interpolate(i, delta_t, &v);
-								keydata.second = v;
-								insert_queue_new.append(keydata);
-							}
 						} break;
 						case Animation::TYPE_SCALE_3D: {
-							for (double delta_t = 0.0; delta_t <= anim_len; delta_t += dur_step) {
-								Pair<real_t, Variant> keydata;
-								keydata.first = delta_t;
-								Vector3 v;
-								animation->try_scale_track_interpolate(i, delta_t, &v);
-								keydata.second = v;
-								insert_queue_new.append(keydata);
-							}
 						} break;
 						case Animation::TYPE_BLEND_SHAPE: {
-							for (double delta_t = 0.0; delta_t <= anim_len; delta_t += dur_step) {
-								Pair<real_t, Variant> keydata;
-								keydata.first = delta_t;
-								float v;
-								animation->try_blend_shape_track_interpolate(i, delta_t, &v);
-								keydata.second = v;
-								insert_queue_new.append(keydata);
-							}
 						} break;
 						case Animation::TYPE_VALUE: {
 							for (double delta_t = 0.0; delta_t < anim_len; delta_t += dur_step) {

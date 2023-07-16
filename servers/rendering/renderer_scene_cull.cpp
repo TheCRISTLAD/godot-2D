@@ -2500,64 +2500,6 @@ bool RendererSceneCull::_light_instance_update_shadow(Instance *p_instance, cons
 }
 
 void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_camera, RID p_scenario, RID p_viewport, Size2 p_viewport_size, bool p_use_taa, float p_screen_mesh_lod_threshold, RID p_shadow_atlas, RenderInfo *r_render_info) {
-#ifndef _3D_DISABLED
-
-	Camera *camera = camera_owner.get_or_null(p_camera);
-	ERR_FAIL_COND(!camera);
-
-	Vector2 jitter;
-	if (p_use_taa) {
-		jitter = taa_jitter_array[RSG::rasterizer->get_frame_number() % TAA_JITTER_COUNT] / p_viewport_size;
-	}
-
-	RendererSceneRender::CameraData camera_data;
-
-	// Setup Camera(s)
-	Transform3D transform = camera->transform;
-	Projection projection;
-	bool vaspect = camera->vaspect;
-	bool is_orthogonal = false;
-
-	switch (camera->type) {
-		case Camera::ORTHOGONAL: {
-			projection.set_orthogonal(
-					camera->size,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
-			is_orthogonal = true;
-		} break;
-		case Camera::PERSPECTIVE: {
-			projection.set_perspective(
-					camera->fov,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
-
-		} break;
-		case Camera::FRUSTUM: {
-			projection.set_frustum(
-					camera->size,
-					p_viewport_size.width / (float)p_viewport_size.height,
-					camera->offset,
-					camera->znear,
-					camera->zfar,
-					camera->vaspect);
-		} break;
-	}
-
-	camera_data.set_camera(transform, projection, is_orthogonal, vaspect, jitter, camera->visible_layers);
-
-	RID environment = _render_get_environment(p_camera, p_scenario);
-
-	RENDER_TIMESTAMP("Update Occlusion Buffer")
-	// For now just cull on the first camera
-	RendererSceneOcclusionCull::get_singleton()->buffer_update(p_viewport, camera_data.main_transform, camera_data.main_projection, camera_data.is_orthogonal);
-
-	_render_scene(&camera_data, p_render_buffers, environment, camera->attributes, camera->visible_layers, p_scenario, p_viewport, p_shadow_atlas, RID(), -1, p_screen_mesh_lod_threshold, true, r_render_info);
-#endif
 }
 
 void RendererSceneCull::_visibility_cull_threaded(uint32_t p_thread, VisibilityCullData *cull_data) {
@@ -3321,22 +3263,6 @@ RID RendererSceneCull::_render_get_environment(RID p_camera, RID p_scenario) {
 }
 
 void RendererSceneCull::render_empty_scene(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_scenario, RID p_shadow_atlas) {
-#ifndef _3D_DISABLED
-	Scenario *scenario = scenario_owner.get_or_null(p_scenario);
-
-	RID environment;
-	if (scenario->environment.is_valid()) {
-		environment = scenario->environment;
-	} else {
-		environment = scenario->fallback_environment;
-	}
-	RENDER_TIMESTAMP("Render Empty 3D Scene");
-
-	RendererSceneRender::CameraData camera_data;
-	camera_data.set_camera(Transform3D(), Projection(), true, false);
-
-	scene_render->render_scene(p_render_buffers, &camera_data, &camera_data, PagedArray<RenderGeometryInstance *>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), PagedArray<RID>(), environment, RID(), p_shadow_atlas, RID(), scenario->reflection_atlas, RID(), 0, 0, nullptr, 0, nullptr, 0, nullptr);
-#endif
 }
 
 bool RendererSceneCull::_render_reflection_probe_step(Instance *p_instance, int p_step) {

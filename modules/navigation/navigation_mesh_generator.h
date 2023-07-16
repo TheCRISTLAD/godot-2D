@@ -31,45 +31,5 @@
 #ifndef NAVIGATION_MESH_GENERATOR_H
 #define NAVIGATION_MESH_GENERATOR_H
 
-#ifndef _3D_DISABLED
-
-#include "scene/3d/navigation_region_3d.h"
-#include "scene/resources/navigation_mesh.h"
-
-#include <Recast.h>
-
-class NavigationMeshSourceGeometryData3D;
-
-class NavigationMeshGenerator : public Object {
-	GDCLASS(NavigationMeshGenerator, Object);
-	Mutex generator_mutex;
-
-	static NavigationMeshGenerator *singleton;
-
-	HashSet<Ref<NavigationMesh>> baking_navmeshes;
-
-protected:
-	static void _bind_methods();
-
-	static void _add_vertex(const Vector3 &p_vec3, Vector<float> &p_vertices);
-	static void _add_mesh(const Ref<Mesh> &p_mesh, const Transform3D &p_xform, Vector<float> &p_vertices, Vector<int> &p_indices);
-	static void _add_mesh_array(const Array &p_array, const Transform3D &p_xform, Vector<float> &p_vertices, Vector<int> &p_indices);
-	static void _add_faces(const PackedVector3Array &p_faces, const Transform3D &p_xform, Vector<float> &p_vertices, Vector<int> &p_indices);
-	static void _parse_geometry(const Transform3D &p_navmesh_transform, Node *p_node, Vector<float> &p_vertices, Vector<int> &p_indices, NavigationMesh::ParsedGeometryType p_generate_from, uint32_t p_collision_mask, bool p_recurse_children);
-
-public:
-	static NavigationMeshGenerator *get_singleton();
-
-	NavigationMeshGenerator();
-	~NavigationMeshGenerator();
-
-	void bake(const Ref<NavigationMesh> &p_navigation_mesh, Node *p_root_node);
-	void clear(Ref<NavigationMesh> p_navigation_mesh);
-
-	void parse_source_geometry_data(const Ref<NavigationMesh> &p_navigation_mesh, Ref<NavigationMeshSourceGeometryData3D> p_source_geometry_data, Node *p_root_node, const Callable &p_callback = Callable());
-	void bake_from_source_geometry_data(Ref<NavigationMesh> p_navigation_mesh, const Ref<NavigationMeshSourceGeometryData3D> &p_source_geometry_data, const Callable &p_callback = Callable());
-};
-
-#endif
 
 #endif // NAVIGATION_MESH_GENERATOR_H

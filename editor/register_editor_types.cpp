@@ -50,12 +50,12 @@
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/gui/editor_spin_slider.h"
 #include "editor/import/editor_import_plugin.h"
-#include "editor/import/resource_importer_scene.h"
+// #include "editor/import/resource_importer_scene.h"
 #include "editor/plugins/animation_tree_editor_plugin.h"
 #include "editor/plugins/audio_stream_editor_plugin.h"
 #include "editor/plugins/audio_stream_randomizer_editor_plugin.h"
 #include "editor/plugins/bit_map_editor_plugin.h"
-#include "editor/plugins/bone_map_editor_plugin.h"
+// #include "editor/plugins/bone_map_editor_plugin.h"
 // #include "editor/plugins/camera_3d_editor_plugin.h"
 #include "editor/plugins/cast_2d_editor_plugin.h"
 #include "editor/plugins/collision_polygon_2d_editor_plugin.h"
@@ -148,8 +148,6 @@ void register_editor_types() {
 	register_exporter_types();
 
 	GDREGISTER_CLASS(EditorResourceConversionPlugin);
-	GDREGISTER_CLASS(EditorSceneFormatImporter);
-	GDREGISTER_CLASS(EditorScenePostImportPlugin);
 	GDREGISTER_CLASS(EditorInspector);
 	GDREGISTER_CLASS(EditorInspectorPlugin);
 	GDREGISTER_CLASS(EditorProperty);
@@ -163,7 +161,7 @@ void register_editor_types() {
 	GDREGISTER_ABSTRACT_CLASS(FileSystemDock);
 	GDREGISTER_VIRTUAL_CLASS(EditorFileSystemImportFormatSupportQuery);
 
-	GDREGISTER_CLASS(EditorScenePostImport);
+	// GDREGISTER_CLASS(EditorScenePostImport);
 	GDREGISTER_CLASS(EditorCommandPalette);
 	GDREGISTER_CLASS(EditorDebuggerPlugin);
 	GDREGISTER_ABSTRACT_CLASS(EditorDebuggerSession);
@@ -173,7 +171,7 @@ void register_editor_types() {
 	EditorPlugins::add_by_type<AudioStreamEditorPlugin>();
 	EditorPlugins::add_by_type<AudioStreamRandomizerEditorPlugin>();
 	EditorPlugins::add_by_type<BitMapEditorPlugin>();
-	EditorPlugins::add_by_type<BoneMapEditorPlugin>();
+	// EditorPlugins::add_by_type<BoneMapEditorPlugin>();
 	// EditorPlugins::add_by_type<Camera3DEditorPlugin>();
 	EditorPlugins::add_by_type<ControlEditorPlugin>();
 	// EditorPlugins::add_by_type<CPUParticles3DEditorPlugin>();

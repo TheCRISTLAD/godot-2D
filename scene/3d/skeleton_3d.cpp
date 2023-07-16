@@ -298,27 +298,6 @@ void Skeleton3D::_notification(int p_what) {
 			}
 			emit_signal(SceneStringNames::get_singleton()->pose_updated);
 		} break;
-
-#ifndef _3D_DISABLED
-		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-			// This is active only if the skeleton animates the physical bones
-			// and the state of the bone is not active.
-			if (animate_physical_bones) {
-				for (int i = 0; i < bones.size(); i += 1) {
-					if (bones[i].physical_bone) {
-						if (bones[i].physical_bone->is_simulating_physics() == false) {
-							bones[i].physical_bone->reset_to_rest_position();
-						}
-					}
-				}
-			}
-		} break;
-		case NOTIFICATION_READY: {
-			if (Engine::get_singleton()->is_editor_hint()) {
-				set_physics_process_internal(true);
-			}
-		} break;
-#endif // _3D_DISABLED
 	}
 }
 
@@ -1035,9 +1014,6 @@ void Skeleton3D::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "motion_scale", PROPERTY_HINT_RANGE, "0.001,10,0.001,or_greater"), "set_motion_scale", "get_motion_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_rest_only"), "set_show_rest_only", "is_show_rest_only");
-#ifndef _3D_DISABLED
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "animate_physical_bones"), "set_animate_physical_bones", "get_animate_physical_bones");
-#endif // _3D_DISABLED
 
 	ADD_SIGNAL(MethodInfo("pose_updated"));
 	ADD_SIGNAL(MethodInfo("bone_pose_changed", PropertyInfo(Variant::INT, "bone_idx")));

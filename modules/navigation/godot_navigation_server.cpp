@@ -30,9 +30,6 @@
 
 #include "godot_navigation_server.h"
 
-#ifndef _3D_DISABLED
-#include "navigation_mesh_generator.h"
-#endif
 
 #include "core/os/mutex.h"
 
@@ -449,14 +446,6 @@ COMMAND_2(region_set_navigation_mesh, RID, p_region, Ref<NavigationMesh>, p_navi
 void GodotNavigationServer::region_bake_navigation_mesh(Ref<NavigationMesh> p_navigation_mesh, Node *p_root_node) {
 	ERR_FAIL_COND(p_navigation_mesh.is_null());
 	ERR_FAIL_COND(p_root_node == nullptr);
-
-#ifndef _3D_DISABLED
-	NavigationMeshGenerator::get_singleton()->clear(p_navigation_mesh);
-	Ref<NavigationMeshSourceGeometryData3D> source_geometry_data;
-	source_geometry_data.instantiate();
-	NavigationMeshGenerator::get_singleton()->parse_source_geometry_data(p_navigation_mesh, source_geometry_data, p_root_node);
-	NavigationMeshGenerator::get_singleton()->bake_from_source_geometry_data(p_navigation_mesh, source_geometry_data);
-#endif
 }
 
 int GodotNavigationServer::region_get_connections_count(RID p_region) const {
@@ -899,15 +888,9 @@ COMMAND_2(obstacle_set_avoidance_layers, RID, p_obstacle, uint32_t, p_layers) {
 }
 
 void GodotNavigationServer::parse_source_geometry_data(const Ref<NavigationMesh> &p_navigation_mesh, Ref<NavigationMeshSourceGeometryData3D> p_source_geometry_data, Node *p_root_node, const Callable &p_callback) {
-#ifndef _3D_DISABLED
-	NavigationMeshGenerator::get_singleton()->parse_source_geometry_data(p_navigation_mesh, p_source_geometry_data, p_root_node, p_callback);
-#endif
 }
 
 void GodotNavigationServer::bake_from_source_geometry_data(Ref<NavigationMesh> p_navigation_mesh, const Ref<NavigationMeshSourceGeometryData3D> &p_source_geometry_data, const Callable &p_callback) {
-#ifndef _3D_DISABLED
-	NavigationMeshGenerator::get_singleton()->bake_from_source_geometry_data(p_navigation_mesh, p_source_geometry_data, p_callback);
-#endif
 }
 
 COMMAND_1(free, RID, p_object) {

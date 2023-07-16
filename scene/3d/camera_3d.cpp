@@ -96,7 +96,7 @@ void Camera3D::_update_camera() {
 		return;
 	}
 
-	get_viewport()->_camera_3d_transform_changed_notify();
+	// get_viewport()->_camera_3d_transform_changed_notify();
 }
 
 void Camera3D::_notification(int p_what) {
@@ -108,10 +108,10 @@ void Camera3D::_notification(int p_what) {
 			viewport = get_viewport();
 			ERR_FAIL_NULL(viewport);
 
-			bool first_camera = viewport->_camera_3d_add(this);
-			if (current || first_camera) {
-				viewport->_camera_3d_set(this);
-			}
+			// bool first_camera = viewport->_camera_3d_add(this);
+			// if (current || first_camera) {
+			// 	viewport->_camera_3d_set(this);
+			// }
 
 #ifdef TOOLS_ENABLED
 			if (Engine::get_singleton()->is_editor_hint()) {
@@ -144,20 +144,20 @@ void Camera3D::_notification(int p_what) {
 					viewport->disconnect(SNAME("size_changed"), callable_mp((Node3D *)this, &Camera3D::update_gizmos));
 				}
 #endif
-				viewport->_camera_3d_remove(this);
+				// viewport->_camera_3d_remove(this);
 				viewport = nullptr;
 			}
 		} break;
 
 		case NOTIFICATION_BECAME_CURRENT: {
 			if (viewport) {
-				viewport->find_world_3d()->_register_camera(this);
+				// viewport->find_world_3d()->_register_camera(this);
 			}
 		} break;
 
 		case NOTIFICATION_LOST_CURRENT: {
 			if (viewport) {
-				viewport->find_world_3d()->_remove_camera(this);
+				// viewport->find_world_3d()->_remove_camera(this);
 			}
 		} break;
 	}
@@ -261,7 +261,7 @@ void Camera3D::make_current() {
 		return;
 	}
 
-	get_viewport()->_camera_3d_set(this);
+	// get_viewport()->_camera_3d_set(this);
 }
 
 void Camera3D::clear_current(bool p_enable_next) {
@@ -270,13 +270,13 @@ void Camera3D::clear_current(bool p_enable_next) {
 		return;
 	}
 
-	if (get_viewport()->get_camera_3d() == this) {
-		get_viewport()->_camera_3d_set(nullptr);
+	// if (get_viewport()->get_camera_3d() == this) {
+	// 	get_viewport()->_camera_3d_set(nullptr);
 
-		if (p_enable_next) {
-			get_viewport()->_camera_3d_make_next_current(this);
-		}
-	}
+	// 	if (p_enable_next) {
+	// 		get_viewport()->_camera_3d_make_next_current(this);
+	// 	}
+	// }
 }
 
 void Camera3D::set_current(bool p_enabled) {
@@ -288,11 +288,11 @@ void Camera3D::set_current(bool p_enabled) {
 }
 
 bool Camera3D::is_current() const {
-	if (is_inside_tree() && !get_tree()->is_node_being_edited(this)) {
-		return get_viewport()->get_camera_3d() == this;
-	} else {
-		return current;
-	}
+	// if (is_inside_tree() && !get_tree()->is_node_being_edited(this)) {
+		// return get_viewport()->get_camera_3d() == this;
+	// } else {
+	return current;
+	// }
 }
 
 Vector3 Camera3D::project_ray_normal(const Point2 &p_pos) const {

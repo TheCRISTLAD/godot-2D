@@ -98,12 +98,6 @@ private:
 		Ref<Resource> resource;
 		Node *node = nullptr;
 		Node2D *node_2d = nullptr;
-#ifndef _3D_DISABLED
-		Node3D *node_3d = nullptr;
-		Skeleton3D *skeleton = nullptr;
-		MeshInstance3D *node_blend_shape = nullptr;
-		int blend_shape_idx = -1;
-#endif // _3D_DISABLED
 		int bone_idx = -1;
 		// accumulated transforms
 

@@ -42,15 +42,10 @@
 
 void AnimatedValuesBackup::update_skeletons() {
 	for (int i = 0; i < entries.size(); i++) {
-		if (entries[i].bone_idx != -1) {
-			// 3D bone
-			Object::cast_to<Skeleton3D>(entries[i].object)->notification(Skeleton3D::NOTIFICATION_UPDATE_SKELETON);
-		} else {
-			Bone2D *bone = Object::cast_to<Bone2D>(entries[i].object);
-			if (bone && bone->skeleton) {
-				// 2D bone
-				bone->skeleton->_update_transform();
-			}
+		Bone2D *bone = Object::cast_to<Bone2D>(entries[i].object);
+		if (bone && bone->skeleton) {
+			// 2D bone
+			bone->skeleton->_update_transform();
 		}
 	}
 }
@@ -60,13 +55,6 @@ void AnimatedValuesBackup::restore() const {
 		const AnimatedValuesBackup::Entry *entry = &entries[i];
 		if (entry->bone_idx == -1) {
 			entry->object->set_indexed(entry->subpath, entry->value);
-		} else {
-			Array arr = entry->value;
-			if (arr.size() == 3) {
-				Object::cast_to<Skeleton3D>(entry->object)->set_bone_pose_position(entry->bone_idx, arr[0]);
-				Object::cast_to<Skeleton3D>(entry->object)->set_bone_pose_rotation(entry->bone_idx, arr[1]);
-				Object::cast_to<Skeleton3D>(entry->object)->set_bone_pose_scale(entry->bone_idx, arr[2]);
-			}
 		}
 	}
 }
@@ -296,32 +284,6 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim, Node *p_root_ov
 		int bone_idx = -1;
 		int blend_shape_idx = -1;
 
-#ifndef _3D_DISABLED
-		if (a->track_get_path(i).get_subname_count() == 1 && Object::cast_to<Skeleton3D>(child)) {
-			Skeleton3D *sk = Object::cast_to<Skeleton3D>(child);
-			bone_idx = sk->find_bone(a->track_get_path(i).get_subname(0));
-			if (bone_idx == -1) {
-				continue;
-			}
-		}
-
-		if (a->track_get_type(i) == Animation::TYPE_BLEND_SHAPE) {
-			MeshInstance3D *mi_3d = Object::cast_to<MeshInstance3D>(child);
-			if (!mi_3d) {
-				continue;
-			}
-			if (a->track_get_path(i).get_subname_count() != 1) {
-				continue;
-			}
-
-			blend_shape_idx = mi_3d->find_blend_shape_by_name(a->track_get_path(i).get_subname(0));
-			if (blend_shape_idx == -1) {
-				continue;
-			}
-		}
-
-#endif // _3D_DISABLED
-
 		if (!child->is_connected("tree_exiting", callable_mp(this, &AnimationPlayer::_node_removed))) {
 			child->connect("tree_exiting", callable_mp(this, &AnimationPlayer::_node_removed).bind(child), CONNECT_ONE_SHOT);
 		}
@@ -342,63 +304,6 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim, Node *p_root_ov
 		node_cache->node = child;
 		node_cache->resource = resource;
 		node_cache->node_2d = Object::cast_to<Node2D>(child);
-#ifndef _3D_DISABLED
-		if (a->track_get_type(i) == Animation::TYPE_POSITION_3D || a->track_get_type(i) == Animation::TYPE_ROTATION_3D || a->track_get_type(i) == Animation::TYPE_SCALE_3D) {
-			// special cases and caches for transform tracks
-
-			if (node_cache->last_setup_pass != setup_pass) {
-				node_cache->loc_used = false;
-				node_cache->rot_used = false;
-				node_cache->scale_used = false;
-			}
-
-			// cache node_3d
-			node_cache->node_3d = Object::cast_to<Node3D>(child);
-			// cache skeleton
-			node_cache->skeleton = Object::cast_to<Skeleton3D>(child);
-			if (node_cache->skeleton) {
-				if (a->track_get_path(i).get_subname_count() == 1) {
-					StringName bone_name = a->track_get_path(i).get_subname(0);
-
-					node_cache->bone_idx = node_cache->skeleton->find_bone(bone_name);
-					if (node_cache->bone_idx < 0) {
-						// broken track (nonexistent bone)
-						node_cache->skeleton = nullptr;
-						node_cache->node_3d = nullptr;
-						ERR_CONTINUE(node_cache->bone_idx < 0);
-					}
-					Transform3D rest = node_cache->skeleton->get_bone_rest(bone_idx);
-					node_cache->init_loc = rest.origin;
-					node_cache->init_rot = rest.basis.get_rotation_quaternion();
-					node_cache->init_scale = rest.basis.get_scale();
-				} else {
-					// Not a skeleton, the node can be accessed with the node_3d member.
-					node_cache->skeleton = nullptr;
-				}
-			}
-
-			switch (a->track_get_type(i)) {
-				case Animation::TYPE_POSITION_3D: {
-					node_cache->loc_used = true;
-				} break;
-				case Animation::TYPE_ROTATION_3D: {
-					node_cache->rot_used = true;
-				} break;
-				case Animation::TYPE_SCALE_3D: {
-					node_cache->scale_used = true;
-				} break;
-				default: {
-				}
-			}
-		}
-
-		if (a->track_get_type(i) == Animation::TYPE_BLEND_SHAPE) {
-			// special cases and caches for transform tracks
-			node_cache->node_blend_shape = Object::cast_to<MeshInstance3D>(child);
-			node_cache->blend_shape_idx = blend_shape_idx;
-		}
-
-#endif // _3D_DISABLED
 
 		if (a->track_get_type(i) == Animation::TYPE_VALUE) {
 			if (!node_cache->property_anim.has(a->track_get_path(i).get_concatenated_subnames())) {
@@ -472,19 +377,6 @@ Variant AnimationPlayer::post_process_key_value(const Ref<Animation> &p_anim, in
 }
 
 Variant AnimationPlayer::_post_process_key_value(const Ref<Animation> &p_anim, int p_track, Variant p_value, const Object *p_object, int p_object_idx) {
-	switch (p_anim->track_get_type(p_track)) {
-#ifndef _3D_DISABLED
-		case Animation::TYPE_POSITION_3D: {
-			if (p_object_idx >= 0) {
-				const Skeleton3D *skel = Object::cast_to<Skeleton3D>(p_object);
-				return Vector3(p_value) * skel->get_motion_scale();
-			}
-			return p_value;
-		} break;
-#endif // _3D_DISABLED
-		default: {
-		} break;
-	}
 	return p_value;
 }
 
@@ -521,114 +413,12 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, double
 
 		switch (a->track_get_type(i)) {
 			case Animation::TYPE_POSITION_3D: {
-#ifndef _3D_DISABLED
-				if (!nc->node_3d) {
-					continue;
-				}
-
-				Vector3 loc;
-
-				Error err = a->try_position_track_interpolate(i, p_time, &loc);
-				//ERR_CONTINUE(err!=OK); //used for testing, should be removed
-
-				if (err != OK) {
-					continue;
-				}
-				loc = post_process_key_value(a, i, loc, nc->node_3d, nc->bone_idx);
-
-				if (nc->accum_pass != accum_pass) {
-					ERR_CONTINUE(cache_update_size >= NODE_CACHE_UPDATE_MAX);
-					cache_update[cache_update_size++] = nc;
-					nc->accum_pass = accum_pass;
-					nc->loc_accum = loc;
-					nc->rot_accum = nc->init_rot;
-					nc->scale_accum = nc->init_scale;
-				} else {
-					nc->loc_accum = nc->loc_accum.lerp(loc, p_interp);
-				}
-#endif // _3D_DISABLED
 			} break;
 			case Animation::TYPE_ROTATION_3D: {
-#ifndef _3D_DISABLED
-				if (!nc->node_3d) {
-					continue;
-				}
-
-				Quaternion rot;
-
-				Error err = a->try_rotation_track_interpolate(i, p_time, &rot);
-				//ERR_CONTINUE(err!=OK); //used for testing, should be removed
-
-				if (err != OK) {
-					continue;
-				}
-				rot = post_process_key_value(a, i, rot, nc->node_3d, nc->bone_idx);
-
-				if (nc->accum_pass != accum_pass) {
-					ERR_CONTINUE(cache_update_size >= NODE_CACHE_UPDATE_MAX);
-					cache_update[cache_update_size++] = nc;
-					nc->accum_pass = accum_pass;
-					nc->loc_accum = nc->init_loc;
-					nc->rot_accum = rot;
-					nc->scale_accum = nc->init_scale;
-				} else {
-					nc->rot_accum = nc->rot_accum.slerp(rot, p_interp);
-				}
-#endif // _3D_DISABLED
 			} break;
 			case Animation::TYPE_SCALE_3D: {
-#ifndef _3D_DISABLED
-				if (!nc->node_3d) {
-					continue;
-				}
-
-				Vector3 scale;
-
-				Error err = a->try_scale_track_interpolate(i, p_time, &scale);
-				//ERR_CONTINUE(err!=OK); //used for testing, should be removed
-
-				if (err != OK) {
-					continue;
-				}
-				scale = post_process_key_value(a, i, scale, nc->node_3d, nc->bone_idx);
-
-				if (nc->accum_pass != accum_pass) {
-					ERR_CONTINUE(cache_update_size >= NODE_CACHE_UPDATE_MAX);
-					cache_update[cache_update_size++] = nc;
-					nc->accum_pass = accum_pass;
-					nc->loc_accum = nc->init_loc;
-					nc->rot_accum = nc->init_rot;
-					nc->scale_accum = scale;
-				} else {
-					nc->scale_accum = nc->scale_accum.lerp(scale, p_interp);
-				}
-#endif // _3D_DISABLED
 			} break;
 			case Animation::TYPE_BLEND_SHAPE: {
-#ifndef _3D_DISABLED
-				if (!nc->node_blend_shape) {
-					continue;
-				}
-
-				float blend;
-
-				Error err = a->try_blend_shape_track_interpolate(i, p_time, &blend);
-				//ERR_CONTINUE(err!=OK); //used for testing, should be removed
-
-				if (err != OK) {
-					continue;
-				}
-				blend = post_process_key_value(a, i, blend, nc->node_blend_shape, nc->blend_shape_idx);
-
-				if (nc->accum_pass != accum_pass) {
-					ERR_CONTINUE(cache_update_size >= NODE_CACHE_UPDATE_MAX);
-					nc->accum_pass = accum_pass;
-					cache_update[cache_update_size++] = nc;
-					nc->blend_shape_accum = blend;
-				} else {
-					nc->blend_shape_accum = Math::lerp(nc->blend_shape_accum, blend, p_interp);
-				}
-#endif // _3D_DISABLED
 			} break;
 			case Animation::TYPE_VALUE: {
 				if (!nc->node) {
@@ -1116,33 +906,6 @@ void AnimationPlayer::_animation_update_transforms() {
 			TrackNodeCache *nc = cache_update[i];
 
 			ERR_CONTINUE(nc->accum_pass != accum_pass);
-#ifndef _3D_DISABLED
-			if (nc->skeleton && nc->bone_idx >= 0) {
-				if (nc->loc_used) {
-					nc->skeleton->set_bone_pose_position(nc->bone_idx, nc->loc_accum);
-				}
-				if (nc->rot_used) {
-					nc->skeleton->set_bone_pose_rotation(nc->bone_idx, nc->rot_accum);
-				}
-				if (nc->scale_used) {
-					nc->skeleton->set_bone_pose_scale(nc->bone_idx, nc->scale_accum);
-				}
-
-			} else if (nc->node_blend_shape) {
-				nc->node_blend_shape->set_blend_shape_value(nc->blend_shape_idx, nc->blend_shape_accum);
-			} else if (nc->node_3d) {
-				if (nc->loc_used) {
-					nc->node_3d->set_position(nc->loc_accum);
-				}
-				if (nc->rot_used) {
-					nc->node_3d->set_rotation(nc->rot_accum.get_euler());
-				}
-				if (nc->scale_used) {
-					nc->node_3d->set_scale(nc->scale_accum);
-				}
-			}
-
-#endif // _3D_DISABLED
 		}
 	}
 
@@ -2120,41 +1883,15 @@ Ref<AnimatedValuesBackup> AnimationPlayer::backup_animated_values(Node *p_root_o
 			continue;
 		}
 
-		if (nc->skeleton) {
-			if (nc->bone_idx == -1) {
-				continue;
-			}
-
+		for (const KeyValue<StringName, TrackNodeCache::PropertyAnim> &E : nc->property_anim) {
 			AnimatedValuesBackup::Entry entry;
-			entry.object = nc->skeleton;
-			entry.bone_idx = nc->bone_idx;
-			Array arr;
-			arr.resize(3);
-			arr[0] = nc->skeleton->get_bone_pose_position(nc->bone_idx);
-			arr[1] = nc->skeleton->get_bone_pose_rotation(nc->bone_idx);
-			arr[2] = nc->skeleton->get_bone_pose_scale(nc->bone_idx);
-			entry.value = nc;
-			backup->entries.push_back(entry);
-		} else {
-			if (nc->node_3d) {
-				AnimatedValuesBackup::Entry entry;
-				entry.object = nc->node_3d;
-				entry.subpath.push_back("transform");
-				entry.value = nc->node_3d->get_transform();
-				entry.bone_idx = -1;
+			entry.object = E.value.object;
+			entry.subpath = E.value.subpath;
+			bool valid;
+			entry.value = E.value.object->get_indexed(E.value.subpath, &valid);
+			entry.bone_idx = -1;
+			if (valid) {
 				backup->entries.push_back(entry);
-			} else {
-				for (const KeyValue<StringName, TrackNodeCache::PropertyAnim> &E : nc->property_anim) {
-					AnimatedValuesBackup::Entry entry;
-					entry.object = E.value.object;
-					entry.subpath = E.value.subpath;
-					bool valid;
-					entry.value = E.value.object->get_indexed(E.value.subpath, &valid);
-					entry.bone_idx = -1;
-					if (valid) {
-						backup->entries.push_back(entry);
-					}
-				}
 			}
 		}
 	}
