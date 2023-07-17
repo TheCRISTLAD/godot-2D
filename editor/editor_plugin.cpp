@@ -360,16 +360,6 @@ void EditorPlugin::remove_export_plugin(const Ref<EditorExportPlugin> &p_exporte
 	EditorExport::get_singleton()->remove_export_plugin(p_exporter);
 }
 
-// void EditorPlugin::add_node_3d_gizmo_plugin(const Ref<EditorNode3DGizmoPlugin> &p_gizmo_plugin) {
-// 	ERR_FAIL_COND(!p_gizmo_plugin.is_valid());
-// 	Node3DEditor::get_singleton()->add_gizmo_plugin(p_gizmo_plugin);
-// }
-
-// void EditorPlugin::remove_node_3d_gizmo_plugin(const Ref<EditorNode3DGizmoPlugin> &p_gizmo_plugin) {
-// 	ERR_FAIL_COND(!p_gizmo_plugin.is_valid());
-// 	Node3DEditor::get_singleton()->remove_gizmo_plugin(p_gizmo_plugin);
-// }
-
 void EditorPlugin::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
 	ERR_FAIL_COND(!p_plugin.is_valid());
 	EditorInspector::add_inspector_plugin(p_plugin);

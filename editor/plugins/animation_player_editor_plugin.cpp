@@ -42,7 +42,6 @@
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/inspector_dock.h"
 #include "editor/plugins/canvas_item_editor_plugin.h" // For onion skinning.
-// #include "editor/plugins/node_3d_editor_plugin.h" // For onion skinning.
 #include "editor/scene_tree_dock.h"
 #include "scene/gui/separator.h"
 #include "scene/main/window.h"
@@ -1911,7 +1910,6 @@ AnimationPlayerEditor::~AnimationPlayerEditor() {
 void AnimationPlayerEditorPlugin::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-			// Node3DEditor::get_singleton()->connect("transform_key_request", callable_mp(this, &AnimationPlayerEditorPlugin::_transform_key_request));
 			InspectorDock::get_inspector_singleton()->connect("property_keyed", callable_mp(this, &AnimationPlayerEditorPlugin::_property_keyed));
 			anim_editor->get_track_editor()->connect("keying_changed", callable_mp(this, &AnimationPlayerEditorPlugin::_update_keying));
 			InspectorDock::get_inspector_singleton()->connect("edited_object_changed", callable_mp(anim_editor->get_track_editor(), &AnimationTrackEditor::update_keying));

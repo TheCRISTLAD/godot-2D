@@ -166,7 +166,6 @@ void EditorColorMap::create() {
 	// These icons should not be converted.
 	add_conversion_exception("EditorPivot");
 	add_conversion_exception("EditorHandle");
-	add_conversion_exception("Editor3DHandle");
 	add_conversion_exception("EditorBoneHandle");
 	add_conversion_exception("Godot");
 	add_conversion_exception("Sky");

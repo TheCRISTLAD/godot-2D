@@ -49,7 +49,6 @@
 #include "editor/multi_node_edit.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
-// #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/reparent_dialog.h"
 #include "editor/shader_create_dialog.h"
@@ -2128,9 +2127,6 @@ void SceneTreeDock::_toggle_editable_children(Node *p_node) {
 		if (editable) {
 			p_node->set_scene_instance_load_placeholder(false);
 		}
-
-		// Node3DEditor::get_singleton()->update_all_gizmos(p_node);
-
 		scene_tree->update_tree();
 	}
 }
@@ -3440,15 +3436,11 @@ void SceneTreeDock::_feature_profile_changed() {
 	if (profile.is_valid()) {
 		profile_allow_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCENE_TREE);
 		profile_allow_script_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT);
-		// bool profile_allow_3d = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D);
-
-		// button_3d->set_visible(profile_allow_3d);
 		button_add->set_visible(profile_allow_editing);
 		button_instance->set_visible(profile_allow_editing);
 		scene_tree->set_can_rename(profile_allow_editing);
 
 	} else {
-		// button_3d->set_visible(true);
 		button_add->set_visible(true);
 		button_instance->set_visible(true);
 		scene_tree->set_can_rename(true);

@@ -115,12 +115,10 @@
 #include "editor/import/resource_importer_image.h"
 #include "editor/import/resource_importer_imagefont.h"
 #include "editor/import/resource_importer_layered_texture.h"
-// #include "editor/import/resource_importer_obj.h"
 #include "editor/import/resource_importer_shader_file.h"
 #include "editor/import/resource_importer_texture.h"
 #include "editor/import/resource_importer_texture_atlas.h"
 #include "editor/import/resource_importer_wav.h"
-// #include "editor/import/scene_import_settings.h"
 #include "editor/import_dock.h"
 #include "editor/inspector_dock.h"
 #include "editor/multi_node_edit.h"
@@ -135,8 +133,6 @@
 #include "editor/plugins/editor_resource_conversion_plugin.h"
 #include "editor/plugins/gdextension_export_plugin.h"
 #include "editor/plugins/material_editor_plugin.h"
-// #include "editor/plugins/mesh_library_editor_plugin.h"
-// #include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/plugins/packed_scene_translation_parser_plugin.h"
 #include "editor/plugins/root_motion_editor_plugin.h"
 #include "editor/plugins/script_text_editor.h"
@@ -404,8 +400,6 @@ void EditorNode::shortcut_input(const Ref<InputEvent> &p_event) {
 
 		if (ED_IS_SHORTCUT("editor/editor_2d", p_event)) {
 			editor_select(EDITOR_2D);
-		// } else if (ED_IS_SHORTCUT("editor/editor_3d", p_event)) {
-		// 	editor_select(EDITOR_3D);
 		} else if (ED_IS_SHORTCUT("editor/editor_script", p_event)) {
 			editor_select(EDITOR_SCRIPT);
 		} else if (ED_IS_SHORTCUT("editor/editor_help", p_event)) {
@@ -518,12 +512,6 @@ void EditorNode::_update_from_settings() {
 }
 
 void EditorNode::_select_default_main_screen_plugin() {
-	// if (EDITOR_3D < main_editor_buttons.size() && main_editor_buttons[EDITOR_3D]->is_visible()) {
-	// 	// If the 3D editor is enabled, use this as the default.
-	// 	editor_select(EDITOR_3D);
-	// 	return;
-	// }
-
 	// Switch to the first main screen plugin that is enabled. Usually this is
 	// 2D, but may be subsequent ones if 2D is disabled in the feature profile.
 	for (int i = 0; i < main_editor_buttons.size(); i++) {
@@ -1586,7 +1574,6 @@ void EditorNode::_save_scene_with_preview(String p_file, int p_idx) {
 		save.step(TTR("Analyzing"), 0);
 
 		int c2d = 0;
-		// int c3d = 0;
 
 		_find_node_types(editor_data.get_edited_scene_root(), c2d);
 
@@ -1594,7 +1581,7 @@ void EditorNode::_save_scene_with_preview(String p_file, int p_idx) {
 		// Current view?
 
 		Ref<Image> img;
-		// If neither 3D or 2D nodes are present, make a 1x1 black texture.
+		// If 2D nodes are present, make a 1x1 black texture.
 		// We cannot fallback on the 2D editor, because it may not have been used yet,
 		// which would result in an invalid texture.
 		if (c2d == 0) {
@@ -1606,15 +1593,6 @@ void EditorNode::_save_scene_with_preview(String p_file, int p_idx) {
 				img = viewport_texture->get_image();
 			}
 		} 
-		// else {
-		// 	// The 3D editor may be disabled as a feature, but scenes can still be opened.
-		// 	// This check prevents the preview from regenerating in case those scenes are then saved.
-		// 	// The preview will be generated if no feature profile is set (as the 3D editor is enabled by default).
-		// 	Ref<EditorFeatureProfile> profile = feature_profile_manager->get_current_profile();
-		// 	if (!profile.is_valid() || !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D)) {
-		// 		img = Node3DEditor::get_singleton()->get_editor_viewport(0)->get_viewport_node()->get_texture()->get_image();
-		// 	}
-		// }
 
 		if (img.is_valid() && img->get_width() > 0 && img->get_height() > 0) {
 			img = img->duplicate();
@@ -1997,35 +1975,6 @@ void EditorNode::_dialog_action(String p_file) {
 				project_run_bar->play_main_scene((bool)pick_main_scene->get_meta("from_native", false));
 			}
 		} break;
-
-		// case FILE_EXPORT_MESH_LIBRARY: {
-		// 	Ref<MeshLibrary> ml;
-		// 	if (file_export_lib_merge->is_pressed() && FileAccess::exists(p_file)) {
-		// 		ml = ResourceLoader::load(p_file, "MeshLibrary");
-
-		// 		if (ml.is_null()) {
-		// 			show_accept(TTR("Can't load MeshLibrary for merging!"), TTR("OK"));
-		// 			return;
-		// 		}
-		// 	}
-
-		// 	if (ml.is_null()) {
-		// 		ml = Ref<MeshLibrary>(memnew(MeshLibrary));
-		// 	}
-
-		// 	MeshLibraryEditor::update_library_file(editor_data.get_edited_scene_root(), ml, true, file_export_lib_apply_xforms->is_pressed());
-
-		// 	Error err = ResourceSaver::save(ml, p_file);
-		// 	if (err) {
-		// 		show_accept(TTR("Error saving MeshLibrary!"), TTR("OK"));
-		// 		return;
-		// 	} else if (ResourceCache::has(p_file)) {
-		// 		// Make sure MeshLibrary is updated in the editor.
-		// 		ResourceLoader::load(p_file)->reload_from_file();
-		// 	}
-
-		// } break;
-
 		case RESOURCE_SAVE:
 		case RESOURCE_SAVE_AS: {
 			ERR_FAIL_COND(saving_resource.is_null());
@@ -2960,40 +2909,6 @@ void EditorNode::_tool_menu_option(int p_idx) {
 	}
 }
 
-// void EditorNode::_export_as_menu_option(int p_idx) {
-// 	if (p_idx == 0) { // MeshLibrary
-// 		current_menu_option = FILE_EXPORT_MESH_LIBRARY;
-
-// 		if (!editor_data.get_edited_scene_root()) {
-// 			show_accept(TTR("This operation can't be done without a scene."), TTR("OK"));
-// 			return;
-// 		}
-
-// 		List<String> extensions;
-// 		Ref<MeshLibrary> ml(memnew(MeshLibrary));
-// 		ResourceSaver::get_recognized_extensions(ml, &extensions);
-// 		file_export_lib->clear_filters();
-// 		for (const String &E : extensions) {
-// 			file_export_lib->add_filter("*." + E);
-// 		}
-
-// 		file_export_lib->popup_file_dialog();
-// 		file_export_lib->set_title(TTR("Export Mesh Library"));
-// 	} else { // Custom menu options added by plugins
-// 		if (export_as_menu->get_item_submenu(p_idx).is_empty()) { // If not a submenu
-// 			Callable callback = export_as_menu->get_item_metadata(p_idx);
-// 			Callable::CallError ce;
-// 			Variant result;
-// 			callback.callp(nullptr, 0, result, ce);
-
-// 			if (ce.error != Callable::CallError::CALL_OK) {
-// 				String err = Variant::get_callable_error_text(callback, nullptr, 0, ce);
-// 				ERR_PRINT("Error calling function from export_as menu: " + err);
-// 			}
-// 		}
-// 	}
-// }
-
 int EditorNode::_next_unsaved_scene(bool p_valid_filename, int p_start) {
 	for (int i = p_start; i < editor_data.get_edited_scene_count(); i++) {
 		if (!editor_data.get_edited_scene_root(i)) {
@@ -3467,9 +3382,6 @@ void EditorNode::_set_main_scene_state(Dictionary p_state, Node *p_for_scene) {
 			if (Object::cast_to<CanvasItem>(editor_node)) {
 				editor_select(EDITOR_2D);
 			}
-			// else if (Object::cast_to<Node3D>(editor_node)) {
-			// 	editor_select(EDITOR_3D);
-			// }
 		}
 	}
 
@@ -3881,10 +3793,6 @@ void EditorNode::update_diff_data_for_node(
 		if (node_2d) {
 			new_additive_node_entry.transform_2d = node_2d->get_relative_transform_to_parent(node_2d->get_parent());
 		}
-		// Node3D *node_3d = Object::cast_to<Node3D>(p_node);
-		// if (node_3d) {
-		// 	new_additive_node_entry.transform_3d = node_3d->get_relative_transform(node_3d->get_parent());
-		// }
 
 		// Gathers the ownership of all ancestor nodes for later use.
 		HashMap<Node *, Node *> ownership_table;
@@ -6549,22 +6457,15 @@ void EditorNode::_feature_profile_changed() {
 		import_tabs->set_tab_hidden(import_tabs->get_tab_idx_from_control(ImportDock::get_singleton()), fs_dock_disabled || profile->is_feature_disabled(EditorFeatureProfile::FEATURE_IMPORT_DOCK));
 		history_tabs->set_tab_hidden(history_tabs->get_tab_idx_from_control(history_dock), profile->is_feature_disabled(EditorFeatureProfile::FEATURE_HISTORY_DOCK));
 
-		// main_editor_buttons[EDITOR_3D]->set_visible(!profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D));
 		main_editor_buttons[EDITOR_SCRIPT]->set_visible(!profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT));
 		if (AssetLibraryEditorPlugin::is_available()) {
 			main_editor_buttons[EDITOR_ASSETLIB]->set_visible(!profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB));
 		}
-		// if ((profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D) && singleton->main_editor_buttons[EDITOR_3D]->is_pressed()) ||
-		// 		(profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT) && singleton->main_editor_buttons[EDITOR_SCRIPT]->is_pressed()) ||
-		// 		(AssetLibraryEditorPlugin::is_available() && profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB) && singleton->main_editor_buttons[EDITOR_ASSETLIB]->is_pressed())) {
-		// 	editor_select(EDITOR_2D);
-		// }
 	} else {
 		import_tabs->set_tab_hidden(import_tabs->get_tab_idx_from_control(ImportDock::get_singleton()), false);
 		node_tabs->set_tab_hidden(node_tabs->get_tab_idx_from_control(NodeDock::get_singleton()), false);
 		fs_tabs->set_tab_hidden(fs_tabs->get_tab_idx_from_control(FileSystemDock::get_singleton()), false);
 		history_tabs->set_tab_hidden(history_tabs->get_tab_idx_from_control(history_dock), false);
-		// main_editor_buttons[EDITOR_3D]->set_visible(true);
 		main_editor_buttons[EDITOR_SCRIPT]->set_visible(true);
 		if (AssetLibraryEditorPlugin::is_available()) {
 			main_editor_buttons[EDITOR_ASSETLIB]->set_visible(true);
@@ -6816,11 +6717,6 @@ EditorNode::EditorNode() {
 		import_cubemap_array.instantiate();
 		import_cubemap_array->set_mode(ResourceImporterLayeredTexture::MODE_CUBEMAP_ARRAY);
 		ResourceFormatImporter::get_singleton()->add_importer(import_cubemap_array);
-
-		// Ref<ResourceImporterLayeredTexture> import_3d;
-		// import_3d.instantiate();
-		// import_3d->set_mode(ResourceImporterLayeredTexture::MODE_3D);
-		// ResourceFormatImporter::get_singleton()->add_importer(import_3d);
 
 		Ref<ResourceImporterImage> import_image;
 		import_image.instantiate();
@@ -7301,14 +7197,6 @@ EditorNode::EditorNode() {
 	ED_SHORTCUT_OVERRIDE("editor/quick_open", "macos", KeyModifierMask::META + KeyModifierMask::CTRL + Key::O);
 	file_menu->add_shortcut(ED_SHORTCUT_AND_COMMAND("editor/quick_open_scene", TTR("Quick Open Scene..."), KeyModifierMask::CMD_OR_CTRL + KeyModifierMask::SHIFT + Key::O), FILE_QUICK_OPEN_SCENE);
 	file_menu->add_shortcut(ED_SHORTCUT_AND_COMMAND("editor/quick_open_script", TTR("Quick Open Script..."), KeyModifierMask::CMD_OR_CTRL + KeyModifierMask::ALT + Key::O), FILE_QUICK_OPEN_SCRIPT);
-
-	// file_menu->add_separator();
-	// export_as_menu = memnew(PopupMenu);
-	// export_as_menu->set_name("Export");
-	// file_menu->add_child(export_as_menu);
-	// file_menu->add_submenu_item(TTR("Export As..."), "Export");
-	// export_as_menu->add_shortcut(ED_SHORTCUT("editor/export_as_mesh_library", TTR("MeshLibrary...")), FILE_EXPORT_MESH_LIBRARY);
-	// export_as_menu->connect("index_pressed", callable_mp(this, &EditorNode::_export_as_menu_option));
 
 	file_menu->add_separator();
 	file_menu->add_shortcut(ED_GET_SHORTCUT("ui_undo"), EDIT_UNDO, true);
@@ -7795,7 +7683,6 @@ EditorNode::EditorNode() {
 	add_editor_plugin(memnew(AnimationPlayerEditorPlugin));
 	add_editor_plugin(memnew(AnimationTrackKeyEditEditorPlugin));
 	add_editor_plugin(memnew(CanvasItemEditorPlugin));
-	// add_editor_plugin(memnew(Node3DEditorPlugin));
 	add_editor_plugin(memnew(ScriptEditorPlugin));
 
 	EditorAudioBuses *audio_bus_editor = EditorAudioBuses::register_editor();
@@ -7954,12 +7841,10 @@ EditorNode::EditorNode() {
 
 	// Use the Ctrl modifier so F2 can be used to rename nodes in the scene tree dock.
 	ED_SHORTCUT_AND_COMMAND("editor/editor_2d", TTR("Open 2D Editor"), KeyModifierMask::CTRL | Key::F1);
-	// ED_SHORTCUT_AND_COMMAND("editor/editor_3d", TTR("Open 3D Editor"), KeyModifierMask::CTRL | Key::F2);
 	ED_SHORTCUT_AND_COMMAND("editor/editor_script", TTR("Open Script Editor"), KeyModifierMask::CTRL | Key::F2);
 	ED_SHORTCUT_AND_COMMAND("editor/editor_assetlib", TTR("Open Asset Library"), KeyModifierMask::CTRL | Key::F3);
 
 	ED_SHORTCUT_OVERRIDE("editor/editor_2d", "macos", KeyModifierMask::META | KeyModifierMask::CTRL | Key::KEY_1);
-	// ED_SHORTCUT_OVERRIDE("editor/editor_3d", "macos", KeyModifierMask::META | KeyModifierMask::CTRL | Key::KEY_2);
 	ED_SHORTCUT_OVERRIDE("editor/editor_script", "macos", KeyModifierMask::META | KeyModifierMask::CTRL | Key::KEY_2);
 	ED_SHORTCUT_OVERRIDE("editor/editor_assetlib", "macos", KeyModifierMask::META | KeyModifierMask::CTRL | Key::KEY_3);
 
@@ -7972,11 +7857,6 @@ EditorNode::EditorNode() {
 	screenshot_timer->connect("timeout", callable_mp(this, &EditorNode::_request_screenshot));
 	add_child(screenshot_timer);
 	screenshot_timer->set_owner(get_owner());
-
-	// Adjust spacers to center 2D / 3D / Script buttons.
-	// int max_w = MAX(project_run_bar->get_minimum_size().x + right_menu_hb->get_minimum_size().x, main_menu->get_minimum_size().x);
-	// left_spacer->set_custom_minimum_size(Size2(MAX(0, max_w - main_menu->get_minimum_size().x), 0));
-	// right_spacer->set_custom_minimum_size(Size2(MAX(0, max_w - project_run_bar->get_minimum_size().x - right_menu_hb->get_minimum_size().x), 0));
 
 	// Extend menu bar to window title.
 	if (can_expand) {
@@ -8032,26 +7912,6 @@ bool EditorPluginList::forward_gui_input(const Ref<InputEvent> &p_event) {
 	return discard;
 }
 
-// EditorPlugin::AfterGUIInput EditorPluginList::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
-// 	EditorPlugin::AfterGUIInput after = EditorPlugin::AFTER_GUI_INPUT_PASS;
-
-// 	for (int i = 0; i < plugins_list.size(); i++) {
-// 		if ((!serve_when_force_input_enabled) && plugins_list[i]->is_input_event_forwarding_always_enabled()) {
-// 			continue;
-// 		}
-
-// 		EditorPlugin::AfterGUIInput current_after = plugins_list[i]->forward_3d_gui_input(p_camera, p_event);
-// 		if (current_after == EditorPlugin::AFTER_GUI_INPUT_STOP) {
-// 			after = EditorPlugin::AFTER_GUI_INPUT_STOP;
-// 		}
-// 		if (after != EditorPlugin::AFTER_GUI_INPUT_STOP && current_after == EditorPlugin::AFTER_GUI_INPUT_CUSTOM) {
-// 			after = EditorPlugin::AFTER_GUI_INPUT_CUSTOM;
-// 		}
-// 	}
-
-// 	return after;
-// }
-
 void EditorPluginList::forward_canvas_draw_over_viewport(Control *p_overlay) {
 	for (int i = 0; i < plugins_list.size(); i++) {
 		plugins_list[i]->forward_canvas_draw_over_viewport(p_overlay);
@@ -8063,18 +7923,6 @@ void EditorPluginList::forward_canvas_force_draw_over_viewport(Control *p_overla
 		plugins_list[i]->forward_canvas_force_draw_over_viewport(p_overlay);
 	}
 }
-
-// void EditorPluginList::forward_3d_draw_over_viewport(Control *p_overlay) {
-// 	for (int i = 0; i < plugins_list.size(); i++) {
-// 		plugins_list[i]->forward_3d_draw_over_viewport(p_overlay);
-// 	}
-// }
-
-// void EditorPluginList::forward_3d_force_draw_over_viewport(Control *p_overlay) {
-// 	for (int i = 0; i < plugins_list.size(); i++) {
-// 		plugins_list[i]->forward_3d_force_draw_over_viewport(p_overlay);
-// 	}
-// }
 
 void EditorPluginList::add_plugin(EditorPlugin *p_plugin) {
 	ERR_FAIL_COND(plugins_list.has(p_plugin));
