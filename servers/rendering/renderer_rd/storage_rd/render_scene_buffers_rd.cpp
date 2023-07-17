@@ -161,14 +161,6 @@ void RenderSceneBuffersRD::configure(RID p_render_target, const Size2i p_interna
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH, format, usage_bits);
 	}
 
-	// VRS (note, our vrs object will only be set if VRS is supported)
-	RID vrs_texture;
-	RS::ViewportVRSMode vrs_mode = texture_storage->render_target_get_vrs_mode(p_render_target);
-	if (vrs && vrs_mode != RS::VIEWPORT_VRS_DISABLED) {
-		uint32_t usage_bits = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_VRS_ATTACHMENT_BIT | RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT;
-		vrs_texture = create_texture(RB_SCOPE_VRS, RB_TEXTURE, RD::DATA_FORMAT_R8_UINT, usage_bits, RD::TEXTURE_SAMPLES_1, vrs->get_vrs_texture_size(internal_size));
-	}
-
 	// (re-)configure any named buffers
 	for (KeyValue<StringName, Ref<RenderBufferCustomDataRD>> &E : data_buffers) {
 		E.value->configure(this);

@@ -40,7 +40,6 @@
 #include "servers/rendering/renderer_rd/effects/fsr.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
-#include "servers/rendering/renderer_rd/effects/vrs.h"
 #include "servers/rendering/renderer_rd/environment/fog.h"
 #include "servers/rendering/renderer_rd/environment/gi.h"
 #include "servers/rendering/renderer_rd/environment/sky.h"
@@ -109,7 +108,6 @@ protected:
 	RendererRD::Luminance *luminance = nullptr;
 	RendererRD::ToneMapper *tone_mapper = nullptr;
 	RendererRD::FSR *fsr = nullptr;
-	RendererRD::VRS *vrs = nullptr;
 	double time = 0.0;
 	double time_step = 0.0;
 
@@ -122,8 +120,6 @@ protected:
 	////////////////////////////////
 
 	virtual RendererRD::ForwardIDStorage *create_forward_id_storage() { return memnew(RendererRD::ForwardIDStorage); };
-
-	void _update_vrs(Ref<RenderSceneBuffersRD> p_render_buffers);
 
 	virtual void setup_render_buffer_data(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 
@@ -368,7 +364,6 @@ public:
 
 	virtual void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) override;
 
-	virtual bool is_vrs_supported() const;
 	virtual bool is_dynamic_gi_supported() const;
 	virtual bool is_volumetric_supported() const;
 	virtual uint32_t get_max_elements() const;

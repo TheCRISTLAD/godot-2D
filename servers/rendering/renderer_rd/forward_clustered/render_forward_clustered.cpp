@@ -174,13 +174,6 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_only_fb(
 	RID color = use_msaa ? render_buffers->get_texture(RB_SCOPE_FORWARD_CLUSTERED, RB_TEX_COLOR_MSAA) : render_buffers->get_internal_texture();
 	RID depth = use_msaa ? render_buffers->get_texture(RB_SCOPE_FORWARD_CLUSTERED, RB_TEX_DEPTH_MSAA) : render_buffers->get_depth_texture();
 
-	if (render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE)) {
-		RID vrs_texture = render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
-
-		return FramebufferCacheRD::get_singleton()->get_cache_multiview(render_buffers->get_view_count(), color, depth, vrs_texture);
-	} else {
-		return FramebufferCacheRD::get_singleton()->get_cache_multiview(render_buffers->get_view_count(), color, depth);
-	}
 }
 
 RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_pass_fb(uint32_t p_color_pass_flags) {
@@ -204,13 +197,7 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_color_pass_fb(
 
 	RID depth = use_msaa ? render_buffers->get_texture(RB_SCOPE_FORWARD_CLUSTERED, RB_TEX_DEPTH_MSAA) : render_buffers->get_depth_texture();
 
-	if (render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE)) {
-		RID vrs_texture = render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
 
-		return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, specular, velocity_buffer, depth, vrs_texture);
-	} else {
-		return FramebufferCacheRD::get_singleton()->get_cache_multiview(v_count, color, specular, velocity_buffer, depth);
-	}
 }
 
 RID RenderForwardClustered::RenderBufferDataForwardClustered::get_depth_fb(DepthFrameBufferType p_type) {
@@ -1597,8 +1584,6 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		p_render_data->cluster_size = current_cluster_builder->get_cluster_size();
 		p_render_data->cluster_max_elements = current_cluster_builder->get_max_cluster_elements();
 	}
-
-	_update_vrs(rb);
 
 	RENDER_TIMESTAMP("Setup 3D Scene");
 

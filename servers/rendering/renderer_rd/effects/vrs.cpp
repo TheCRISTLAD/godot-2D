@@ -88,42 +88,42 @@ void VRS::copy_vrs(RID p_source_rd_texture, RID p_dest_framebuffer, bool p_multi
 	RD::get_singleton()->draw_list_end();
 }
 
-Size2i VRS::get_vrs_texture_size(const Size2i p_base_size) const {
-	int32_t texel_width = RD::get_singleton()->limit_get(RD::LIMIT_VRS_TEXEL_WIDTH);
-	int32_t texel_height = RD::get_singleton()->limit_get(RD::LIMIT_VRS_TEXEL_HEIGHT);
+// Size2i VRS::get_vrs_texture_size(const Size2i p_base_size) const {
+// 	int32_t texel_width = RD::get_singleton()->limit_get(RD::LIMIT_VRS_TEXEL_WIDTH);
+// 	int32_t texel_height = RD::get_singleton()->limit_get(RD::LIMIT_VRS_TEXEL_HEIGHT);
 
-	int width = p_base_size.x / texel_width;
-	if (p_base_size.x % texel_width != 0) {
-		width++;
-	}
-	int height = p_base_size.y / texel_height;
-	if (p_base_size.y % texel_height != 0) {
-		height++;
-	}
-	return Size2i(width, height);
-}
+// 	int width = p_base_size.x / texel_width;
+// 	if (p_base_size.x % texel_width != 0) {
+// 		width++;
+// 	}
+// 	int height = p_base_size.y / texel_height;
+// 	if (p_base_size.y % texel_height != 0) {
+// 		height++;
+// 	}
+// 	return Size2i(width, height);
+// }
 
-void VRS::update_vrs_texture(RID p_vrs_fb, RID p_render_target) {
-	TextureStorage *texture_storage = TextureStorage::get_singleton();
-	RS::ViewportVRSMode vrs_mode = texture_storage->render_target_get_vrs_mode(p_render_target);
+// void VRS::update_vrs_texture(RID p_vrs_fb, RID p_render_target) {
+// 	TextureStorage *texture_storage = TextureStorage::get_singleton();
+// 	RS::ViewportVRSMode vrs_mode = texture_storage->render_target_get_vrs_mode(p_render_target);
 
-	if (vrs_mode != RS::VIEWPORT_VRS_DISABLED) {
-		RD::get_singleton()->draw_command_begin_label("VRS Setup");
+// 	if (vrs_mode != RS::VIEWPORT_VRS_DISABLED) {
+// 		RD::get_singleton()->draw_command_begin_label("VRS Setup");
 
-		// TODO figure out if image has changed since it was last copied so we can save some resources..
+// 		// TODO figure out if image has changed since it was last copied so we can save some resources..
 
-		if (vrs_mode == RS::VIEWPORT_VRS_TEXTURE) {
-			RID vrs_texture = texture_storage->render_target_get_vrs_texture(p_render_target);
-			if (vrs_texture.is_valid()) {
-				RID rd_texture = texture_storage->texture_get_rd_texture(vrs_texture);
-				int layers = texture_storage->texture_get_layers(vrs_texture);
-				if (rd_texture.is_valid()) {
-					// Copy into our density buffer
-					copy_vrs(rd_texture, p_vrs_fb, layers > 1);
-				}
-			}
-		}
+// 		if (vrs_mode == RS::VIEWPORT_VRS_TEXTURE) {
+// 			RID vrs_texture = texture_storage->render_target_get_vrs_texture(p_render_target);
+// 			if (vrs_texture.is_valid()) {
+// 				RID rd_texture = texture_storage->texture_get_rd_texture(vrs_texture);
+// 				int layers = texture_storage->texture_get_layers(vrs_texture);
+// 				if (rd_texture.is_valid()) {
+// 					// Copy into our density buffer
+// 					copy_vrs(rd_texture, p_vrs_fb, layers > 1);
+// 				}
+// 			}
+// 		}
 
-		RD::get_singleton()->draw_command_end_label();
-	}
-}
+// 		RD::get_singleton()->draw_command_end_label();
+// 	}
+// }

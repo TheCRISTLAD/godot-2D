@@ -3243,42 +3243,6 @@ Viewport::DefaultCanvasItemTextureRepeat Viewport::get_default_canvas_item_textu
 	return default_canvas_item_texture_repeat;
 }
 
-void Viewport::set_vrs_mode(Viewport::VRSMode p_vrs_mode) {
-	ERR_MAIN_THREAD_GUARD;
-	// Note, set this even if not supported on this hardware, it will only be used if it is but we want to save the value as set by the user.
-	vrs_mode = p_vrs_mode;
-
-	switch (p_vrs_mode) {
-		case VRS_TEXTURE: {
-			RS::get_singleton()->viewport_set_vrs_mode(viewport, RS::VIEWPORT_VRS_TEXTURE);
-		} break;
-		default: {
-			RS::get_singleton()->viewport_set_vrs_mode(viewport, RS::VIEWPORT_VRS_DISABLED);
-		} break;
-	}
-
-	notify_property_list_changed();
-}
-
-Viewport::VRSMode Viewport::get_vrs_mode() const {
-	ERR_READ_THREAD_GUARD_V(VRS_DISABLED);
-	return vrs_mode;
-}
-
-void Viewport::set_vrs_texture(Ref<Texture2D> p_texture) {
-	ERR_MAIN_THREAD_GUARD;
-	vrs_texture = p_texture;
-
-	// TODO need to add something here in case the RID changes
-	RID tex = p_texture.is_valid() ? p_texture->get_rid() : RID();
-	RS::get_singleton()->viewport_set_vrs_texture(viewport, tex);
-}
-
-Ref<Texture2D> Viewport::get_vrs_texture() const {
-	ERR_READ_THREAD_GUARD_V(Ref<Texture2D>());
-	return vrs_texture;
-}
-
 DisplayServer::WindowID Viewport::get_window_id() const {
 	ERR_READ_THREAD_GUARD_V(DisplayServer::INVALID_WINDOW_ID);
 	return DisplayServer::MAIN_WINDOW_ID;
@@ -3549,9 +3513,6 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mesh_lod_threshold", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_mesh_lod_threshold", "get_mesh_lod_threshold");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
 
-	ADD_GROUP("Variable Rate Shading", "vrs_");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "vrs_mode", PROPERTY_HINT_ENUM, "Disabled,Texture,Depth buffer"), "set_vrs_mode", "get_vrs_mode");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "vrs_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_vrs_texture", "get_vrs_texture");
 	ADD_GROUP("Canvas Items", "canvas_item_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "canvas_item_default_texture_filter", PROPERTY_HINT_ENUM, "Nearest,Linear,Linear Mipmap,Nearest Mipmap"), "set_default_canvas_item_texture_filter", "get_default_canvas_item_texture_filter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "canvas_item_default_texture_repeat", PROPERTY_HINT_ENUM, "Disabled,Enabled,Mirror"), "set_default_canvas_item_texture_repeat", "get_default_canvas_item_texture_repeat");
@@ -3662,16 +3623,13 @@ void Viewport::_bind_methods() {
 	BIND_ENUM_CONSTANT(SDF_SCALE_50_PERCENT);
 	BIND_ENUM_CONSTANT(SDF_SCALE_25_PERCENT);
 	BIND_ENUM_CONSTANT(SDF_SCALE_MAX);
-
-	BIND_ENUM_CONSTANT(VRS_DISABLED);
-	BIND_ENUM_CONSTANT(VRS_TEXTURE);
-	BIND_ENUM_CONSTANT(VRS_MAX);
 }
 
+// TODO: UMM
 void Viewport::_validate_property(PropertyInfo &p_property) const {
-	if (vrs_mode != VRS_TEXTURE && (p_property.name == "vrs_texture")) {
-		p_property.usage = PROPERTY_USAGE_NO_EDITOR;
-	}
+	// if (vrs_mode == VRS_DISABLED && (p_property.name == "vrs_texture")) {
+	// 	p_property.usage = PROPERTY_USAGE_NO_EDITOR;
+	// }
 }
 
 Viewport::Viewport() {

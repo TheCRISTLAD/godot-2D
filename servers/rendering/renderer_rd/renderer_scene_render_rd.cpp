@@ -240,9 +240,6 @@ Ref<RenderSceneBuffers> RendererSceneRenderRD::render_buffers_create() {
 	rb->set_can_be_storage(_render_buffers_can_be_storage());
 	rb->set_max_cluster_elements(max_cluster_elements);
 	rb->set_base_data_format(_render_buffers_get_color_format());
-	if (vrs) {
-		rb->set_vrs(vrs);
-	}
 
 	setup_render_buffer_data(rb);
 
@@ -862,43 +859,6 @@ bool RendererSceneRenderRD::is_using_radiance_cubemap_array() const {
 	return sky.sky_use_cubemap_array;
 }
 
-void RendererSceneRenderRD::_update_vrs(Ref<RenderSceneBuffersRD> p_render_buffers) {
-	if (p_render_buffers.is_null()) {
-		return;
-	}
-
-	RID render_target = p_render_buffers->get_render_target();
-	if (render_target.is_null()) {
-		// must be rendering reflection probes
-		return;
-	}
-
-	if (vrs) {
-		RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-
-		RS::ViewportVRSMode vrs_mode = texture_storage->render_target_get_vrs_mode(render_target);
-		if (vrs_mode != RS::VIEWPORT_VRS_DISABLED) {
-			RID vrs_texture = p_render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
-
-			// We use get_cache_multipass instead of get_cache_multiview because the default behavior is for
-			// our vrs_texture to be used as the VRS attachment. In this particular case we're writing to it
-			// so it needs to be set as our color attachment
-
-			Vector<RID> textures;
-			textures.push_back(vrs_texture);
-
-			Vector<RD::FramebufferPass> passes;
-			RD::FramebufferPass pass;
-			pass.color_attachments.push_back(0);
-			passes.push_back(pass);
-
-			RID vrs_fb = FramebufferCacheRD::get_singleton()->get_cache_multipass(textures, passes, p_render_buffers->get_view_count());
-
-			vrs->update_vrs_texture(vrs_fb, p_render_buffers->get_render_target());
-		}
-	}
-}
-
 bool RendererSceneRenderRD::_needs_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi) {
 	if (p_render_data->render_buffers.is_valid()) {
 		if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_SDFGI)) {
@@ -1215,10 +1175,6 @@ void RendererSceneRenderRD::sdfgi_set_debug_probe_select(const Vector3 &p_positi
 
 RendererSceneRenderRD *RendererSceneRenderRD::singleton = nullptr;
 
-bool RendererSceneRenderRD::is_vrs_supported() const {
-	return RD::get_singleton()->has_feature(RD::SUPPORTS_ATTACHMENT_VRS);
-}
-
 bool RendererSceneRenderRD::is_dynamic_gi_supported() const {
 	// usable by default (unless low end = true)
 	return true;
@@ -1290,14 +1246,10 @@ void RendererSceneRenderRD::init() {
 	cull_argument.set_page_pool(&cull_argument_pool);
 
 	bool can_use_storage = _render_buffers_can_be_storage();
-	bool can_use_vrs = is_vrs_supported();
 	bokeh_dof = memnew(RendererRD::BokehDOF(!can_use_storage));
 	copy_effects = memnew(RendererRD::CopyEffects(!can_use_storage));
 	luminance = memnew(RendererRD::Luminance(!can_use_storage));
 	tone_mapper = memnew(RendererRD::ToneMapper);
-	if (can_use_vrs) {
-		vrs = memnew(RendererRD::VRS);
-	}
 	if (can_use_storage) {
 		fsr = memnew(RendererRD::FSR);
 	}
@@ -1319,9 +1271,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 	}
 	if (tone_mapper) {
 		memdelete(tone_mapper);
-	}
-	if (vrs) {
-		memdelete(vrs);
 	}
 	if (fsr) {
 		memdelete(fsr);

@@ -976,15 +976,6 @@ public:
 
 	virtual RID viewport_find_from_screen_attachment(DisplayServer::WindowID p_id = DisplayServer::MAIN_WINDOW_ID) const = 0;
 
-	enum ViewportVRSMode {
-		VIEWPORT_VRS_DISABLED,
-		VIEWPORT_VRS_TEXTURE,
-		VIEWPORT_VRS_MAX,
-	};
-
-	virtual void viewport_set_vrs_mode(RID p_viewport, ViewportVRSMode p_mode) = 0;
-	virtual void viewport_set_vrs_texture(RID p_viewport, RID p_texture) = 0;
-
 	/* SKY API */
 
 	enum SkyMode {
@@ -1656,7 +1647,6 @@ VARIANT_ENUM_CAST(RenderingServer::ViewportDebugDraw);
 VARIANT_ENUM_CAST(RenderingServer::ViewportOcclusionCullingBuildQuality);
 VARIANT_ENUM_CAST(RenderingServer::ViewportSDFOversize);
 VARIANT_ENUM_CAST(RenderingServer::ViewportSDFScale);
-VARIANT_ENUM_CAST(RenderingServer::ViewportVRSMode);
 VARIANT_ENUM_CAST(RenderingServer::SkyMode);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentBG);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentAmbientSource);

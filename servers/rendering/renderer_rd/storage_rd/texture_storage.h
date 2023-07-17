@@ -66,7 +66,6 @@ public:
 		DEFAULT_RD_TEXTURE_2D_ARRAY_NORMAL,
 		DEFAULT_RD_TEXTURE_2D_ARRAY_DEPTH,
 		DEFAULT_RD_TEXTURE_2D_UINT,
-		DEFAULT_RD_TEXTURE_VRS,
 		DEFAULT_RD_TEXTURE_MAX
 	};
 
@@ -340,10 +339,6 @@ private:
 		RS::ViewportSDFOversize sdf_oversize = RS::VIEWPORT_SDF_OVERSIZE_120_PERCENT;
 		RS::ViewportSDFScale sdf_scale = RS::VIEWPORT_SDF_SCALE_50_PERCENT;
 		Size2i process_size;
-
-		// VRS
-		RS::ViewportVRSMode vrs_mode = RS::VIEWPORT_VRS_DISABLED;
-		RID vrs_texture;
 
 		// overridden textures
 		struct RTOverridden {
@@ -712,11 +707,6 @@ public:
 	virtual Rect2i render_target_get_sdf_rect(RID p_render_target) const override;
 	virtual void render_target_mark_sdf_enabled(RID p_render_target, bool p_enabled) override;
 	bool render_target_is_sdf_enabled(RID p_render_target) const;
-
-	virtual void render_target_set_vrs_mode(RID p_render_target, RS::ViewportVRSMode p_mode) override;
-	virtual RS::ViewportVRSMode render_target_get_vrs_mode(RID p_render_target) const override;
-	virtual void render_target_set_vrs_texture(RID p_render_target, RID p_texture) override;
-	virtual RID render_target_get_vrs_texture(RID p_render_target) const override;
 
 	virtual void render_target_set_override(RID p_render_target, RID p_color_texture, RID p_depth_texture, RID p_velocity_texture) override;
 	virtual RID render_target_get_override_color(RID p_render_target) const override;

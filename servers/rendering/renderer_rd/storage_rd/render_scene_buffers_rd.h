@@ -31,7 +31,6 @@
 #ifndef RENDER_SCENE_BUFFERS_RD_H
 #define RENDER_SCENE_BUFFERS_RD_H
 
-#include "../effects/vrs.h"
 #include "../framebuffer_cache_rd.h"
 #include "core/templates/hash_map.h"
 #include "render_buffer_custom_data_rd.h"
@@ -40,7 +39,6 @@
 #include "servers/rendering/storage/render_scene_buffers.h"
 
 #define RB_SCOPE_BUFFERS SNAME("render_buffers")
-#define RB_SCOPE_VRS SNAME("VRS")
 
 #define RB_TEXTURE SNAME("texture")
 #define RB_TEX_COLOR SNAME("color")
@@ -63,7 +61,6 @@ private:
 	bool can_be_storage = true;
 	uint32_t max_cluster_elements = 512;
 	RD::DataFormat base_data_format = RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
-	RendererRD::VRS *vrs = nullptr;
 	uint64_t auto_exposure_version = 1;
 
 	// Our render target represents our final destination that we display on screen.
@@ -163,7 +160,6 @@ public:
 	uint32_t get_max_cluster_elements() { return max_cluster_elements; }
 	void set_base_data_format(const RD::DataFormat p_base_data_format) { base_data_format = p_base_data_format; }
 	RD::DataFormat get_base_data_format() const { return base_data_format; }
-	void set_vrs(RendererRD::VRS *p_vrs) { vrs = p_vrs; }
 
 	void cleanup();
 	virtual void configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa_3d, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) override;

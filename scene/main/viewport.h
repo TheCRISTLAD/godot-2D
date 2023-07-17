@@ -194,11 +194,6 @@ public:
 		SUBWINDOW_CANVAS_LAYER = 1024
 	};
 
-	enum VRSMode {
-		VRS_DISABLED,
-		VRS_TEXTURE,
-		VRS_MAX
-	};
 
 private:
 	friend class ViewportTexture;
@@ -331,10 +326,6 @@ private:
 		Window *window = nullptr;
 		RID canvas_item;
 	};
-
-	// VRS
-	VRSMode vrs_mode = VRS_DISABLED;
-	Ref<Texture2D> vrs_texture;
 
 	struct GUI {
 		// info used when this is a window
@@ -624,14 +615,6 @@ public:
 	void set_default_canvas_item_texture_repeat(DefaultCanvasItemTextureRepeat p_repeat);
 	DefaultCanvasItemTextureRepeat get_default_canvas_item_texture_repeat() const;
 
-	// VRS
-
-	void set_vrs_mode(VRSMode p_vrs_mode);
-	VRSMode get_vrs_mode() const;
-
-	void set_vrs_texture(Ref<Texture2D> p_texture);
-	Ref<Texture2D> get_vrs_texture() const;
-
 	virtual DisplayServer::WindowID get_window_id() const = 0;
 
 	void set_embedding_subwindows(bool p_embed);
@@ -725,7 +708,6 @@ VARIANT_ENUM_CAST(Viewport::ScreenSpaceAA);
 VARIANT_ENUM_CAST(Viewport::DebugDraw);
 VARIANT_ENUM_CAST(Viewport::SDFScale);
 VARIANT_ENUM_CAST(Viewport::SDFOversize);
-VARIANT_ENUM_CAST(Viewport::VRSMode);
 VARIANT_ENUM_CAST(SubViewport::ClearMode);
 VARIANT_ENUM_CAST(Viewport::RenderInfo);
 VARIANT_ENUM_CAST(Viewport::RenderInfoType);

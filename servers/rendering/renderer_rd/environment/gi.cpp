@@ -3490,9 +3490,6 @@ void GI::init(SkyRD *p_sky) {
 	{
 		//calculate tables
 		String defines = "\n#define SDFGI_OCT_SIZE " + itos(SDFGI::LIGHTPROBE_OCT_SIZE) + "\n";
-		if (RendererSceneRenderRD::get_singleton()->is_vrs_supported()) {
-			defines += "\n#define USE_VRS\n";
-		}
 		if (!RD::get_singleton()->sampler_is_format_supported_for_filter(RD::DATA_FORMAT_R8G8_UINT, RD::SAMPLER_FILTER_LINEAR)) {
 			defines += "\n#define SAMPLE_VOXEL_GI_NEAREST\n";
 		}
@@ -3852,10 +3849,6 @@ void GI::process_gi(Ref<RenderSceneBuffersRD> p_render_buffers, const RID *p_nor
 	if (p_view_count > 1) {
 		pipeline_specialization |= SHADER_SPECIALIZATION_USE_FULL_PROJECTION_MATRIX;
 	}
-	bool has_vrs_texture = p_render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE);
-	if (has_vrs_texture) {
-		pipeline_specialization |= SHADER_SPECIALIZATION_USE_VRS;
-	}
 
 	Mode mode = (use_sdfgi && use_voxel_gi_instances) ? MODE_COMBINED : (use_sdfgi ? MODE_SDFGI : MODE_VOXEL_GI);
 
@@ -4019,14 +4012,6 @@ void GI::process_gi(Ref<RenderSceneBuffersRD> p_render_buffers, const RID *p_nor
 				u.uniform_type = RD::UNIFORM_TYPE_UNIFORM_BUFFER;
 				u.binding = 18;
 				u.append_id(rbgi->scene_data_ubo);
-				uniforms.push_back(u);
-			}
-			if (RendererSceneRenderRD::get_singleton()->is_vrs_supported()) {
-				RD::Uniform u;
-				u.uniform_type = RD::UNIFORM_TYPE_IMAGE;
-				u.binding = 19;
-				RID buffer = has_vrs_texture ? p_render_buffers->get_texture_slice(RB_SCOPE_VRS, RB_TEXTURE, v, 0) : texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_VRS);
-				u.append_id(buffer);
 				uniforms.push_back(u);
 			}
 

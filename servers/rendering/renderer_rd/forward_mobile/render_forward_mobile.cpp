@@ -178,18 +178,10 @@ RID RenderForwardMobile::RenderBufferDataForwardMobile::get_color_fbs(Framebuffe
 
 	uint32_t view_count = render_buffers->get_view_count();
 
-	RID vrs_texture;
-	if (render_buffers->has_texture(RB_SCOPE_VRS, RB_TEXTURE)) {
-		vrs_texture = render_buffers->get_texture(RB_SCOPE_VRS, RB_TEXTURE);
-	}
-
 	Vector<RID> textures;
 	int color_buffer_id = 0;
 	textures.push_back(use_msaa ? get_color_msaa() : render_buffers->get_internal_texture()); // 0 - color buffer
 	textures.push_back(use_msaa ? get_depth_msaa() : render_buffers->get_depth_texture()); // 1 - depth buffer
-	if (vrs_texture.is_valid()) {
-		textures.push_back(vrs_texture); // 2 - vrs texture
-	}
 	if (use_msaa) {
 		color_buffer_id = textures.size();
 		textures.push_back(render_buffers->get_internal_texture()); // color buffer for resolve
@@ -204,9 +196,6 @@ RID RenderForwardMobile::RenderBufferDataForwardMobile::get_color_fbs(Framebuffe
 	RD::FramebufferPass pass;
 	pass.color_attachments.push_back(0);
 	pass.depth_attachment = 1;
-	if (vrs_texture.is_valid()) {
-		pass.vrs_attachment = 2;
-	}
 
 	switch (p_config_type) {
 		case FB_CONFIG_ONE_PASS: {
@@ -669,8 +658,6 @@ void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color
 	bool is_reflection_probe = p_render_data->reflection_probe.is_valid();
 
 	RENDER_TIMESTAMP("Prepare 3D Scene");
-
-	_update_vrs(rb);
 
 	RENDER_TIMESTAMP("Setup 3D Scene");
 

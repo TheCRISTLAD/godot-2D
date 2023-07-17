@@ -159,11 +159,6 @@ public:
 	virtual Rect2i render_target_get_sdf_rect(RID p_render_target) const = 0;
 	virtual void render_target_mark_sdf_enabled(RID p_render_target, bool p_enabled) = 0;
 
-	virtual void render_target_set_vrs_mode(RID p_render_target, RS::ViewportVRSMode p_mode) = 0;
-	virtual RS::ViewportVRSMode render_target_get_vrs_mode(RID p_render_target) const = 0;
-	virtual void render_target_set_vrs_texture(RID p_render_target, RID p_texture) = 0;
-	virtual RID render_target_get_vrs_texture(RID p_render_target) const = 0;
-
 	// override color, depth and velocity buffers (depth and velocity only for 3D)
 	virtual void render_target_set_override(RID p_render_target, RID p_color_texture, RID p_depth_texture, RID p_velocity_texture) = 0;
 	virtual RID render_target_get_override_color(RID p_render_target) const = 0;

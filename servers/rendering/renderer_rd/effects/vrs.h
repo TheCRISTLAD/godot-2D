@@ -66,8 +66,8 @@ public:
 
 	void copy_vrs(RID p_source_rd_texture, RID p_dest_framebuffer, bool p_multiview = false);
 
-	Size2i get_vrs_texture_size(const Size2i p_base_size) const;
-	void update_vrs_texture(RID p_vrs_fb, RID p_render_target);
+	// Size2i get_vrs_texture_size(const Size2i p_base_size) const;
+	// void update_vrs_texture(RID p_vrs_fb, RID p_render_target);
 };
 
 } // namespace RendererRD

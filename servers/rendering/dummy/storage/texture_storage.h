@@ -185,11 +185,6 @@ public:
 	virtual Rect2i render_target_get_sdf_rect(RID p_render_target) const override { return Rect2i(); }
 	virtual void render_target_mark_sdf_enabled(RID p_render_target, bool p_enabled) override {}
 
-	virtual void render_target_set_vrs_mode(RID p_render_target, RS::ViewportVRSMode p_mode) override {}
-	virtual RS::ViewportVRSMode render_target_get_vrs_mode(RID p_render_target) const override { return RS::VIEWPORT_VRS_DISABLED; }
-	virtual void render_target_set_vrs_texture(RID p_render_target, RID p_texture) override {}
-	virtual RID render_target_get_vrs_texture(RID p_render_target) const override { return RID(); }
-
 	virtual void render_target_set_override(RID p_render_target, RID p_color_texture, RID p_depth_texture, RID p_velocity_texture) override {}
 	virtual RID render_target_get_override_color(RID p_render_target) const override { return RID(); }
 	virtual RID render_target_get_override_depth(RID p_render_target) const override { return RID(); }

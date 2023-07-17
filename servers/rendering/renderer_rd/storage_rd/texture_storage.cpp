@@ -489,31 +489,6 @@ TextureStorage::TextureStorage() {
 		}
 	}
 
-	{ //create default VRS
-
-		RD::TextureFormat tformat;
-		tformat.format = RD::DATA_FORMAT_R8_UINT;
-		tformat.width = 4;
-		tformat.height = 4;
-		tformat.usage_bits = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_CAN_UPDATE_BIT | RD::TEXTURE_USAGE_VRS_ATTACHMENT_BIT;
-		tformat.texture_type = RD::TEXTURE_TYPE_2D;
-		if (!RD::get_singleton()->has_feature(RD::SUPPORTS_ATTACHMENT_VRS)) {
-			tformat.usage_bits = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_CAN_UPDATE_BIT;
-		}
-
-		Vector<uint8_t> pv;
-		pv.resize(4 * 4);
-		for (int i = 0; i < 4 * 4; i++) {
-			pv.set(i, 0);
-		}
-
-		{
-			Vector<Vector<uint8_t>> vpv;
-			vpv.push_back(pv);
-			default_rd_textures[DEFAULT_RD_TEXTURE_VRS] = RD::get_singleton()->texture_create(tformat, RD::TextureView(), vpv);
-		}
-	}
-
 	{
 		Vector<String> sdf_modes;
 		sdf_modes.push_back("\n#define MODE_LOAD\n");
@@ -3429,30 +3404,3 @@ void TextureStorage::render_target_set_backbuffer_uniform_set(RID p_render_targe
 	rt->backbuffer_uniform_set = p_uniform_set;
 }
 
-void TextureStorage::render_target_set_vrs_mode(RID p_render_target, RS::ViewportVRSMode p_mode) {
-	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
-	ERR_FAIL_COND(!rt);
-
-	rt->vrs_mode = p_mode;
-}
-
-RS::ViewportVRSMode TextureStorage::render_target_get_vrs_mode(RID p_render_target) const {
-	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
-	ERR_FAIL_COND_V(!rt, RS::VIEWPORT_VRS_DISABLED);
-
-	return rt->vrs_mode;
-}
-
-void TextureStorage::render_target_set_vrs_texture(RID p_render_target, RID p_texture) {
-	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
-	ERR_FAIL_COND(!rt);
-
-	rt->vrs_texture = p_texture;
-}
-
-RID TextureStorage::render_target_get_vrs_texture(RID p_render_target) const {
-	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
-	ERR_FAIL_COND_V(!rt, RID());
-
-	return rt->vrs_texture;
-}
