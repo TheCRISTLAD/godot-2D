@@ -386,35 +386,4 @@ public:
 	~TileDataTerrainsEditor();
 };
 
-class TileDataNavigationEditor : public TileDataDefaultEditor {
-	GDCLASS(TileDataNavigationEditor, TileDataDefaultEditor);
-
-private:
-	int navigation_layer = -1;
-	PackedVector2Array navigation_polygon;
-
-	// UI
-	GenericTilePolygonEditor *polygon_editor = nullptr;
-
-	void _polygon_changed(PackedVector2Array p_polygon);
-
-	virtual Variant _get_painted_value() override;
-	virtual void _set_painted_value(TileSetAtlasSource *p_tile_set_atlas_source, Vector2 p_coords, int p_alternative_tile) override;
-	virtual void _set_value(TileSetAtlasSource *p_tile_set_atlas_source, Vector2 p_coords, int p_alternative_tile, Variant p_value) override;
-	virtual Variant _get_value(TileSetAtlasSource *p_tile_set_atlas_source, Vector2 p_coords, int p_alternative_tile) override;
-	virtual void _setup_undo_redo_action(TileSetAtlasSource *p_tile_set_atlas_source, HashMap<TileMapCell, Variant, TileMapCell> p_previous_values, Variant p_new_value) override;
-
-protected:
-	virtual void _tile_set_changed() override;
-
-	void _notification(int p_what);
-
-public:
-	virtual void draw_over_tile(CanvasItem *p_canvas_item, Transform2D p_transform, TileMapCell p_cell, bool p_selected = false) override;
-
-	void set_navigation_layer(int p_navigation_layer) { navigation_layer = p_navigation_layer; }
-
-	TileDataNavigationEditor();
-};
-
 #endif // TILE_DATA_EDITORS_H

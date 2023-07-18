@@ -32,8 +32,6 @@
 #define ANIMATION_TREE_H
 
 #include "animation_player.h"
-#include "scene/3d/node_3d.h"
-#include "scene/3d/skeleton_3d.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/audio_stream_polyphonic.h"
 
@@ -205,7 +203,6 @@ public:
 
 private:
 	struct TrackCache {
-		bool root_motion = false;
 		uint64_t setup_pass = 0;
 		Animation::TrackType type = Animation::TrackType::TYPE_ANIMATION;
 		Object *object = nullptr;
@@ -231,20 +228,6 @@ private:
 		TrackCacheTransform() {
 			type = Animation::TYPE_POSITION_3D;
 		}
-	};
-
-	struct RootMotionCache {
-		Vector3 loc = Vector3(0, 0, 0);
-		Quaternion rot = Quaternion(0, 0, 0, 1);
-		Vector3 scale = Vector3(1, 1, 1);
-	};
-
-	struct TrackCacheBlendShape : public TrackCache {
-		MeshInstance3D *mesh_3d = nullptr;
-		float init_value = 0;
-		float value = 0;
-		int shape_index = -1;
-		TrackCacheBlendShape() { type = Animation::TYPE_BLEND_SHAPE; }
 	};
 
 	struct TrackCacheValue : public TrackCache {
@@ -305,7 +288,6 @@ private:
 		}
 	};
 
-	RootMotionCache root_motion_cache;
 	HashMap<NodePath, TrackCache *> track_cache;
 	HashSet<TrackCache *> playing_caches;
 	Vector<Node *> playing_audio_stream_players;
@@ -334,14 +316,6 @@ private:
 	uint64_t process_pass = 1;
 
 	bool started = true;
-
-	NodePath root_motion_track;
-	Vector3 root_motion_position = Vector3(0, 0, 0);
-	Quaternion root_motion_rotation = Quaternion(0, 0, 0, 1);
-	Vector3 root_motion_scale = Vector3(0, 0, 0);
-	Vector3 root_motion_position_accumulator = Vector3(0, 0, 0);
-	Quaternion root_motion_rotation_accumulator = Quaternion(0, 0, 0, 1);
-	Vector3 root_motion_scale_accumulator = Vector3(1, 1, 1);
 
 	friend class AnimationNode;
 	bool properties_dirty = true;
@@ -401,17 +375,6 @@ public:
 
 	bool is_state_invalid() const;
 	String get_invalid_state_reason() const;
-
-	void set_root_motion_track(const NodePath &p_track);
-	NodePath get_root_motion_track() const;
-
-	Vector3 get_root_motion_position() const;
-	Quaternion get_root_motion_rotation() const;
-	Vector3 get_root_motion_scale() const;
-
-	Vector3 get_root_motion_position_accumulator() const;
-	Quaternion get_root_motion_rotation_accumulator() const;
-	Vector3 get_root_motion_scale_accumulator() const;
 
 	real_t get_connection_activity(const StringName &p_path, int p_connection) const;
 	void advance(double p_time);

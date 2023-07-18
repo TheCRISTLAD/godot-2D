@@ -398,16 +398,6 @@
 				[/codeblock]
 			</description>
 		</annotation>
-		<annotation name="@export_flags_2d_navigation">
-			<return type="void" />
-			<description>
-				Export an integer property as a bit flag field for 2D navigation layers. The widget in the Inspector dock will use the layer names defined in [member ProjectSettings.layer_names/2d_navigation/layer_1].
-				See also [constant PROPERTY_HINT_LAYERS_2D_NAVIGATION].
-				[codeblock]
-				@export_flags_2d_navigation var navigation_layers: int
-				[/codeblock]
-			</description>
-		</annotation>
 		<annotation name="@export_flags_2d_physics">
 			<return type="void" />
 			<description>
@@ -425,46 +415,6 @@
 				See also [constant PROPERTY_HINT_LAYERS_2D_RENDER].
 				[codeblock]
 				@export_flags_2d_render var render_layers: int
-				[/codeblock]
-			</description>
-		</annotation>
-		<annotation name="@export_flags_3d_navigation">
-			<return type="void" />
-			<description>
-				Export an integer property as a bit flag field for 3D navigation layers. The widget in the Inspector dock will use the layer names defined in [member ProjectSettings.layer_names/3d_navigation/layer_1].
-				See also [constant PROPERTY_HINT_LAYERS_3D_NAVIGATION].
-				[codeblock]
-				@export_flags_3d_navigation var navigation_layers: int
-				[/codeblock]
-			</description>
-		</annotation>
-		<annotation name="@export_flags_3d_physics">
-			<return type="void" />
-			<description>
-				Export an integer property as a bit flag field for 3D physics layers. The widget in the Inspector dock will use the layer names defined in [member ProjectSettings.layer_names/3d_physics/layer_1].
-				See also [constant PROPERTY_HINT_LAYERS_3D_PHYSICS].
-				[codeblock]
-				@export_flags_3d_physics var physics_layers: int
-				[/codeblock]
-			</description>
-		</annotation>
-		<annotation name="@export_flags_3d_render">
-			<return type="void" />
-			<description>
-				Export an integer property as a bit flag field for 3D render layers. The widget in the Inspector dock will use the layer names defined in [member ProjectSettings.layer_names/3d_render/layer_1].
-				See also [constant PROPERTY_HINT_LAYERS_3D_RENDER].
-				[codeblock]
-				@export_flags_3d_render var render_layers: int
-				[/codeblock]
-			</description>
-		</annotation>
-		<annotation name="@export_flags_avoidance">
-			<return type="void" />
-			<description>
-				Export an integer property as a bit flag field for navigation avoidance layers. The widget in the Inspector dock will use the layer names defined in [member ProjectSettings.layer_names/avoidance/layer_1].
-				See also [constant PROPERTY_HINT_LAYERS_AVOIDANCE].
-				[codeblock]
-				@export_flags_avoidance var avoidance_layers: int
 				[/codeblock]
 			</description>
 		</annotation>

@@ -95,25 +95,16 @@
 #include "tests/scene/test_color_picker.h"
 #include "tests/scene/test_curve.h"
 #include "tests/scene/test_curve_2d.h"
-#include "tests/scene/test_curve_3d.h"
 #include "tests/scene/test_gradient.h"
-#include "tests/scene/test_navigation_agent_2d.h"
-#include "tests/scene/test_navigation_agent_3d.h"
-#include "tests/scene/test_navigation_obstacle_2d.h"
-#include "tests/scene/test_navigation_obstacle_3d.h"
-#include "tests/scene/test_navigation_region_2d.h"
-#include "tests/scene/test_navigation_region_3d.h"
 #include "tests/scene/test_node.h"
 #include "tests/scene/test_path_2d.h"
-#include "tests/scene/test_path_3d.h"
 #include "tests/scene/test_primitives.h"
 #include "tests/scene/test_sprite_frames.h"
 #include "tests/scene/test_text_edit.h"
 #include "tests/scene/test_theme.h"
 #include "tests/scene/test_viewport.h"
 #include "tests/scene/test_visual_shader.h"
-#include "tests/servers/test_navigation_server_2d.h"
-#include "tests/servers/test_navigation_server_3d.h"
+
 #include "tests/servers/test_text_server.h"
 #include "tests/test_validate_testing.h"
 
@@ -123,10 +114,7 @@
 #include "tests/test_macros.h"
 
 #include "scene/theme/theme_db.h"
-#include "servers/navigation_server_2d.h"
-#include "servers/navigation_server_3d.h"
 #include "servers/physics_server_2d.h"
-#include "servers/physics_server_3d.h"
 #include "servers/rendering/rendering_server_default.h"
 
 int test_main(int argc, char *argv[]) {
@@ -201,10 +189,7 @@ struct GodotTestCaseListener : public doctest::IReporter {
 
 	SignalWatcher *signal_watcher = nullptr;
 
-	PhysicsServer3D *physics_server_3d = nullptr;
 	PhysicsServer2D *physics_server_2d = nullptr;
-	NavigationServer3D *navigation_server_3d = nullptr;
-	NavigationServer2D *navigation_server_2d = nullptr;
 	ThemeDB *theme_db = nullptr;
 
 	void test_case_start(const doctest::TestCaseData &p_in) override {
@@ -231,14 +216,11 @@ struct GodotTestCaseListener : public doctest::IReporter {
 			RenderingServerDefault::get_singleton()->init();
 			RenderingServerDefault::get_singleton()->set_render_loop_enabled(false);
 
-			physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
-			physics_server_3d->init();
+			// physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
+			// physics_server_3d->init();
 
 			physics_server_2d = PhysicsServer2DManager::get_singleton()->new_default_server();
 			physics_server_2d->init();
-
-			navigation_server_3d = NavigationServer3DManager::new_default_server();
-			navigation_server_2d = memnew(NavigationServer2D);
 
 			memnew(InputMap);
 			InputMap::get_singleton()->load_default();
@@ -263,11 +245,6 @@ struct GodotTestCaseListener : public doctest::IReporter {
 			return;
 		}
 
-		if (suite_name.find("[Navigation]") != -1 && navigation_server_2d == nullptr && navigation_server_3d == nullptr) {
-			navigation_server_3d = NavigationServer3DManager::new_default_server();
-			navigation_server_2d = memnew(NavigationServer2D);
-			return;
-		}
 	}
 
 	void test_case_end(const doctest::CurrentTestCaseStats &) override {
@@ -286,22 +263,6 @@ struct GodotTestCaseListener : public doctest::IReporter {
 		if (theme_db) {
 			memdelete(theme_db);
 			theme_db = nullptr;
-		}
-
-		if (navigation_server_3d) {
-			memdelete(navigation_server_3d);
-			navigation_server_3d = nullptr;
-		}
-
-		if (navigation_server_2d) {
-			memdelete(navigation_server_2d);
-			navigation_server_2d = nullptr;
-		}
-
-		if (physics_server_3d) {
-			physics_server_3d->finish();
-			memdelete(physics_server_3d);
-			physics_server_3d = nullptr;
 		}
 
 		if (physics_server_2d) {

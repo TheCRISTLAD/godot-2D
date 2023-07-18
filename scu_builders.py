@@ -291,7 +291,6 @@ def generate_scu_files(verbose, is_release_build):
     process_folder(["platform/web/export"])
     process_folder(["platform/windows/export"])
 
-    process_folder(["modules/navigation"])
     process_folder(["modules/webrtc"])
     process_folder(["modules/websocket"])
     process_folder(["modules/multiplayer"])
@@ -316,8 +315,8 @@ def generate_scu_files(verbose, is_release_build):
     process_folder(["servers/rendering/renderer_rd/environment"])
     process_folder(["servers/rendering/renderer_rd/storage_rd"])
     process_folder(["servers/physics_2d"])
-    process_folder(["servers/physics_3d"])
-    process_folder(["servers/physics_3d/joints"])
+    # process_folder(["servers/physics_3d"])
+    # process_folder(["servers/physics_3d/joints"])
     process_folder(["servers/audio"])
     process_folder(["servers/audio/effects"])
 

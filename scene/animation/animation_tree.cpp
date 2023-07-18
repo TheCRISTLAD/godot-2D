@@ -587,10 +587,6 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 	List<StringName> sname;
 	player->get_animation_list(&sname);
 
-	root_motion_cache.loc = Vector3(0, 0, 0);
-	root_motion_cache.rot = Quaternion(0, 0, 0, 1);
-	root_motion_cache.scale = Vector3(1, 1, 1);
-
 	Ref<Animation> reset_anim;
 	bool has_reset_anim = player->has_animation(SceneStringNames::get_singleton()->RESET);
 	if (has_reset_anim) {
@@ -856,9 +852,6 @@ void AnimationTree::_process_graph(double p_delta) {
 	_update_properties(); //if properties need updating, update them
 
 	//check all tracks, see if they need modification
-	root_motion_position = Vector3(0, 0, 0);
-	root_motion_rotation = Quaternion(0, 0, 0, 1);
-	root_motion_scale = Vector3(0, 0, 0);
 
 	if (!root.is_valid()) {
 		ERR_PRINT("AnimationTree: root AnimationNode is not set, disabling playback.");
@@ -954,18 +947,11 @@ void AnimationTree::_process_graph(double p_delta) {
 			switch (track->type) {
 				case Animation::TYPE_POSITION_3D: {
 					TrackCacheTransform *t = static_cast<TrackCacheTransform *>(track);
-					if (track->root_motion) {
-						root_motion_cache.loc = Vector3(0, 0, 0);
-						root_motion_cache.rot = Quaternion(0, 0, 0, 1);
-						root_motion_cache.scale = Vector3(1, 1, 1);
-					}
 					t->loc = t->init_loc;
 					t->rot = t->init_rot;
 					t->scale = t->init_scale;
 				} break;
 				case Animation::TYPE_BLEND_SHAPE: {
-					TrackCacheBlendShape *t = static_cast<TrackCacheBlendShape *>(track);
-					t->value = t->init_value;
 				} break;
 				case Animation::TYPE_VALUE: {
 					TrackCacheValue *t = static_cast<TrackCacheValue *>(track);
@@ -1024,7 +1010,6 @@ void AnimationTree::_process_graph(double p_delta) {
 					//broken animation, but avoid error spamming
 					continue;
 				}
-				track->root_motion = root_motion_track == path;
 
 				switch (ttype) {
 					case Animation::TYPE_POSITION_3D: {
@@ -1549,38 +1534,6 @@ PackedStringArray AnimationTree::get_configuration_warnings() const {
 	return warnings;
 }
 
-void AnimationTree::set_root_motion_track(const NodePath &p_track) {
-	root_motion_track = p_track;
-}
-
-NodePath AnimationTree::get_root_motion_track() const {
-	return root_motion_track;
-}
-
-Vector3 AnimationTree::get_root_motion_position() const {
-	return root_motion_position;
-}
-
-Quaternion AnimationTree::get_root_motion_rotation() const {
-	return root_motion_rotation;
-}
-
-Vector3 AnimationTree::get_root_motion_scale() const {
-	return root_motion_scale;
-}
-
-Vector3 AnimationTree::get_root_motion_position_accumulator() const {
-	return root_motion_position_accumulator;
-}
-
-Quaternion AnimationTree::get_root_motion_rotation_accumulator() const {
-	return root_motion_rotation_accumulator;
-}
-
-Vector3 AnimationTree::get_root_motion_scale_accumulator() const {
-	return root_motion_scale_accumulator;
-}
-
 void AnimationTree::_tree_changed() {
 	if (properties_dirty) {
 		return;
@@ -1761,18 +1714,8 @@ void AnimationTree::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_advance_expression_base_node", "node"), &AnimationTree::set_advance_expression_base_node);
 	ClassDB::bind_method(D_METHOD("get_advance_expression_base_node"), &AnimationTree::get_advance_expression_base_node);
 
-	ClassDB::bind_method(D_METHOD("set_root_motion_track", "path"), &AnimationTree::set_root_motion_track);
-	ClassDB::bind_method(D_METHOD("get_root_motion_track"), &AnimationTree::get_root_motion_track);
-
 	ClassDB::bind_method(D_METHOD("set_audio_max_polyphony", "max_polyphony"), &AnimationTree::set_audio_max_polyphony);
 	ClassDB::bind_method(D_METHOD("get_audio_max_polyphony"), &AnimationTree::get_audio_max_polyphony);
-
-	ClassDB::bind_method(D_METHOD("get_root_motion_position"), &AnimationTree::get_root_motion_position);
-	ClassDB::bind_method(D_METHOD("get_root_motion_rotation"), &AnimationTree::get_root_motion_rotation);
-	ClassDB::bind_method(D_METHOD("get_root_motion_scale"), &AnimationTree::get_root_motion_scale);
-	ClassDB::bind_method(D_METHOD("get_root_motion_position_accumulator"), &AnimationTree::get_root_motion_position_accumulator);
-	ClassDB::bind_method(D_METHOD("get_root_motion_rotation_accumulator"), &AnimationTree::get_root_motion_rotation_accumulator);
-	ClassDB::bind_method(D_METHOD("get_root_motion_scale_accumulator"), &AnimationTree::get_root_motion_scale_accumulator);
 
 	ClassDB::bind_method(D_METHOD("_update_properties"), &AnimationTree::_update_properties);
 
@@ -1788,8 +1731,6 @@ void AnimationTree::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "process_callback", PROPERTY_HINT_ENUM, "Physics,Idle,Manual"), "set_process_callback", "get_process_callback");
 	ADD_GROUP("Audio", "audio_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "audio_max_polyphony", PROPERTY_HINT_RANGE, "1,127,1"), "set_audio_max_polyphony", "get_audio_max_polyphony");
-	ADD_GROUP("Root Motion", "root_motion_");
-	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "root_motion_track"), "set_root_motion_track", "get_root_motion_track");
 
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS);
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE);

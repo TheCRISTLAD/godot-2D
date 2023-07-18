@@ -131,7 +131,6 @@ private:
 #ifdef DEBUG_ENABLED
 	bool debug_collisions_hint = false;
 	bool debug_paths_hint = false;
-	bool debug_navigation_hint = false;
 #endif
 	bool paused = false;
 	int root_lock = 0;
@@ -229,7 +228,7 @@ private:
 	void _flush_delete_queue();
 	// Optimization.
 	friend class CanvasItem;
-	friend class Node3D;
+	// friend class Node3D;
 	friend class Viewport;
 
 	SelfList<Node>::List xform_change_list;
@@ -344,8 +343,6 @@ public:
 	void set_debug_paths_hint(bool p_enabled);
 	bool is_debugging_paths_hint() const;
 
-	void set_debug_navigation_hint(bool p_enabled);
-	bool is_debugging_navigation_hint() const;
 #else
 	void set_debug_collisions_hint(bool p_enabled) {}
 	bool is_debugging_collisions_hint() const { return false; }
@@ -353,8 +350,6 @@ public:
 	void set_debug_paths_hint(bool p_enabled) {}
 	bool is_debugging_paths_hint() const { return false; }
 
-	void set_debug_navigation_hint(bool p_enabled) {}
-	bool is_debugging_navigation_hint() const { return false; }
 #endif
 
 	void set_debug_collisions_color(const Color &p_color);

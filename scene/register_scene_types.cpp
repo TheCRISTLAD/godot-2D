@@ -53,10 +53,6 @@
 #include "scene/2d/marker_2d.h"
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/2d/multimesh_instance_2d.h"
-#include "scene/2d/navigation_agent_2d.h"
-#include "scene/2d/navigation_link_2d.h"
-#include "scene/2d/navigation_obstacle_2d.h"
-#include "scene/2d/navigation_region_2d.h"
 #include "scene/2d/parallax_background.h"
 #include "scene/2d/parallax_layer.h"
 #include "scene/2d/path_2d.h"
@@ -77,7 +73,6 @@
 #include "scene/animation/animation_node_state_machine.h"
 #include "scene/animation/animation_player.h"
 #include "scene/animation/animation_tree.h"
-#include "scene/animation/root_motion_view.h"
 #include "scene/animation/tween.h"
 #include "scene/audio/audio_stream_player.h"
 #include "scene/debugger/scene_debugger.h"
@@ -144,29 +139,20 @@
 #include "scene/resources/audio_stream_wav.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/bone_map.h"
-#include "scene/resources/box_shape_3d.h"
 #include "scene/resources/camera_attributes.h"
 #include "scene/resources/capsule_shape_2d.h"
-#include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/circle_shape_2d.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
-#include "scene/resources/concave_polygon_shape_3d.h"
 #include "scene/resources/convex_polygon_shape_2d.h"
-#include "scene/resources/convex_polygon_shape_3d.h"
-#include "scene/resources/cylinder_shape_3d.h"
 #include "scene/resources/default_theme/default_theme.h"
 #include "scene/resources/environment.h"
 #include "scene/resources/font.h"
 #include "scene/resources/gradient.h"
-#include "scene/resources/height_map_shape_3d.h"
-#include "scene/resources/immediate_mesh.h"
+// #include "scene/resources/immediate_mesh.h"
 #include "scene/resources/label_settings.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_data_tool.h"
 #include "scene/resources/multimesh.h"
-#include "scene/resources/navigation_mesh.h"
-#include "scene/resources/navigation_mesh_source_geometry_data_3d.h"
-#include "scene/resources/navigation_polygon.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/particle_process_material.h"
 #include "scene/resources/physics_material.h"
@@ -176,7 +162,6 @@
 #include "scene/resources/resource_format_text.h"
 #include "scene/resources/segment_shape_2d.h"
 #include "scene/resources/separation_ray_shape_2d.h"
-#include "scene/resources/separation_ray_shape_3d.h"
 #include "scene/resources/shader_include.h"
 #include "scene/resources/skeleton_modification_2d.h"
 #include "scene/resources/skeleton_modification_2d_ccdik.h"
@@ -190,7 +175,6 @@
 #include "scene/resources/skeleton_profile.h"
 #include "scene/resources/sky.h"
 #include "scene/resources/sky_material.h"
-#include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/resources/syntax_highlighter.h"
@@ -206,9 +190,7 @@
 #include "scene/resources/visual_shader_particle_nodes.h"
 #include "scene/resources/visual_shader_sdf_nodes.h"
 #include "scene/resources/world_2d.h"
-#include "scene/resources/world_3d.h"
 #include "scene/resources/world_boundary_shape_2d.h"
-#include "scene/resources/world_boundary_shape_3d.h"
 #include "scene/scene_string_names.h"
 #include "scene/theme/theme_db.h"
 
@@ -630,13 +612,13 @@ void register_scene_types() {
 	GDREGISTER_CLASS(MeshConvexDecompositionSettings);
 	GDREGISTER_CLASS(ArrayMesh);
 	GDREGISTER_CLASS(PlaceholderMesh);
-	GDREGISTER_CLASS(ImmediateMesh);
+	// GDREGISTER_CLASS(ImmediateMesh);
 	GDREGISTER_CLASS(MultiMesh);
 	GDREGISTER_CLASS(SurfaceTool);
 	GDREGISTER_CLASS(MeshDataTool);
 
 	GDREGISTER_CLASS(PhysicsMaterial);
-	GDREGISTER_CLASS(World3D);
+	// GDREGISTER_CLASS(World3D);
 	GDREGISTER_CLASS(Environment);
 	GDREGISTER_VIRTUAL_CLASS(CameraAttributes);
 	GDREGISTER_CLASS(CameraAttributesPhysical);
@@ -728,14 +710,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(Path2D);
 	GDREGISTER_CLASS(PathFollow2D);
 
-	GDREGISTER_CLASS(NavigationMesh);
-	GDREGISTER_CLASS(NavigationMeshSourceGeometryData3D);
-	GDREGISTER_CLASS(NavigationPolygon);
-	GDREGISTER_CLASS(NavigationRegion2D);
-	GDREGISTER_CLASS(NavigationAgent2D);
-	GDREGISTER_CLASS(NavigationObstacle2D);
-	GDREGISTER_CLASS(NavigationLink2D);
-
 	OS::get_singleton()->yield(); // may take time to init
 
 	GDREGISTER_ABSTRACT_CLASS(SceneState);
@@ -752,18 +726,10 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("BitmapFont", "FontFile");
 	ClassDB::add_compatibility_class("DynamicFont", "FontFile");
 	ClassDB::add_compatibility_class("DynamicFontData", "FontFile");
-	ClassDB::add_compatibility_class("Navigation3D", "Node3D");
-	ClassDB::add_compatibility_class("Navigation2D", "Node2D");
 	ClassDB::add_compatibility_class("OpenSimplexNoise", "FastNoiseLite");
-	ClassDB::add_compatibility_class("ProximityGroup", "Node3D");
 	ClassDB::add_compatibility_class("ToolButton", "Button");
 	ClassDB::add_compatibility_class("YSort", "Node2D");
-	// Portal and room occlusion was replaced by raster occlusion (OccluderInstance3D node).
-	ClassDB::add_compatibility_class("Portal", "Node3D");
-	ClassDB::add_compatibility_class("Room", "Node3D");
-	ClassDB::add_compatibility_class("RoomManager", "Node3D");
-	ClassDB::add_compatibility_class("RoomGroup", "Node3D");
-	ClassDB::add_compatibility_class("Occluder", "Node3D");
+
 	// The OccluderShapeSphere resource (used in the old Occluder node) is not present anymore.
 	ClassDB::add_compatibility_class("OccluderShapeSphere", "Resource");
 
@@ -811,13 +777,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("LineShape2D", "WorldBoundaryShape2D");
 	ClassDB::add_compatibility_class("MeshInstance", "MeshInstance3D");
 	ClassDB::add_compatibility_class("MultiMeshInstance", "MultiMeshInstance3D");
-	ClassDB::add_compatibility_class("NavigationAgent", "NavigationAgent3D");
-	ClassDB::add_compatibility_class("NavigationMeshInstance", "NavigationRegion3D");
-	ClassDB::add_compatibility_class("NavigationObstacle", "NavigationObstacle3D");
-	ClassDB::add_compatibility_class("NavigationPolygonInstance", "NavigationRegion2D");
-	ClassDB::add_compatibility_class("NavigationRegion", "NavigationRegion3D");
-	ClassDB::add_compatibility_class("Navigation2DServer", "NavigationServer2D");
-	ClassDB::add_compatibility_class("NavigationServer", "NavigationServer3D");
 	ClassDB::add_compatibility_class("OmniLight", "OmniLight3D");
 	ClassDB::add_compatibility_class("PanoramaSky", "Sky");
 	ClassDB::add_compatibility_class("Particles", "GPUParticles3D");
@@ -855,7 +814,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("SliderJoint", "SliderJoint3D");
 	ClassDB::add_compatibility_class("SoftBody", "SoftBody3D");
 	ClassDB::add_compatibility_class("SoftDynamicBody3D", "SoftBody3D");
-	ClassDB::add_compatibility_class("Spatial", "Node3D");
 	ClassDB::add_compatibility_class("SpatialGizmo", "Node3DGizmo");
 	ClassDB::add_compatibility_class("SpatialMaterial", "StandardMaterial3D");
 	ClassDB::add_compatibility_class("SphereShape", "SphereShape3D");
@@ -875,7 +833,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("VisibilityNotifier2D", "VisibleOnScreenNotifier2D");
 	ClassDB::add_compatibility_class("VisibilityNotifier3D", "VisibleOnScreenNotifier3D");
 	ClassDB::add_compatibility_class("VisualServer", "RenderingServer");
-	ClassDB::add_compatibility_class("World", "World3D");
 
 	// VisualShader classes.
 	ClassDB::add_compatibility_class("VisualShaderNodeScalarConstant", "VisualShaderNodeFloatConstant");
@@ -923,18 +880,10 @@ void register_scene_types() {
 
 	for (int i = 0; i < 20; i++) {
 		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/2d_render"), i + 1), "");
-		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/3d_render"), i + 1), "");
 	}
 
 	for (int i = 0; i < 32; i++) {
 		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/2d_physics"), i + 1), "");
-		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/2d_navigation"), i + 1), "");
-		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/3d_physics"), i + 1), "");
-		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/3d_navigation"), i + 1), "");
-	}
-
-	for (int i = 0; i < 32; i++) {
-		GLOBAL_DEF_BASIC(vformat("%s/layer_%d", PNAME("layer_names/avoidance"), i + 1), "");
 	}
 
 	if (RenderingServer::get_singleton()) {

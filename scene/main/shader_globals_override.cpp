@@ -30,7 +30,6 @@
 
 #include "shader_globals_override.h"
 
-#include "scene/3d/node_3d.h"
 #include "scene/scene_string_names.h"
 
 StringName *ShaderGlobalsOverride::_remap(const StringName &p_name) const {
@@ -246,29 +245,6 @@ void ShaderGlobalsOverride::_activate() {
 }
 
 void ShaderGlobalsOverride::_notification(int p_what) {
-	switch (p_what) {
-		case Node3D::NOTIFICATION_ENTER_TREE: {
-			add_to_group(SceneStringNames::get_singleton()->shader_overrides_group);
-			_activate();
-		} break;
-
-		case Node3D::NOTIFICATION_EXIT_TREE: {
-			if (active) {
-				//remove overrides
-				for (const KeyValue<StringName, Override> &E : overrides) {
-					const Override *o = &E.value;
-					if (o->in_use) {
-						RS::get_singleton()->global_shader_parameter_set_override(E.key, Variant());
-					}
-				}
-			}
-
-			remove_from_group(SceneStringNames::get_singleton()->shader_overrides_group_active);
-			remove_from_group(SceneStringNames::get_singleton()->shader_overrides_group);
-			get_tree()->call_group_flags(SceneTree::GROUP_CALL_DEFERRED, SceneStringNames::get_singleton()->shader_overrides_group, "_activate"); //another may want to activate when this is removed
-			active = false;
-		} break;
-	}
 }
 
 PackedStringArray ShaderGlobalsOverride::get_configuration_warnings() const {

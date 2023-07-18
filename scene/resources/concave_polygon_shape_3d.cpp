@@ -30,8 +30,6 @@
 
 #include "concave_polygon_shape_3d.h"
 
-#include "servers/physics_server_3d.h"
-
 Vector<Vector3> ConcavePolygonShape3D::get_debug_mesh_lines() const {
 	HashSet<DrawEdge, DrawEdge> edges;
 
@@ -70,12 +68,6 @@ real_t ConcavePolygonShape3D::get_enclosing_radius() const {
 }
 
 void ConcavePolygonShape3D::_update_shape() {
-	Dictionary d;
-	d["faces"] = faces;
-	d["backface_collision"] = backface_collision;
-	PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), d);
-
-	Shape3D::_update_shape();
 }
 
 void ConcavePolygonShape3D::set_faces(const Vector<Vector3> &p_faces) {
@@ -112,7 +104,5 @@ void ConcavePolygonShape3D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "backface_collision"), "set_backface_collision_enabled", "is_backface_collision_enabled");
 }
 
-ConcavePolygonShape3D::ConcavePolygonShape3D() :
-		Shape3D(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONCAVE_POLYGON)) {
-	//set_planes(Vector3(1,1,1));
+ConcavePolygonShape3D::ConcavePolygonShape3D() {
 }

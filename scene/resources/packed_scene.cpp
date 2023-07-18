@@ -37,7 +37,6 @@
 #include "core/io/resource_loader.h"
 #include "core/templates/local_vector.h"
 #include "scene/2d/node_2d.h"
-#include "scene/3d/node_3d.h"
 #include "scene/gui/control.h"
 #include "scene/main/instance_placeholder.h"
 #include "scene/main/missing_node.h"

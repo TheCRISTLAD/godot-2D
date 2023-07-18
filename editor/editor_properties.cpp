@@ -1141,36 +1141,6 @@ void EditorPropertyLayers::setup(LayerType p_layer_type) {
 			layer_group_size = 4;
 			layer_count = 32;
 		} break;
-
-		case LAYER_NAVIGATION_2D: {
-			basename = "layer_names/2d_navigation";
-			layer_group_size = 4;
-			layer_count = 32;
-		} break;
-
-		case LAYER_RENDER_3D: {
-			basename = "layer_names/3d_render";
-			layer_group_size = 5;
-			layer_count = 20;
-		} break;
-
-		case LAYER_PHYSICS_3D: {
-			basename = "layer_names/3d_physics";
-			layer_group_size = 4;
-			layer_count = 32;
-		} break;
-
-		case LAYER_NAVIGATION_3D: {
-			basename = "layer_names/3d_navigation";
-			layer_group_size = 4;
-			layer_count = 32;
-		} break;
-
-		case LAYER_AVOIDANCE: {
-			basename = "layer_names/avoidance";
-			layer_group_size = 4;
-			layer_count = 32;
-		} break;
 	}
 
 	Vector<String> names;
@@ -3522,13 +3492,7 @@ EditorProperty *EditorInspectorDefaultPlugin::get_editor_for_property(Object *p_
 				editor->setup(options);
 				return editor;
 
-			} else if (p_hint == PROPERTY_HINT_LAYERS_2D_PHYSICS ||
-					p_hint == PROPERTY_HINT_LAYERS_2D_RENDER ||
-					p_hint == PROPERTY_HINT_LAYERS_2D_NAVIGATION ||
-					p_hint == PROPERTY_HINT_LAYERS_3D_PHYSICS ||
-					p_hint == PROPERTY_HINT_LAYERS_3D_RENDER ||
-					p_hint == PROPERTY_HINT_LAYERS_3D_NAVIGATION ||
-					p_hint == PROPERTY_HINT_LAYERS_AVOIDANCE) {
+			} else if (p_hint == PROPERTY_HINT_LAYERS_2D_PHYSICS || p_hint == PROPERTY_HINT_LAYERS_2D_RENDER) {
 				EditorPropertyLayers::LayerType lt = EditorPropertyLayers::LAYER_RENDER_2D;
 				switch (p_hint) {
 					case PROPERTY_HINT_LAYERS_2D_RENDER:
@@ -3536,21 +3500,6 @@ EditorProperty *EditorInspectorDefaultPlugin::get_editor_for_property(Object *p_
 						break;
 					case PROPERTY_HINT_LAYERS_2D_PHYSICS:
 						lt = EditorPropertyLayers::LAYER_PHYSICS_2D;
-						break;
-					case PROPERTY_HINT_LAYERS_2D_NAVIGATION:
-						lt = EditorPropertyLayers::LAYER_NAVIGATION_2D;
-						break;
-					case PROPERTY_HINT_LAYERS_3D_RENDER:
-						lt = EditorPropertyLayers::LAYER_RENDER_3D;
-						break;
-					case PROPERTY_HINT_LAYERS_3D_PHYSICS:
-						lt = EditorPropertyLayers::LAYER_PHYSICS_3D;
-						break;
-					case PROPERTY_HINT_LAYERS_3D_NAVIGATION:
-						lt = EditorPropertyLayers::LAYER_NAVIGATION_3D;
-						break;
-					case PROPERTY_HINT_LAYERS_AVOIDANCE:
-						lt = EditorPropertyLayers::LAYER_AVOIDANCE;
 						break;
 					default: {
 					} //compiler could be smarter here and realize this can't happen

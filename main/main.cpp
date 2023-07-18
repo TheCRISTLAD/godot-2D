@@ -69,11 +69,7 @@
 #include "servers/display_server.h"
 #include "servers/movie_writer/movie_writer.h"
 #include "servers/movie_writer/movie_writer_mjpeg.h"
-#include "servers/navigation_server_2d.h"
-#include "servers/navigation_server_3d.h"
-#include "servers/navigation_server_3d_dummy.h"
 #include "servers/physics_server_2d.h"
-#include "servers/physics_server_3d.h"
 #include "servers/register_server_types.h"
 #include "servers/rendering/rendering_server_default.h"
 #include "servers/text/text_server_dummy.h"
@@ -139,12 +135,8 @@ static DisplayServer *display_server = nullptr;
 static RenderingServer *rendering_server = nullptr;
 static CameraServer *camera_server = nullptr;
 static TextServerManager *tsman = nullptr;
-static PhysicsServer3DManager *physics_server_3d_manager = nullptr;
-static PhysicsServer3D *physics_server_3d = nullptr;
 static PhysicsServer2DManager *physics_server_2d_manager = nullptr;
 static PhysicsServer2D *physics_server_2d = nullptr;
-static NavigationServer3D *navigation_server_3d = nullptr;
-static NavigationServer2D *navigation_server_2d = nullptr;
 static ThemeDB *theme_db = nullptr;
 // We error out if setup2() doesn't turn this true
 static bool _start_success = false;
@@ -205,8 +197,6 @@ static bool use_debug_profiler = false;
 #ifdef DEBUG_ENABLED
 static bool debug_collisions = false;
 static bool debug_paths = false;
-static bool debug_navigation = false;
-static bool debug_avoidance = false;
 #endif
 static int frame_delay = 0;
 static bool disable_render_loop = false;
@@ -279,14 +269,14 @@ static Vector<String> get_files_with_extension(const String &p_root, const Strin
 // FIXME: Could maybe be moved to have less code in main.cpp.
 void initialize_physics() {
 	/// 3D Physics Server
-	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
-			GLOBAL_GET(PhysicsServer3DManager::setting_property_name));
-	if (!physics_server_3d) {
-		// Physics server not found, Use the default physics
-		physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
-	}
-	ERR_FAIL_COND(!physics_server_3d);
-	physics_server_3d->init();
+	// physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
+	// 		GLOBAL_GET(PhysicsServer3DManager::setting_property_name));
+	// if (!physics_server_3d) {
+	// 	// Physics server not found, Use the default physics
+	// 	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
+	// }
+	// ERR_FAIL_COND(!physics_server_3d);
+	// physics_server_3d->init();
 
 	// 2D Physics server
 	physics_server_2d = PhysicsServer2DManager::get_singleton()->new_server(
@@ -300,8 +290,8 @@ void initialize_physics() {
 }
 
 void finalize_physics() {
-	physics_server_3d->finish();
-	memdelete(physics_server_3d);
+	// physics_server_3d->finish();
+	// memdelete(physics_server_3d);
 
 	physics_server_2d->finish();
 	memdelete(physics_server_2d);
@@ -312,34 +302,6 @@ void finalize_display() {
 	memdelete(rendering_server);
 
 	memdelete(display_server);
-}
-
-void initialize_navigation_server() {
-	ERR_FAIL_COND(navigation_server_3d != nullptr);
-
-	// Init 3D Navigation Server
-	navigation_server_3d = NavigationServer3DManager::new_default_server();
-
-	// Fall back to dummy if no default server has been registered.
-	if (!navigation_server_3d) {
-		WARN_PRINT_ONCE("No NavigationServer3D implementation has been registered! Falling back to a dummy implementation: navigation features will be unavailable.");
-		navigation_server_3d = memnew(NavigationServer3DDummy);
-	}
-
-	// Should be impossible, but make sure it's not null.
-	ERR_FAIL_NULL_MSG(navigation_server_3d, "Failed to initialize NavigationServer3D.");
-
-	// Init 2D Navigation Server
-	navigation_server_2d = memnew(NavigationServer2D);
-	ERR_FAIL_NULL_MSG(navigation_server_2d, "Failed to initialize NavigationServer2D.");
-}
-
-void finalize_navigation_server() {
-	memdelete(navigation_server_3d);
-	navigation_server_3d = nullptr;
-
-	memdelete(navigation_server_2d);
-	navigation_server_2d = nullptr;
 }
 
 void initialize_theme_db() {
@@ -455,8 +417,6 @@ void Main::print_help(const char *p_binary) {
 #if defined(DEBUG_ENABLED)
 	OS::get_singleton()->print("  --debug-collisions                Show collision shapes when running the scene.\n");
 	OS::get_singleton()->print("  --debug-paths                     Show path lines when running the scene.\n");
-	OS::get_singleton()->print("  --debug-navigation                Show navigation polygons when running the scene.\n");
-	OS::get_singleton()->print("  --debug-avoidance                 Show navigation avoidance debug visuals when running the scene.\n");
 	OS::get_singleton()->print("  --debug-stringnames               Print all StringName allocations to stdout when the engine quits.\n");
 #endif
 	OS::get_singleton()->print("  --frame-delay <ms>                Simulate high CPU load (delay each frame by <ms> milliseconds).\n");
@@ -531,7 +491,7 @@ Error Main::test_setup() {
 		tsman->add_interface(ts);
 	}
 
-	physics_server_3d_manager = memnew(PhysicsServer3DManager);
+	// physics_server_3d_manager = memnew(PhysicsServer3DManager);
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 
 	// From `Main::setup2()`.
@@ -650,9 +610,9 @@ void Main::test_cleanup() {
 	if (tsman) {
 		memdelete(tsman);
 	}
-	if (physics_server_3d_manager) {
-		memdelete(physics_server_3d_manager);
-	}
+	// if (physics_server_3d_manager) {
+	// 	memdelete(physics_server_3d_manager);
+	// }
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);
 	}
@@ -1361,10 +1321,6 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 			debug_collisions = true;
 		} else if (I->get() == "--debug-paths") {
 			debug_paths = true;
-		} else if (I->get() == "--debug-navigation") {
-			debug_navigation = true;
-		} else if (I->get() == "--debug-avoidance") {
-			debug_avoidance = true;
 		} else if (I->get() == "--debug-stringnames") {
 			StringName::set_debug_stringnames(true);
 #endif
@@ -2064,7 +2020,7 @@ Error Main::setup2() {
 		tsman->add_interface(ts);
 	}
 
-	physics_server_3d_manager = memnew(PhysicsServer3DManager);
+	// physics_server_3d_manager = memnew(PhysicsServer3DManager);
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 
 	register_server_types();
@@ -2499,7 +2455,6 @@ Error Main::setup2() {
 	MAIN_PRINT("Main: Load Physics");
 
 	initialize_physics();
-	initialize_navigation_server();
 	register_server_singletons();
 
 	// This loads global classes, so it must happen before custom loaders and savers are registered
@@ -2924,17 +2879,6 @@ bool Main::start() {
 		if (debug_paths) {
 			sml->set_debug_paths_hint(true);
 		}
-		if (debug_navigation) {
-			sml->set_debug_navigation_hint(true);
-			NavigationServer3D::get_singleton()->set_debug_navigation_enabled(true);
-		}
-		if (debug_avoidance) {
-			NavigationServer3D::get_singleton()->set_debug_avoidance_enabled(true);
-		}
-		if (debug_navigation || debug_avoidance) {
-			NavigationServer3D::get_singleton()->set_active(true);
-			NavigationServer3D::get_singleton()->set_debug_enabled(true);
-		}
 #endif
 
 		if (single_threaded_scene) {
@@ -3279,7 +3223,6 @@ bool Main::is_iterating() {
 // For performance metrics.
 static uint64_t physics_process_max = 0;
 static uint64_t process_max = 0;
-static uint64_t navigation_process_max = 0;
 
 bool Main::iteration() {
 	//for now do not error on this
@@ -3308,7 +3251,6 @@ bool Main::iteration() {
 
 	uint64_t physics_process_ticks = 0;
 	uint64_t process_ticks = 0;
-	uint64_t navigation_process_ticks = 0;
 
 	frame += ticks_elapsed;
 
@@ -3331,31 +3273,21 @@ bool Main::iteration() {
 
 		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
-		PhysicsServer3D::get_singleton()->sync();
-		PhysicsServer3D::get_singleton()->flush_queries();
+		// PhysicsServer3D::get_singleton()->sync();
+		// PhysicsServer3D::get_singleton()->flush_queries();
 
 		PhysicsServer2D::get_singleton()->sync();
 		PhysicsServer2D::get_singleton()->flush_queries();
 
 		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
-			PhysicsServer3D::get_singleton()->end_sync();
+			// PhysicsServer3D::get_singleton()->end_sync();
 			PhysicsServer2D::get_singleton()->end_sync();
 
 			exit = true;
 			break;
 		}
 
-		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
-
-		NavigationServer3D::get_singleton()->process(physics_step * time_scale);
-
-		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
-		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
-
 		message_queue->flush();
-
-		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
 
 		PhysicsServer2D::get_singleton()->end_sync();
 		PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
@@ -3430,10 +3362,8 @@ bool Main::iteration() {
 		Engine::get_singleton()->_fps = frames;
 		performance->set_process_time(USEC_TO_SEC(process_max));
 		performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
-		performance->set_navigation_process_time(USEC_TO_SEC(navigation_process_max));
 		process_max = 0;
 		physics_process_max = 0;
-		navigation_process_max = 0;
 
 		frame %= 1000000;
 		frames = 0;
@@ -3549,7 +3479,6 @@ void Main::cleanup(bool p_force) {
 	finalize_theme_db();
 
 	// Before deinitializing server extensions, finalize servers which may be loaded as extensions.
-	finalize_navigation_server();
 	finalize_physics();
 
 	GDExtensionManager::get_singleton()->deinitialize_extensions(GDExtension::INITIALIZATION_LEVEL_SERVERS);
@@ -3593,9 +3522,9 @@ void Main::cleanup(bool p_force) {
 	if (tsman) {
 		memdelete(tsman);
 	}
-	if (physics_server_3d_manager) {
-		memdelete(physics_server_3d_manager);
-	}
+	// if (physics_server_3d_manager) {
+	// 	memdelete(physics_server_3d_manager);
+	// }
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);
 	}

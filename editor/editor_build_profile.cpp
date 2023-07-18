@@ -42,10 +42,7 @@
 
 const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 	// This maps to SCons build options.
-	"disable_3d",
 	"disable_2d_physics",
-	"disable_3d_physics",
-	"disable_navigation",
 	"rendering_device", // FIXME: there's no scons option to disable rendering device
 	"opengl3",
 	"vulkan",
@@ -59,10 +56,7 @@ const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 
 const bool EditorBuildProfile::build_option_disabled_by_default[BUILD_OPTION_MAX] = {
 	// This maps to SCons build options.
-	false, // 3D
 	false, // PHYSICS_2D
-	false, // PHYSICS_3D
-	false, // NAVIGATION
 	false, // RENDERING_DEVICE
 	false, // OPENGL
 	false, // VULKAN
@@ -76,10 +70,7 @@ const bool EditorBuildProfile::build_option_disabled_by_default[BUILD_OPTION_MAX
 
 const bool EditorBuildProfile::build_option_disable_values[BUILD_OPTION_MAX] = {
 	// This maps to SCons build options.
-	true, // 3D
 	true, // PHYSICS_2D
-	true, // PHYSICS_3D
-	true, // NAVIGATION
 	false, // RENDERING_DEVICE
 	false, // OPENGL
 	false, // VULKAN
@@ -92,10 +83,7 @@ const bool EditorBuildProfile::build_option_disable_values[BUILD_OPTION_MAX] = {
 };
 
 const EditorBuildProfile::BuildOptionCategory EditorBuildProfile::build_option_category[BUILD_OPTION_MAX] = {
-	BUILD_OPTION_CATEGORY_GENERAL, // 3D
 	BUILD_OPTION_CATEGORY_GENERAL, // PHYSICS_2D
-	BUILD_OPTION_CATEGORY_GENERAL, // PHYSICS_3D
-	BUILD_OPTION_CATEGORY_GENERAL, // NAVIGATION
 	BUILD_OPTION_CATEGORY_GENERAL, // RENDERING_DEVICE
 	BUILD_OPTION_CATEGORY_GENERAL, // OPENGL
 	BUILD_OPTION_CATEGORY_GENERAL, // VULKAN
@@ -165,10 +153,7 @@ String EditorBuildProfile::get_force_detect_classes() const {
 String EditorBuildProfile::get_build_option_name(BuildOption p_build_option) {
 	ERR_FAIL_INDEX_V(p_build_option, BUILD_OPTION_MAX, String());
 	const char *build_option_names[BUILD_OPTION_MAX] = {
-		TTRC("3D Engine"),
 		TTRC("2D Physics"),
-		TTRC("3D Physics"),
-		TTRC("Navigation"),
 		TTRC("RenderingDevice"),
 		TTRC("OpenGL"),
 		TTRC("Vulkan"),
@@ -186,10 +171,7 @@ String EditorBuildProfile::get_build_option_description(BuildOption p_build_opti
 	ERR_FAIL_INDEX_V(p_build_option, BUILD_OPTION_MAX, String());
 
 	const char *build_option_descriptions[BUILD_OPTION_MAX] = {
-		TTRC("3D Nodes as well as RenderingServer access to 3D features."),
 		TTRC("2D Physics nodes and PhysicsServer2D."),
-		TTRC("3D Physics nodes and PhysicsServer3D."),
-		TTRC("Navigation, both 2D and 3D."),
 		TTRC("RenderingDevice based rendering (if disabled, the OpenGL back-end is required)."),
 		TTRC("OpenGL back-end (if disabled, the RenderingDevice back-end is required)."),
 		TTRC("Vulkan back-end of RenderingDevice."),
@@ -326,10 +308,7 @@ void EditorBuildProfile::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("save_to_file", "path"), &EditorBuildProfile::save_to_file);
 	ClassDB::bind_method(D_METHOD("load_from_file", "path"), &EditorBuildProfile::load_from_file);
 
-	BIND_ENUM_CONSTANT(BUILD_OPTION_3D);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_PHYSICS_2D);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_PHYSICS_3D);
-	BIND_ENUM_CONSTANT(BUILD_OPTION_NAVIGATION);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_RENDERING_DEVICE);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_OPENGL);
 	BIND_ENUM_CONSTANT(BUILD_OPTION_VULKAN);

@@ -32,11 +32,6 @@
 
 #include "core/io/marshalls.h"
 #include "scene/resources/world_2d.h"
-#include "servers/navigation_server_2d.h"
-
-#ifdef DEBUG_ENABLED
-#include "servers/navigation_server_3d.h"
-#endif // DEBUG_ENABLED
 
 HashMap<Vector2i, TileSet::CellNeighbor> TileMap::TerrainConstraint::get_overlapping_coords_and_peering_bits() const {
 	HashMap<Vector2i, TileSet::CellNeighbor> output;
@@ -509,7 +504,6 @@ void TileMap::_notification(int p_what) {
 	if (tile_set.is_valid()) {
 		_rendering_notification(p_what);
 		_physics_notification(p_what);
-		_navigation_notification(p_what);
 	}
 }
 
@@ -771,35 +765,6 @@ TileMap::VisibilityMode TileMap::get_collision_visibility_mode() {
 	return collision_visibility_mode;
 }
 
-void TileMap::set_navigation_visibility_mode(TileMap::VisibilityMode p_show_navigation) {
-	if (navigation_visibility_mode == p_show_navigation) {
-		return;
-	}
-	navigation_visibility_mode = p_show_navigation;
-	_clear_internals();
-	_recreate_internals();
-	emit_signal(SNAME("changed"));
-}
-
-TileMap::VisibilityMode TileMap::get_navigation_visibility_mode() {
-	return navigation_visibility_mode;
-}
-
-void TileMap::set_navigation_map(int p_layer, RID p_map) {
-	ERR_FAIL_INDEX(p_layer, (int)layers.size());
-	ERR_FAIL_COND_MSG(!is_inside_tree(), "A TileMap navigation map can only be changed while inside the SceneTree.");
-	layers[p_layer].navigation_map = p_map;
-	layers[p_layer].uses_world_navigation_map = p_map == get_world_2d()->get_navigation_map();
-}
-
-RID TileMap::get_navigation_map(int p_layer) const {
-	ERR_FAIL_INDEX_V(p_layer, (int)layers.size(), RID());
-	if (layers[p_layer].navigation_map.is_valid()) {
-		return layers[p_layer].navigation_map;
-	}
-	return RID();
-}
-
 void TileMap::set_y_sort_enabled(bool p_enable) {
 	if (is_y_sort_enabled() == p_enable) {
 		return;
@@ -902,7 +867,6 @@ void TileMap::_update_dirty_quadrants() {
 		// Call the update_dirty_quadrant method on plugins.
 		_rendering_update_dirty_quadrants(dirty_quadrant_list);
 		_physics_update_dirty_quadrants(dirty_quadrant_list);
-		_navigation_update_dirty_quadrants(dirty_quadrant_list);
 		_scenes_update_dirty_quadrants(dirty_quadrant_list);
 
 		// Redraw the debug canvas_items.
@@ -915,7 +879,6 @@ void TileMap::_update_dirty_quadrants() {
 
 			_rendering_draw_quadrant_debug(q->self());
 			_physics_draw_quadrant_debug(q->self());
-			_navigation_draw_quadrant_debug(q->self());
 			_scenes_draw_quadrant_debug(q->self());
 		}
 
@@ -947,9 +910,6 @@ void TileMap::_recreate_layer_internals(int p_layer) {
 
 	// Update the layer internals.
 	_rendering_update_layer(p_layer);
-
-	// Update the layer internal navigation maps.
-	_navigation_update_layer(p_layer);
 
 	// Recreate the quadrants.
 	const HashMap<Vector2i, TileMapCell> &tile_map = layers[p_layer].tile_map;
@@ -985,7 +945,6 @@ void TileMap::_erase_quadrant(HashMap<Vector2i, TileMapQuadrant>::Iterator Q) {
 	if (tile_set.is_valid()) {
 		_rendering_cleanup_quadrant(q);
 		_physics_cleanup_quadrant(q);
-		_navigation_cleanup_quadrant(q);
 		_scenes_cleanup_quadrant(q);
 	}
 
@@ -1012,9 +971,6 @@ void TileMap::_clear_layer_internals(int p_layer) {
 
 	// Clear the layers internals.
 	_rendering_cleanup_layer(p_layer);
-
-	// Clear the layers internal navigation maps.
-	_navigation_cleanup_layer(p_layer);
 
 	// Clear the dirty quadrants list.
 	while (layers[p_layer].dirty_quadrant_list.first()) {
@@ -1137,38 +1093,6 @@ void TileMap::_rendering_notification(int p_what) {
 				}
 			}
 		} break;
-	}
-}
-
-void TileMap::_navigation_update_layer(int p_layer) {
-	ERR_FAIL_INDEX(p_layer, (int)layers.size());
-	ERR_FAIL_NULL(NavigationServer2D::get_singleton());
-
-	if (!layers[p_layer].navigation_map.is_valid()) {
-		if (p_layer == 0 && is_inside_tree()) {
-			// Use the default World2D navigation map for the first layer when empty.
-			layers[p_layer].navigation_map = get_world_2d()->get_navigation_map();
-			layers[p_layer].uses_world_navigation_map = true;
-		} else {
-			RID new_layer_map = NavigationServer2D::get_singleton()->map_create();
-			NavigationServer2D::get_singleton()->map_set_active(new_layer_map, true);
-			layers[p_layer].navigation_map = new_layer_map;
-			layers[p_layer].uses_world_navigation_map = false;
-		}
-	}
-}
-
-void TileMap::_navigation_cleanup_layer(int p_layer) {
-	ERR_FAIL_INDEX(p_layer, (int)layers.size());
-	ERR_FAIL_NULL(NavigationServer2D::get_singleton());
-
-	if (layers[p_layer].navigation_map.is_valid()) {
-		if (layers[p_layer].uses_world_navigation_map) {
-			// Do not delete the World2D default navigation map.
-			return;
-		}
-		NavigationServer2D::get_singleton()->free(layers[p_layer].navigation_map);
-		layers[p_layer].navigation_map = RID();
 	}
 }
 
@@ -1751,228 +1675,6 @@ void TileMap::_physics_draw_quadrant_debug(TileMapQuadrant *p_quadrant) {
 		rs->canvas_item_add_set_transform(p_quadrant->debug_canvas_item, Transform2D());
 	}
 };
-
-/////////////////////////////// Navigation //////////////////////////////////////
-
-void TileMap::_navigation_notification(int p_what) {
-	switch (p_what) {
-		case NOTIFICATION_TRANSFORM_CHANGED: {
-			if (is_inside_tree()) {
-				for (TileMapLayer &layer : layers) {
-					Transform2D tilemap_xform = get_global_transform();
-					for (KeyValue<Vector2i, TileMapQuadrant> &E_quadrant : layer.quadrant_map) {
-						TileMapQuadrant &q = E_quadrant.value;
-						for (const KeyValue<Vector2i, Vector<RID>> &E_region : q.navigation_regions) {
-							for (const RID &region : E_region.value) {
-								if (!region.is_valid()) {
-									continue;
-								}
-								Transform2D tile_transform;
-								tile_transform.set_origin(map_to_local(E_region.key));
-								NavigationServer2D::get_singleton()->region_set_transform(region, tilemap_xform * tile_transform);
-							}
-						}
-					}
-				}
-			}
-		} break;
-	}
-}
-
-void TileMap::_navigation_update_dirty_quadrants(SelfList<TileMapQuadrant>::List &r_dirty_quadrant_list) {
-	ERR_FAIL_COND(!is_inside_tree());
-	ERR_FAIL_COND(!tile_set.is_valid());
-
-	Transform2D tilemap_xform = get_global_transform();
-	SelfList<TileMapQuadrant> *q_list_element = r_dirty_quadrant_list.first();
-	while (q_list_element) {
-		TileMapQuadrant &q = *q_list_element->self();
-
-		// Clear navigation shapes in the quadrant.
-		for (const KeyValue<Vector2i, Vector<RID>> &E : q.navigation_regions) {
-			for (int i = 0; i < E.value.size(); i++) {
-				RID region = E.value[i];
-				if (!region.is_valid()) {
-					continue;
-				}
-				NavigationServer2D::get_singleton()->region_set_map(region, RID());
-			}
-		}
-		q.navigation_regions.clear();
-
-		// Get the navigation polygons and create regions.
-		for (const Vector2i &E_cell : q.cells) {
-			TileMapCell c = get_cell(q.layer, E_cell, true);
-
-			TileSetSource *source;
-			if (tile_set->has_source(c.source_id)) {
-				source = *tile_set->get_source(c.source_id);
-
-				if (!source->has_tile(c.get_atlas_coords()) || !source->has_alternative_tile(c.get_atlas_coords(), c.alternative_tile)) {
-					continue;
-				}
-
-				TileSetAtlasSource *atlas_source = Object::cast_to<TileSetAtlasSource>(source);
-				if (atlas_source) {
-					const TileData *tile_data;
-					if (q.runtime_tile_data_cache.has(E_cell)) {
-						tile_data = q.runtime_tile_data_cache[E_cell];
-					} else {
-						tile_data = atlas_source->get_tile_data(c.get_atlas_coords(), c.alternative_tile);
-					}
-					q.navigation_regions[E_cell].resize(tile_set->get_navigation_layers_count());
-
-					for (int layer_index = 0; layer_index < tile_set->get_navigation_layers_count(); layer_index++) {
-						if (layer_index >= (int)layers.size() || !layers[layer_index].navigation_map.is_valid()) {
-							continue;
-						}
-						Ref<NavigationPolygon> navigation_polygon;
-						navigation_polygon = tile_data->get_navigation_polygon(layer_index);
-
-						if (navigation_polygon.is_valid()) {
-							Transform2D tile_transform;
-							tile_transform.set_origin(map_to_local(E_cell));
-
-							RID region = NavigationServer2D::get_singleton()->region_create();
-							NavigationServer2D::get_singleton()->region_set_owner_id(region, get_instance_id());
-							NavigationServer2D::get_singleton()->region_set_map(region, layers[layer_index].navigation_map);
-							NavigationServer2D::get_singleton()->region_set_transform(region, tilemap_xform * tile_transform);
-							NavigationServer2D::get_singleton()->region_set_navigation_layers(region, tile_set->get_navigation_layer_layers(layer_index));
-							NavigationServer2D::get_singleton()->region_set_navigation_polygon(region, navigation_polygon);
-							q.navigation_regions[E_cell].write[layer_index] = region;
-						}
-					}
-				}
-			}
-		}
-
-		q_list_element = q_list_element->next();
-	}
-}
-
-void TileMap::_navigation_cleanup_quadrant(TileMapQuadrant *p_quadrant) {
-	// Clear navigation shapes in the quadrant.
-	ERR_FAIL_NULL(NavigationServer2D::get_singleton());
-	for (const KeyValue<Vector2i, Vector<RID>> &E : p_quadrant->navigation_regions) {
-		for (int i = 0; i < E.value.size(); i++) {
-			RID region = E.value[i];
-			if (!region.is_valid()) {
-				continue;
-			}
-			NavigationServer2D::get_singleton()->free(region);
-		}
-	}
-	p_quadrant->navigation_regions.clear();
-}
-
-void TileMap::_navigation_draw_quadrant_debug(TileMapQuadrant *p_quadrant) {
-	// Draw the debug collision shapes.
-	ERR_FAIL_COND(!tile_set.is_valid());
-
-	if (!get_tree()) {
-		return;
-	}
-
-	bool show_navigation = false;
-	switch (navigation_visibility_mode) {
-		case TileMap::VISIBILITY_MODE_DEFAULT:
-			show_navigation = !Engine::get_singleton()->is_editor_hint() && (get_tree() && get_tree()->is_debugging_navigation_hint());
-			break;
-		case TileMap::VISIBILITY_MODE_FORCE_HIDE:
-			show_navigation = false;
-			break;
-		case TileMap::VISIBILITY_MODE_FORCE_SHOW:
-			show_navigation = true;
-			break;
-	}
-	if (!show_navigation) {
-		return;
-	}
-
-#ifdef DEBUG_ENABLED
-	RenderingServer *rs = RenderingServer::get_singleton();
-	const NavigationServer2D *ns2d = NavigationServer2D::get_singleton();
-
-	bool enabled_geometry_face_random_color = ns2d->get_debug_navigation_enable_geometry_face_random_color();
-	bool enabled_edge_lines = ns2d->get_debug_navigation_enable_edge_lines();
-
-	Color debug_face_color = ns2d->get_debug_navigation_geometry_face_color();
-	Color debug_edge_color = ns2d->get_debug_navigation_geometry_edge_color();
-
-	RandomPCG rand;
-
-	Vector2 quadrant_pos = map_to_local(p_quadrant->coords * get_effective_quadrant_size(p_quadrant->layer));
-
-	for (const Vector2i &E_cell : p_quadrant->cells) {
-		TileMapCell c = get_cell(p_quadrant->layer, E_cell, true);
-
-		TileSetSource *source;
-		if (tile_set->has_source(c.source_id)) {
-			source = *tile_set->get_source(c.source_id);
-
-			if (!source->has_tile(c.get_atlas_coords()) || !source->has_alternative_tile(c.get_atlas_coords(), c.alternative_tile)) {
-				continue;
-			}
-
-			TileSetAtlasSource *atlas_source = Object::cast_to<TileSetAtlasSource>(source);
-			if (atlas_source) {
-				const TileData *tile_data;
-				if (p_quadrant->runtime_tile_data_cache.has(E_cell)) {
-					tile_data = p_quadrant->runtime_tile_data_cache[E_cell];
-				} else {
-					tile_data = atlas_source->get_tile_data(c.get_atlas_coords(), c.alternative_tile);
-				}
-
-				Transform2D cell_to_quadrant;
-				cell_to_quadrant.set_origin(map_to_local(E_cell) - quadrant_pos);
-				rs->canvas_item_add_set_transform(p_quadrant->debug_canvas_item, cell_to_quadrant);
-
-				for (int layer_index = 0; layer_index < tile_set->get_navigation_layers_count(); layer_index++) {
-					Ref<NavigationPolygon> navigation_polygon = tile_data->get_navigation_polygon(layer_index);
-					if (navigation_polygon.is_valid()) {
-						Vector<Vector2> navigation_polygon_vertices = navigation_polygon->get_vertices();
-						if (navigation_polygon_vertices.size() < 3) {
-							continue;
-						}
-
-						for (int i = 0; i < navigation_polygon->get_polygon_count(); i++) {
-							// An array of vertices for this polygon.
-							Vector<int> polygon = navigation_polygon->get_polygon(i);
-							Vector<Vector2> debug_polygon_vertices;
-							debug_polygon_vertices.resize(polygon.size());
-							for (int j = 0; j < polygon.size(); j++) {
-								ERR_FAIL_INDEX(polygon[j], navigation_polygon_vertices.size());
-								debug_polygon_vertices.write[j] = navigation_polygon_vertices[polygon[j]];
-							}
-
-							// Generate the polygon color, slightly randomly modified from the settings one.
-							Color random_variation_color = debug_face_color;
-							if (enabled_geometry_face_random_color) {
-								random_variation_color.set_hsv(
-										debug_face_color.get_h() + rand.random(-1.0, 1.0) * 0.1,
-										debug_face_color.get_s(),
-										debug_face_color.get_v() + rand.random(-1.0, 1.0) * 0.2);
-							}
-							random_variation_color.a = debug_face_color.a;
-
-							Vector<Color> debug_face_colors;
-							debug_face_colors.push_back(random_variation_color);
-							rs->canvas_item_add_polygon(p_quadrant->debug_canvas_item, debug_polygon_vertices, debug_face_colors);
-
-							if (enabled_edge_lines) {
-								Vector<Color> debug_edge_colors;
-								debug_edge_colors.push_back(debug_edge_color);
-								debug_polygon_vertices.push_back(debug_polygon_vertices[0]); // Add first again for closing polyline.
-								rs->canvas_item_add_polyline(p_quadrant->debug_canvas_item, debug_polygon_vertices, debug_edge_colors);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif // DEBUG_ENABLED
-}
 
 /////////////////////////////// Scenes //////////////////////////////////////
 
@@ -4148,12 +3850,6 @@ void TileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_collision_visibility_mode", "collision_visibility_mode"), &TileMap::set_collision_visibility_mode);
 	ClassDB::bind_method(D_METHOD("get_collision_visibility_mode"), &TileMap::get_collision_visibility_mode);
 
-	ClassDB::bind_method(D_METHOD("set_navigation_visibility_mode", "navigation_visibility_mode"), &TileMap::set_navigation_visibility_mode);
-	ClassDB::bind_method(D_METHOD("get_navigation_visibility_mode"), &TileMap::get_navigation_visibility_mode);
-
-	ClassDB::bind_method(D_METHOD("set_navigation_map", "layer", "map"), &TileMap::set_navigation_map);
-	ClassDB::bind_method(D_METHOD("get_navigation_map", "layer"), &TileMap::get_navigation_map);
-
 	ClassDB::bind_method(D_METHOD("set_cell", "layer", "coords", "source_id", "atlas_coords", "alternative_tile"), &TileMap::set_cell, DEFVAL(TileSet::INVALID_SOURCE), DEFVAL(TileSetSource::INVALID_ATLAS_COORDS), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("erase_cell", "layer", "coords"), &TileMap::erase_cell);
 	ClassDB::bind_method(D_METHOD("get_cell_source_id", "layer", "coords", "use_proxies"), &TileMap::get_cell_source_id, DEFVAL(false));
@@ -4199,7 +3895,6 @@ void TileMap::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "cell_quadrant_size", PROPERTY_HINT_RANGE, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collision_animatable"), "set_collision_animatable", "is_collision_animatable");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_visibility_mode", PROPERTY_HINT_ENUM, "Default,Force Show,Force Hide"), "set_collision_visibility_mode", "get_collision_visibility_mode");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "navigation_visibility_mode", PROPERTY_HINT_ENUM, "Default,Force Show,Force Hide"), "set_navigation_visibility_mode", "get_navigation_visibility_mode");
 
 	ADD_ARRAY("layers", "layer_");
 

@@ -33,7 +33,6 @@
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/mesh.h"
-#include "servers/physics_server_3d.h"
 
 void Shape3D::add_vertices_to_array(Vector<Vector3> &array, const Transform3D &p_xform) {
 	Vector<Vector3> toadd = get_debug_mesh_lines();
@@ -50,7 +49,6 @@ void Shape3D::add_vertices_to_array(Vector<Vector3> &array, const Transform3D &p
 
 void Shape3D::set_custom_solver_bias(real_t p_bias) {
 	custom_bias = p_bias;
-	PhysicsServer3D::get_singleton()->shape_set_custom_solver_bias(shape, custom_bias);
 }
 
 real_t Shape3D::get_custom_solver_bias() const {
@@ -63,7 +61,6 @@ real_t Shape3D::get_margin() const {
 
 void Shape3D::set_margin(real_t p_margin) {
 	margin = p_margin;
-	PhysicsServer3D::get_singleton()->shape_set_margin(shape, margin);
 }
 
 Ref<ArrayMesh> Shape3D::get_debug_mesh() {
@@ -128,6 +125,4 @@ Shape3D::Shape3D(RID p_shape) :
 		shape(p_shape) {}
 
 Shape3D::~Shape3D() {
-	ERR_FAIL_NULL(PhysicsServer3D::get_singleton());
-	PhysicsServer3D::get_singleton()->free(shape);
 }

@@ -1715,348 +1715,348 @@ void RasterizerSceneGLES3::_setup_lights(const RenderDataGLES3 *p_render_data, b
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_buffers, const CameraData *p_camera_data, const CameraData *p_prev_camera_data, const PagedArray<RenderGeometryInstance *> &p_instances, const PagedArray<RID> &p_lights, const PagedArray<RID> &p_reflection_probes, const PagedArray<RID> &p_voxel_gi_instances, const PagedArray<RID> &p_decals, const PagedArray<RID> &p_lightmaps, const PagedArray<RID> &p_fog_volumes, RID p_environment, RID p_camera_attributes, RID p_shadow_atlas, RID p_occluder_debug_tex, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass, float p_screen_mesh_lod_threshold, const RenderShadowData *p_render_shadows, int p_render_shadow_count, const RenderSDFGIData *p_render_sdfgi_regions, int p_render_sdfgi_region_count, const RenderSDFGIUpdateData *p_sdfgi_update_data, RenderingMethod::RenderInfo *r_render_info) {
-	GLES3::TextureStorage *texture_storage = GLES3::TextureStorage::get_singleton();
-	GLES3::Config *config = GLES3::Config::get_singleton();
-	RENDER_TIMESTAMP("Setup 3D Scene");
+// void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_buffers, const CameraData *p_camera_data, const CameraData *p_prev_camera_data, const PagedArray<RenderGeometryInstance *> &p_instances, const PagedArray<RID> &p_lights, const PagedArray<RID> &p_reflection_probes, const PagedArray<RID> &p_voxel_gi_instances, const PagedArray<RID> &p_decals, const PagedArray<RID> &p_lightmaps, const PagedArray<RID> &p_fog_volumes, RID p_environment, RID p_camera_attributes, RID p_shadow_atlas, RID p_occluder_debug_tex, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass, float p_screen_mesh_lod_threshold, const RenderShadowData *p_render_shadows, int p_render_shadow_count, const RenderSDFGIData *p_render_sdfgi_regions, int p_render_sdfgi_region_count, const RenderSDFGIUpdateData *p_sdfgi_update_data, RenderingMethod::RenderInfo *r_render_info) {
+// 	GLES3::TextureStorage *texture_storage = GLES3::TextureStorage::get_singleton();
+// 	GLES3::Config *config = GLES3::Config::get_singleton();
+// 	RENDER_TIMESTAMP("Setup 3D Scene");
 
-	Ref<RenderSceneBuffersGLES3> rb;
-	if (p_render_buffers.is_valid()) {
-		rb = p_render_buffers;
-		ERR_FAIL_COND(rb.is_null());
-	}
+// 	Ref<RenderSceneBuffersGLES3> rb;
+// 	if (p_render_buffers.is_valid()) {
+// 		rb = p_render_buffers;
+// 		ERR_FAIL_COND(rb.is_null());
+// 	}
 
-	GLES3::RenderTarget *rt = texture_storage->get_render_target(rb->render_target);
-	ERR_FAIL_COND(!rt);
+// 	GLES3::RenderTarget *rt = texture_storage->get_render_target(rb->render_target);
+// 	ERR_FAIL_COND(!rt);
 
-	// Assign render data
-	// Use the format from rendererRD
-	RenderDataGLES3 render_data;
-	{
-		render_data.render_buffers = rb;
-		render_data.transparent_bg = rb.is_valid() ? rb->is_transparent : false;
-		// Our first camera is used by default
-		render_data.cam_transform = p_camera_data->main_transform;
-		render_data.inv_cam_transform = render_data.cam_transform.affine_inverse();
-		render_data.cam_projection = p_camera_data->main_projection;
-		render_data.cam_orthogonal = p_camera_data->is_orthogonal;
-		render_data.camera_visible_layers = p_camera_data->visible_layers;
+// 	// Assign render data
+// 	// Use the format from rendererRD
+// 	RenderDataGLES3 render_data;
+// 	{
+// 		render_data.render_buffers = rb;
+// 		render_data.transparent_bg = rb.is_valid() ? rb->is_transparent : false;
+// 		// Our first camera is used by default
+// 		render_data.cam_transform = p_camera_data->main_transform;
+// 		render_data.inv_cam_transform = render_data.cam_transform.affine_inverse();
+// 		render_data.cam_projection = p_camera_data->main_projection;
+// 		render_data.cam_orthogonal = p_camera_data->is_orthogonal;
+// 		render_data.camera_visible_layers = p_camera_data->visible_layers;
 
-		render_data.view_count = p_camera_data->view_count;
-		for (uint32_t v = 0; v < p_camera_data->view_count; v++) {
-			render_data.view_eye_offset[v] = p_camera_data->view_offset[v].origin;
-			render_data.view_projection[v] = p_camera_data->view_projection[v];
-		}
+// 		render_data.view_count = p_camera_data->view_count;
+// 		for (uint32_t v = 0; v < p_camera_data->view_count; v++) {
+// 			render_data.view_eye_offset[v] = p_camera_data->view_offset[v].origin;
+// 			render_data.view_projection[v] = p_camera_data->view_projection[v];
+// 		}
 
-		render_data.z_near = p_camera_data->main_projection.get_z_near();
-		render_data.z_far = p_camera_data->main_projection.get_z_far();
+// 		render_data.z_near = p_camera_data->main_projection.get_z_near();
+// 		render_data.z_far = p_camera_data->main_projection.get_z_far();
 
-		render_data.instances = &p_instances;
-		render_data.lights = &p_lights;
-		render_data.reflection_probes = &p_reflection_probes;
-		render_data.environment = p_environment;
-		render_data.camera_attributes = p_camera_attributes;
-		render_data.reflection_probe = p_reflection_probe;
-		render_data.reflection_probe_pass = p_reflection_probe_pass;
+// 		render_data.instances = &p_instances;
+// 		render_data.lights = &p_lights;
+// 		render_data.reflection_probes = &p_reflection_probes;
+// 		render_data.environment = p_environment;
+// 		render_data.camera_attributes = p_camera_attributes;
+// 		render_data.reflection_probe = p_reflection_probe;
+// 		render_data.reflection_probe_pass = p_reflection_probe_pass;
 
-		// this should be the same for all cameras..
-		render_data.lod_distance_multiplier = p_camera_data->main_projection.get_lod_multiplier();
+// 		// this should be the same for all cameras..
+// 		render_data.lod_distance_multiplier = p_camera_data->main_projection.get_lod_multiplier();
 
-		if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_DISABLE_LOD) {
-			render_data.screen_mesh_lod_threshold = 0.0;
-		} else {
-			render_data.screen_mesh_lod_threshold = p_screen_mesh_lod_threshold;
-		}
-		render_data.render_info = r_render_info;
-	}
+// 		if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_DISABLE_LOD) {
+// 			render_data.screen_mesh_lod_threshold = 0.0;
+// 		} else {
+// 			render_data.screen_mesh_lod_threshold = p_screen_mesh_lod_threshold;
+// 		}
+// 		render_data.render_info = r_render_info;
+// 	}
 
-	PagedArray<RID> empty;
+// 	PagedArray<RID> empty;
 
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_UNSHADED) {
-		render_data.lights = &empty;
-		render_data.reflection_probes = &empty;
-	}
+// 	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_UNSHADED) {
+// 		render_data.lights = &empty;
+// 		render_data.reflection_probes = &empty;
+// 	}
 
-	bool reverse_cull = render_data.cam_transform.basis.determinant() < 0;
+// 	bool reverse_cull = render_data.cam_transform.basis.determinant() < 0;
 
-	///////////
-	// Fill Light lists here
-	//////////
+// 	///////////
+// 	// Fill Light lists here
+// 	//////////
 
-	GLuint global_buffer = GLES3::MaterialStorage::get_singleton()->global_shader_parameters_get_uniform_buffer();
-	glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_GLOBALS_UNIFORM_LOCATION, global_buffer);
+// 	GLuint global_buffer = GLES3::MaterialStorage::get_singleton()->global_shader_parameters_get_uniform_buffer();
+// 	glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_GLOBALS_UNIFORM_LOCATION, global_buffer);
 
-	Color clear_color;
-	if (p_render_buffers.is_valid()) {
-		clear_color = texture_storage->render_target_get_clear_request_color(rb->render_target);
-	} else {
-		clear_color = texture_storage->get_default_clear_color();
-	}
+// 	Color clear_color;
+// 	if (p_render_buffers.is_valid()) {
+// 		clear_color = texture_storage->render_target_get_clear_request_color(rb->render_target);
+// 	} else {
+// 		clear_color = texture_storage->get_default_clear_color();
+// 	}
 
-	bool fb_cleared = false;
+// 	bool fb_cleared = false;
 
-	Size2i screen_size;
-	screen_size.x = rb->width;
-	screen_size.y = rb->height;
+// 	Size2i screen_size;
+// 	screen_size.x = rb->width;
+// 	screen_size.y = rb->height;
 
-	bool use_wireframe = get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME;
+// 	bool use_wireframe = get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME;
 
-	SceneState::TonemapUBO tonemap_ubo;
-	if (render_data.environment.is_valid()) {
-		tonemap_ubo.exposure = environment_get_exposure(render_data.environment);
-		tonemap_ubo.white = environment_get_white(render_data.environment);
-		tonemap_ubo.tonemapper = int32_t(environment_get_tone_mapper(render_data.environment));
-	}
+// 	SceneState::TonemapUBO tonemap_ubo;
+// 	if (render_data.environment.is_valid()) {
+// 		tonemap_ubo.exposure = environment_get_exposure(render_data.environment);
+// 		tonemap_ubo.white = environment_get_white(render_data.environment);
+// 		tonemap_ubo.tonemapper = int32_t(environment_get_tone_mapper(render_data.environment));
+// 	}
 
-	if (scene_state.tonemap_buffer == 0) {
-		// Only create if using 3D
-		glGenBuffers(1, &scene_state.tonemap_buffer);
-		glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_TONEMAP_UNIFORM_LOCATION, scene_state.tonemap_buffer);
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.tonemap_buffer, sizeof(SceneState::TonemapUBO), &tonemap_ubo, GL_STREAM_DRAW, "Tonemap UBO");
-	} else {
-		glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_TONEMAP_UNIFORM_LOCATION, scene_state.tonemap_buffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneState::TonemapUBO), &tonemap_ubo, GL_STREAM_DRAW);
-	}
+// 	if (scene_state.tonemap_buffer == 0) {
+// 		// Only create if using 3D
+// 		glGenBuffers(1, &scene_state.tonemap_buffer);
+// 		glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_TONEMAP_UNIFORM_LOCATION, scene_state.tonemap_buffer);
+// 		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.tonemap_buffer, sizeof(SceneState::TonemapUBO), &tonemap_ubo, GL_STREAM_DRAW, "Tonemap UBO");
+// 	} else {
+// 		glBindBufferBase(GL_UNIFORM_BUFFER, SCENE_TONEMAP_UNIFORM_LOCATION, scene_state.tonemap_buffer);
+// 		glBufferData(GL_UNIFORM_BUFFER, sizeof(SceneState::TonemapUBO), &tonemap_ubo, GL_STREAM_DRAW);
+// 	}
 
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+// 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	scene_state.ubo.emissive_exposure_normalization = -1.0; // Use default exposure normalization.
+// 	scene_state.ubo.emissive_exposure_normalization = -1.0; // Use default exposure normalization.
 
-	bool flip_y = !render_data.reflection_probe.is_valid();
+// 	bool flip_y = !render_data.reflection_probe.is_valid();
 
-	if (rt->overridden.color.is_valid()) {
-		// If we've overridden the render target's color texture, then don't render upside down.
-		// We're probably rendering directly to an XR device.
-		flip_y = false;
-	}
-	if (!flip_y) {
-		// If we're rendering right-side up, then we need to change the winding order.
-		glFrontFace(GL_CW);
-	}
+// 	if (rt->overridden.color.is_valid()) {
+// 		// If we've overridden the render target's color texture, then don't render upside down.
+// 		// We're probably rendering directly to an XR device.
+// 		flip_y = false;
+// 	}
+// 	if (!flip_y) {
+// 		// If we're rendering right-side up, then we need to change the winding order.
+// 		glFrontFace(GL_CW);
+// 	}
 
-	_setup_lights(&render_data, false, render_data.directional_light_count, render_data.omni_light_count, render_data.spot_light_count);
-	_setup_environment(&render_data, render_data.reflection_probe.is_valid(), screen_size, flip_y, clear_color, false);
+// 	_setup_lights(&render_data, false, render_data.directional_light_count, render_data.omni_light_count, render_data.spot_light_count);
+// 	_setup_environment(&render_data, render_data.reflection_probe.is_valid(), screen_size, flip_y, clear_color, false);
 
-	_fill_render_list(RENDER_LIST_OPAQUE, &render_data, PASS_MODE_COLOR);
-	render_list[RENDER_LIST_OPAQUE].sort_by_key();
-	render_list[RENDER_LIST_ALPHA].sort_by_reverse_depth_and_priority();
+// 	_fill_render_list(RENDER_LIST_OPAQUE, &render_data, PASS_MODE_COLOR);
+// 	render_list[RENDER_LIST_OPAQUE].sort_by_key();
+// 	render_list[RENDER_LIST_ALPHA].sort_by_reverse_depth_and_priority();
 
-	bool draw_sky = false;
-	bool draw_sky_fog_only = false;
-	bool keep_color = false;
-	float sky_energy_multiplier = 1.0;
+// 	bool draw_sky = false;
+// 	bool draw_sky_fog_only = false;
+// 	bool keep_color = false;
+// 	float sky_energy_multiplier = 1.0;
 
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_OVERDRAW) {
-		clear_color = Color(0, 0, 0, 1); //in overdraw mode, BG should always be black
-	} else if (render_data.environment.is_valid()) {
-		RS::EnvironmentBG bg_mode = environment_get_background(render_data.environment);
-		float bg_energy_multiplier = environment_get_bg_energy_multiplier(render_data.environment);
-		bg_energy_multiplier *= environment_get_bg_intensity(render_data.environment);
+// 	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_OVERDRAW) {
+// 		clear_color = Color(0, 0, 0, 1); //in overdraw mode, BG should always be black
+// 	} else if (render_data.environment.is_valid()) {
+// 		RS::EnvironmentBG bg_mode = environment_get_background(render_data.environment);
+// 		float bg_energy_multiplier = environment_get_bg_energy_multiplier(render_data.environment);
+// 		bg_energy_multiplier *= environment_get_bg_intensity(render_data.environment);
 
-		if (render_data.camera_attributes.is_valid()) {
-			bg_energy_multiplier *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(render_data.camera_attributes);
-		}
+// 		if (render_data.camera_attributes.is_valid()) {
+// 			bg_energy_multiplier *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(render_data.camera_attributes);
+// 		}
 
-		switch (bg_mode) {
-			case RS::ENV_BG_CLEAR_COLOR: {
-				clear_color.r *= bg_energy_multiplier;
-				clear_color.g *= bg_energy_multiplier;
-				clear_color.b *= bg_energy_multiplier;
-				if (environment_get_fog_enabled(render_data.environment)) {
-					draw_sky_fog_only = true;
-					GLES3::MaterialStorage::get_singleton()->material_set_param(sky_globals.fog_material, "clear_color", Variant(clear_color));
-				}
-			} break;
-			case RS::ENV_BG_COLOR: {
-				clear_color = environment_get_bg_color(render_data.environment);
-				clear_color.r *= bg_energy_multiplier;
-				clear_color.g *= bg_energy_multiplier;
-				clear_color.b *= bg_energy_multiplier;
-				if (environment_get_fog_enabled(render_data.environment)) {
-					draw_sky_fog_only = true;
-					GLES3::MaterialStorage::get_singleton()->material_set_param(sky_globals.fog_material, "clear_color", Variant(clear_color));
-				}
-			} break;
-			case RS::ENV_BG_SKY: {
-				draw_sky = true;
-			} break;
-			case RS::ENV_BG_CANVAS: {
-				keep_color = true;
-			} break;
-			case RS::ENV_BG_KEEP: {
-				keep_color = true;
-			} break;
-			case RS::ENV_BG_CAMERA_FEED: {
-			} break;
-			default: {
-			}
-		}
-		// setup sky if used for ambient, reflections, or background
-		if (draw_sky || draw_sky_fog_only || environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(render_data.environment) == RS::ENV_AMBIENT_SOURCE_SKY) {
-			RENDER_TIMESTAMP("Setup Sky");
-			Projection projection = render_data.cam_projection;
-			if (render_data.reflection_probe.is_valid()) {
-				Projection correction;
-				correction.columns[1][1] = -1.0;
-				projection = correction * render_data.cam_projection;
-			}
+// 		switch (bg_mode) {
+// 			case RS::ENV_BG_CLEAR_COLOR: {
+// 				clear_color.r *= bg_energy_multiplier;
+// 				clear_color.g *= bg_energy_multiplier;
+// 				clear_color.b *= bg_energy_multiplier;
+// 				if (environment_get_fog_enabled(render_data.environment)) {
+// 					draw_sky_fog_only = true;
+// 					GLES3::MaterialStorage::get_singleton()->material_set_param(sky_globals.fog_material, "clear_color", Variant(clear_color));
+// 				}
+// 			} break;
+// 			case RS::ENV_BG_COLOR: {
+// 				clear_color = environment_get_bg_color(render_data.environment);
+// 				clear_color.r *= bg_energy_multiplier;
+// 				clear_color.g *= bg_energy_multiplier;
+// 				clear_color.b *= bg_energy_multiplier;
+// 				if (environment_get_fog_enabled(render_data.environment)) {
+// 					draw_sky_fog_only = true;
+// 					GLES3::MaterialStorage::get_singleton()->material_set_param(sky_globals.fog_material, "clear_color", Variant(clear_color));
+// 				}
+// 			} break;
+// 			case RS::ENV_BG_SKY: {
+// 				draw_sky = true;
+// 			} break;
+// 			case RS::ENV_BG_CANVAS: {
+// 				keep_color = true;
+// 			} break;
+// 			case RS::ENV_BG_KEEP: {
+// 				keep_color = true;
+// 			} break;
+// 			case RS::ENV_BG_CAMERA_FEED: {
+// 			} break;
+// 			default: {
+// 			}
+// 		}
+// 		// setup sky if used for ambient, reflections, or background
+// 		if (draw_sky || draw_sky_fog_only || environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(render_data.environment) == RS::ENV_AMBIENT_SOURCE_SKY) {
+// 			RENDER_TIMESTAMP("Setup Sky");
+// 			Projection projection = render_data.cam_projection;
+// 			if (render_data.reflection_probe.is_valid()) {
+// 				Projection correction;
+// 				correction.columns[1][1] = -1.0;
+// 				projection = correction * render_data.cam_projection;
+// 			}
 
-			sky_energy_multiplier *= bg_energy_multiplier;
+// 			sky_energy_multiplier *= bg_energy_multiplier;
 
-			_setup_sky(&render_data, *render_data.lights, projection, render_data.cam_transform, screen_size);
+// 			_setup_sky(&render_data, *render_data.lights, projection, render_data.cam_transform, screen_size);
 
-			if (environment_get_sky(render_data.environment).is_valid()) {
-				if (environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(render_data.environment) == RS::ENV_AMBIENT_SOURCE_SKY || (environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_BG && environment_get_background(render_data.environment) == RS::ENV_BG_SKY)) {
-					_update_sky_radiance(render_data.environment, projection, render_data.cam_transform, sky_energy_multiplier);
-				}
-			} else {
-				// do not try to draw sky if invalid
-				draw_sky = false;
-			}
-		}
-	}
+// 			if (environment_get_sky(render_data.environment).is_valid()) {
+// 				if (environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(render_data.environment) == RS::ENV_AMBIENT_SOURCE_SKY || (environment_get_reflection_source(render_data.environment) == RS::ENV_REFLECTION_SOURCE_BG && environment_get_background(render_data.environment) == RS::ENV_BG_SKY)) {
+// 					_update_sky_radiance(render_data.environment, projection, render_data.cam_transform, sky_energy_multiplier);
+// 				}
+// 			} else {
+// 				// do not try to draw sky if invalid
+// 				draw_sky = false;
+// 			}
+// 		}
+// 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
-	glViewport(0, 0, rb->width, rb->height);
+// 	glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
+// 	glViewport(0, 0, rb->width, rb->height);
 
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
-	scene_state.cull_mode = GLES3::SceneShaderData::CULL_BACK;
+// 	glCullFace(GL_BACK);
+// 	glEnable(GL_CULL_FACE);
+// 	scene_state.cull_mode = GLES3::SceneShaderData::CULL_BACK;
 
-	// Do depth prepass if it's explicitly enabled
-	bool use_depth_prepass = config->use_depth_prepass;
+// 	// Do depth prepass if it's explicitly enabled
+// 	bool use_depth_prepass = config->use_depth_prepass;
 
-	// Don't do depth prepass we are rendering overdraw
-	use_depth_prepass = use_depth_prepass && get_debug_draw_mode() != RS::VIEWPORT_DEBUG_DRAW_OVERDRAW;
+// 	// Don't do depth prepass we are rendering overdraw
+// 	use_depth_prepass = use_depth_prepass && get_debug_draw_mode() != RS::VIEWPORT_DEBUG_DRAW_OVERDRAW;
 
-	if (use_depth_prepass) {
-		RENDER_TIMESTAMP("Depth Prepass");
-		//pre z pass
+// 	if (use_depth_prepass) {
+// 		RENDER_TIMESTAMP("Depth Prepass");
+// 		//pre z pass
 
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glDisable(GL_SCISSOR_TEST);
+// 		glDisable(GL_BLEND);
+// 		glDepthMask(GL_TRUE);
+// 		glEnable(GL_DEPTH_TEST);
+// 		glDepthFunc(GL_LEQUAL);
+// 		glDisable(GL_SCISSOR_TEST);
 
-		glColorMask(0, 0, 0, 0);
-		glClearDepth(1.0f);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		uint64_t spec_constant = SceneShaderGLES3::DISABLE_FOG | SceneShaderGLES3::DISABLE_LIGHT_DIRECTIONAL |
-				SceneShaderGLES3::DISABLE_LIGHTMAP | SceneShaderGLES3::DISABLE_LIGHT_OMNI |
-				SceneShaderGLES3::DISABLE_LIGHT_SPOT;
+// 		glColorMask(0, 0, 0, 0);
+// 		glClearDepth(1.0f);
+// 		glClear(GL_DEPTH_BUFFER_BIT);
+// 		uint64_t spec_constant = SceneShaderGLES3::DISABLE_FOG | SceneShaderGLES3::DISABLE_LIGHT_DIRECTIONAL |
+// 				SceneShaderGLES3::DISABLE_LIGHTMAP | SceneShaderGLES3::DISABLE_LIGHT_OMNI |
+// 				SceneShaderGLES3::DISABLE_LIGHT_SPOT;
 
-		RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant, use_wireframe);
-		_render_list_template<PASS_MODE_DEPTH>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
+// 		RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant, use_wireframe);
+// 		_render_list_template<PASS_MODE_DEPTH>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
 
-		glColorMask(1, 1, 1, 1);
+// 		glColorMask(1, 1, 1, 1);
 
-		fb_cleared = true;
-		scene_state.used_depth_prepass = true;
-	} else {
-		scene_state.used_depth_prepass = false;
-	}
+// 		fb_cleared = true;
+// 		scene_state.used_depth_prepass = true;
+// 	} else {
+// 		scene_state.used_depth_prepass = false;
+// 	}
 
-	glBlendEquation(GL_FUNC_ADD);
+// 	glBlendEquation(GL_FUNC_ADD);
 
-	if (render_data.transparent_bg) {
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-	} else {
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
-		glDisable(GL_BLEND);
-	}
-	scene_state.current_blend_mode = GLES3::SceneShaderData::BLEND_MODE_MIX;
+// 	if (render_data.transparent_bg) {
+// 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+// 		glEnable(GL_BLEND);
+// 	} else {
+// 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
+// 		glDisable(GL_BLEND);
+// 	}
+// 	scene_state.current_blend_mode = GLES3::SceneShaderData::BLEND_MODE_MIX;
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_TRUE);
-	scene_state.current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_ENABLED;
-	scene_state.current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_ALWAYS;
+// 	glEnable(GL_DEPTH_TEST);
+// 	glDepthFunc(GL_LEQUAL);
+// 	glDepthMask(GL_TRUE);
+// 	scene_state.current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_ENABLED;
+// 	scene_state.current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_ALWAYS;
 
-	if (!fb_cleared) {
-		glClearDepth(1.0f);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
+// 	if (!fb_cleared) {
+// 		glClearDepth(1.0f);
+// 		glClear(GL_DEPTH_BUFFER_BIT);
+// 	}
 
-	if (!keep_color) {
-		glClearBufferfv(GL_COLOR, 0, clear_color.components);
-	}
-	RENDER_TIMESTAMP("Render Opaque Pass");
-	uint64_t spec_constant_base_flags = 0;
+// 	if (!keep_color) {
+// 		glClearBufferfv(GL_COLOR, 0, clear_color.components);
+// 	}
+// 	RENDER_TIMESTAMP("Render Opaque Pass");
+// 	uint64_t spec_constant_base_flags = 0;
 
-	{
-		// Specialization Constants that apply for entire rendering pass.
-		if (render_data.directional_light_count == 0) {
-			spec_constant_base_flags |= SceneShaderGLES3::DISABLE_LIGHT_DIRECTIONAL;
-		}
+// 	{
+// 		// Specialization Constants that apply for entire rendering pass.
+// 		if (render_data.directional_light_count == 0) {
+// 			spec_constant_base_flags |= SceneShaderGLES3::DISABLE_LIGHT_DIRECTIONAL;
+// 		}
 
-		if (render_data.environment.is_null() || (render_data.environment.is_valid() && !environment_get_fog_enabled(render_data.environment))) {
-			spec_constant_base_flags |= SceneShaderGLES3::DISABLE_FOG;
-		}
-	}
-	// Render Opaque Objects.
-	RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
+// 		if (render_data.environment.is_null() || (render_data.environment.is_valid() && !environment_get_fog_enabled(render_data.environment))) {
+// 			spec_constant_base_flags |= SceneShaderGLES3::DISABLE_FOG;
+// 		}
+// 	}
+// 	// Render Opaque Objects.
+// 	RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
 
-	_render_list_template<PASS_MODE_COLOR>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
+// 	_render_list_template<PASS_MODE_COLOR>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
 
-	glDepthMask(GL_FALSE);
-	scene_state.current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_DISABLED;
+// 	glDepthMask(GL_FALSE);
+// 	scene_state.current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_DISABLED;
 
-	if (draw_sky) {
-		RENDER_TIMESTAMP("Render Sky");
+// 	if (draw_sky) {
+// 		RENDER_TIMESTAMP("Render Sky");
 
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		scene_state.current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_ENABLED;
-		scene_state.cull_mode = GLES3::SceneShaderData::CULL_BACK;
+// 		glEnable(GL_DEPTH_TEST);
+// 		glDisable(GL_BLEND);
+// 		glEnable(GL_CULL_FACE);
+// 		glCullFace(GL_BACK);
+// 		scene_state.current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_ENABLED;
+// 		scene_state.cull_mode = GLES3::SceneShaderData::CULL_BACK;
 
-		_draw_sky(render_data.environment, render_data.cam_projection, render_data.cam_transform, sky_energy_multiplier, p_camera_data->view_count > 1, flip_y);
-	}
+// 		_draw_sky(render_data.environment, render_data.cam_projection, render_data.cam_transform, sky_energy_multiplier, p_camera_data->view_count > 1, flip_y);
+// 	}
 
-	if (scene_state.used_screen_texture || scene_state.used_depth_texture) {
-		texture_storage->copy_scene_to_backbuffer(rt, scene_state.used_screen_texture, scene_state.used_depth_texture);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, rt->fbo);
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rt->backbuffer_fbo);
-		if (scene_state.used_screen_texture) {
-			glBlitFramebuffer(0, 0, rt->size.x, rt->size.y,
-					0, 0, rt->size.x, rt->size.y,
-					GL_COLOR_BUFFER_BIT, GL_NEAREST);
-			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 5);
-			glBindTexture(GL_TEXTURE_2D, rt->backbuffer);
-		}
-		if (scene_state.used_depth_texture) {
-			glBlitFramebuffer(0, 0, rt->size.x, rt->size.y,
-					0, 0, rt->size.x, rt->size.y,
-					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 6);
-			glBindTexture(GL_TEXTURE_2D, rt->backbuffer_depth);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
-	}
+// 	if (scene_state.used_screen_texture || scene_state.used_depth_texture) {
+// 		texture_storage->copy_scene_to_backbuffer(rt, scene_state.used_screen_texture, scene_state.used_depth_texture);
+// 		glBindFramebuffer(GL_READ_FRAMEBUFFER, rt->fbo);
+// 		glReadBuffer(GL_COLOR_ATTACHMENT0);
+// 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rt->backbuffer_fbo);
+// 		if (scene_state.used_screen_texture) {
+// 			glBlitFramebuffer(0, 0, rt->size.x, rt->size.y,
+// 					0, 0, rt->size.x, rt->size.y,
+// 					GL_COLOR_BUFFER_BIT, GL_NEAREST);
+// 			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 5);
+// 			glBindTexture(GL_TEXTURE_2D, rt->backbuffer);
+// 		}
+// 		if (scene_state.used_depth_texture) {
+// 			glBlitFramebuffer(0, 0, rt->size.x, rt->size.y,
+// 					0, 0, rt->size.x, rt->size.y,
+// 					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+// 			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 6);
+// 			glBindTexture(GL_TEXTURE_2D, rt->backbuffer_depth);
+// 		}
+// 		glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
+// 	}
 
-	RENDER_TIMESTAMP("Render 3D Transparent Pass");
-	glEnable(GL_BLEND);
+// 	RENDER_TIMESTAMP("Render 3D Transparent Pass");
+// 	glEnable(GL_BLEND);
 
-	//Render transparent pass
-	RenderListParameters render_list_params_alpha(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
+// 	//Render transparent pass
+// 	RenderListParameters render_list_params_alpha(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
 
-	_render_list_template<PASS_MODE_COLOR_TRANSPARENT>(&render_list_params_alpha, &render_data, 0, render_list[RENDER_LIST_ALPHA].elements.size(), true);
+// 	_render_list_template<PASS_MODE_COLOR_TRANSPARENT>(&render_list_params_alpha, &render_data, 0, render_list[RENDER_LIST_ALPHA].elements.size(), true);
 
-	if (!flip_y) {
-		// Restore the default winding order.
-		glFrontFace(GL_CCW);
-	}
+// 	if (!flip_y) {
+// 		// Restore the default winding order.
+// 		glFrontFace(GL_CCW);
+// 	}
 
-	if (rb.is_valid()) {
-		_render_buffers_debug_draw(rb, p_shadow_atlas, p_occluder_debug_tex);
-	}
-	glDisable(GL_BLEND);
-	texture_storage->render_target_disable_clear_request(rb->render_target);
-}
+// 	if (rb.is_valid()) {
+// 		_render_buffers_debug_draw(rb, p_shadow_atlas, p_occluder_debug_tex);
+// 	}
+// 	glDisable(GL_BLEND);
+// 	texture_storage->render_target_disable_clear_request(rb->render_target);
+// }
 
 template <PassMode p_pass_mode>
 void RasterizerSceneGLES3::_render_list_template(RenderListParameters *p_params, const RenderDataGLES3 *p_render_data, uint32_t p_from_element, uint32_t p_to_element, bool p_alpha_pass) {

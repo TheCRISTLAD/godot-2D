@@ -73,9 +73,6 @@ struct TileMapQuadrant {
 	// Physics.
 	List<RID> bodies;
 
-	// Navigation.
-	HashMap<Vector2i, Vector<RID>> navigation_regions;
-
 	// Scenes.
 	HashMap<Vector2i, String> scenes;
 
@@ -89,7 +86,6 @@ struct TileMapQuadrant {
 		canvas_items = q.canvas_items;
 		occluders = q.occluders;
 		bodies = q.bodies;
-		navigation_regions = q.navigation_regions;
 	}
 
 	TileMapQuadrant(const TileMapQuadrant &q) :
@@ -100,7 +96,6 @@ struct TileMapQuadrant {
 		canvas_items = q.canvas_items;
 		occluders = q.occluders;
 		bodies = q.bodies;
-		navigation_regions = q.navigation_regions;
 	}
 
 	TileMapQuadrant() :
@@ -188,7 +183,6 @@ private:
 	int quadrant_size = 16;
 	bool collision_animatable = false;
 	VisibilityMode collision_visibility_mode = VISIBILITY_MODE_DEFAULT;
-	VisibilityMode navigation_visibility_mode = VISIBILITY_MODE_DEFAULT;
 
 	// Updates.
 	bool pending_update = false;
@@ -211,8 +205,6 @@ private:
 		HashMap<Vector2i, TileMapCell> tile_map;
 		HashMap<Vector2i, TileMapQuadrant> quadrant_map;
 		SelfList<TileMapQuadrant>::List dirty_quadrant_list;
-		RID navigation_map;
-		bool uses_world_navigation_map = false;
 	};
 	LocalVector<TileMapLayer> layers;
 	int selected_layer = -1;
@@ -261,13 +253,6 @@ private:
 	void _physics_update_dirty_quadrants(SelfList<TileMapQuadrant>::List &r_dirty_quadrant_list);
 	void _physics_cleanup_quadrant(TileMapQuadrant *p_quadrant);
 	void _physics_draw_quadrant_debug(TileMapQuadrant *p_quadrant);
-
-	void _navigation_notification(int p_what);
-	void _navigation_update_layer(int p_layer);
-	void _navigation_cleanup_layer(int p_layer);
-	void _navigation_update_dirty_quadrants(SelfList<TileMapQuadrant>::List &r_dirty_quadrant_list);
-	void _navigation_cleanup_quadrant(TileMapQuadrant *p_quadrant);
-	void _navigation_draw_quadrant_debug(TileMapQuadrant *p_quadrant);
 
 	void _scenes_update_dirty_quadrants(SelfList<TileMapQuadrant>::List &r_dirty_quadrant_list);
 	void _scenes_cleanup_quadrant(TileMapQuadrant *p_quadrant);
@@ -341,12 +326,6 @@ public:
 	// Debug visibility modes.
 	void set_collision_visibility_mode(VisibilityMode p_show_collision);
 	VisibilityMode get_collision_visibility_mode();
-
-	void set_navigation_visibility_mode(VisibilityMode p_show_navigation);
-	VisibilityMode get_navigation_visibility_mode();
-
-	void set_navigation_map(int p_layer, RID p_map);
-	RID get_navigation_map(int p_layer) const;
 
 	// Cells accessors.
 	void set_cell(int p_layer, const Vector2i &p_coords, int p_source_id = TileSet::INVALID_SOURCE, const Vector2i p_atlas_coords = TileSetSource::INVALID_ATLAS_COORDS, int p_alternative_tile = 0);

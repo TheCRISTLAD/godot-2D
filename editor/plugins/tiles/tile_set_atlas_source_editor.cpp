@@ -738,24 +738,6 @@ void TileSetAtlasSourceEditor::_update_tile_data_editors() {
 		tile_data_editors.erase(vformat("physics_layer_%d", i));
 	}
 
-	// --- Navigation ---
-	ADD_TILE_DATA_EDITOR_GROUP(TTR("Navigation"));
-	for (int i = 0; i < tile_set->get_navigation_layers_count(); i++) {
-		ADD_TILE_DATA_EDITOR(group, vformat(TTR("Navigation Layer %d"), i), vformat("navigation_layer_%d", i));
-		if (!tile_data_editors.has(vformat("navigation_layer_%d", i))) {
-			TileDataNavigationEditor *tile_data_navigation_editor = memnew(TileDataNavigationEditor());
-			tile_data_navigation_editor->hide();
-			tile_data_navigation_editor->set_navigation_layer(i);
-			tile_data_navigation_editor->connect("needs_redraw", callable_mp((CanvasItem *)tile_atlas_control_unscaled, &Control::queue_redraw));
-			tile_data_navigation_editor->connect("needs_redraw", callable_mp((CanvasItem *)alternative_tiles_control_unscaled, &Control::queue_redraw));
-			tile_data_editors[vformat("navigation_layer_%d", i)] = tile_data_navigation_editor;
-		}
-	}
-	for (int i = tile_set->get_navigation_layers_count(); tile_data_editors.has(vformat("navigation_layer_%d", i)); i++) {
-		tile_data_editors[vformat("navigation_layer_%d", i)]->queue_free();
-		tile_data_editors.erase(vformat("navigation_layer_%d", i));
-	}
-
 	// --- Custom Data ---
 	ADD_TILE_DATA_EDITOR_GROUP(TTR("Custom Data"));
 	for (int i = 0; i < tile_set->get_custom_data_layers_count(); i++) {
@@ -2670,17 +2652,6 @@ void EditorPropertyTilePolygon::_polygons_changed() {
 				occluder->set_polygon(generic_tile_polygon_editor->get_polygon(0));
 			}
 			emit_changed(get_edited_property(), occluder);
-		} else if (base_type == "NavigationPolygon") {
-			Ref<NavigationPolygon> navigation_polygon;
-			if (generic_tile_polygon_editor->get_polygon_count() >= 1) {
-				navigation_polygon.instantiate();
-				for (int i = 0; i < generic_tile_polygon_editor->get_polygon_count(); i++) {
-					Vector<Vector2> polygon = generic_tile_polygon_editor->get_polygon(i);
-					navigation_polygon->add_outline(polygon);
-				}
-				navigation_polygon->make_polygons_from_outlines();
-			}
-			emit_changed(get_edited_property(), navigation_polygon);
 		}
 	} else {
 		if (base_type.is_empty()) {
@@ -2723,15 +2694,6 @@ void EditorPropertyTilePolygon::update_property() {
 			generic_tile_polygon_editor->clear_polygons();
 			if (occluder.is_valid()) {
 				generic_tile_polygon_editor->add_polygon(occluder->get_polygon());
-			}
-		} else if (base_type == "NavigationPolygon") {
-			// Single OccluderPolygon2D.
-			Ref<NavigationPolygon> navigation_polygon = get_edited_property_value();
-			generic_tile_polygon_editor->clear_polygons();
-			if (navigation_polygon.is_valid()) {
-				for (int i = 0; i < navigation_polygon->get_outline_count(); i++) {
-					generic_tile_polygon_editor->add_polygon(navigation_polygon->get_outline(i));
-				}
 			}
 		}
 	} else {
@@ -2813,16 +2775,6 @@ bool EditorInspectorPluginTileData::parse_property(Object *p_object, const Varia
 			if (components[2] == "points") {
 				return true;
 			}
-		}
-	} else if (components.size() == 2 && components[0].begins_with("navigation_layer_") && components[0].trim_prefix("navigation_layer_").is_valid_int()) {
-		// Navigation layers.
-		int layer_index = components[0].trim_prefix("navigation_layer_").to_int();
-		ERR_FAIL_COND_V(layer_index < 0, false);
-		if (components[1] == "polygon") {
-			EditorPropertyTilePolygon *ep = memnew(EditorPropertyTilePolygon);
-			ep->setup_single_mode(p_path, "NavigationPolygon");
-			add_property_editor(p_path, ep);
-			return true;
 		}
 	}
 	return false;

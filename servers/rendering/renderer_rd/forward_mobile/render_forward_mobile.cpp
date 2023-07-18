@@ -641,437 +641,437 @@ void RenderForwardMobile::_pre_opaque_render(RenderDataRD *p_render_data) {
 	p_render_data->directional_light_count = directional_light_count;
 }
 
-void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color &p_default_bg_color) {
-	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
-
-	ERR_FAIL_NULL(p_render_data);
-
-	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
-	ERR_FAIL_COND(rb.is_null());
-
-	Ref<RenderBufferDataForwardMobile> rb_data;
-	if (rb->has_custom_data(RB_SCOPE_MOBILE)) {
-		// Our forward mobile custom data buffer will only be available when we're rendering our normal view.
-		// This will not be available when rendering reflection probes.
-		rb_data = rb->get_custom_data(RB_SCOPE_MOBILE);
-	}
-	bool is_reflection_probe = p_render_data->reflection_probe.is_valid();
-
-	RENDER_TIMESTAMP("Prepare 3D Scene");
-
-	RENDER_TIMESTAMP("Setup 3D Scene");
-
-	/* TODO
-	// check if we need motion vectors
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_MOTION_VECTORS) {
-		p_render_data->scene_data->calculate_motion_vectors = true;
-	} else if (render target has velocity override) { // TODO
-		p_render_data->scene_data->calculate_motion_vectors = true;
-	} else {
-		p_render_data->scene_data->calculate_motion_vectors = false;
-	}
-	*/
-	p_render_data->scene_data->calculate_motion_vectors = false; // for now, not yet supported...
-
-	p_render_data->scene_data->directional_light_count = 0;
-	p_render_data->scene_data->opaque_prepass_threshold = 0.0;
-
-	// We can only use our full subpass approach if we're:
-	// - not reading from SCREEN_TEXTURE/DEPTH_TEXTURE
-	// - not using ssr/sss (currently not supported)
-	// - not using glow or other post effects (can't do 4th subpass)
-	// - rendering to a half sized render buffer (can't do 4th subpass)
-	// We'll need to restrict how far we're going with subpasses based on this.
-
-	Size2i screen_size;
-	RID framebuffer;
-	bool reverse_cull = p_render_data->scene_data->cam_transform.basis.determinant() < 0;
-	bool using_subpass_transparent = true;
-	bool using_subpass_post_process = true;
-
-	// fill our render lists early so we can find out if we use various features
-	_fill_render_list(RENDER_LIST_OPAQUE, p_render_data, PASS_MODE_COLOR);
-	render_list[RENDER_LIST_OPAQUE].sort_by_key();
-	render_list[RENDER_LIST_ALPHA].sort_by_reverse_depth_and_priority();
-	_fill_element_info(RENDER_LIST_OPAQUE);
-	_fill_element_info(RENDER_LIST_ALPHA);
-
-	if (p_render_data->render_info) {
-		p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME] = p_render_data->instances->size();
-		p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME] = p_render_data->instances->size();
-	}
-
-	if (is_reflection_probe) {
-		uint32_t resolution = light_storage->reflection_probe_instance_get_resolution(p_render_data->reflection_probe);
-		screen_size.x = resolution;
-		screen_size.y = resolution;
-
-		framebuffer = light_storage->reflection_probe_instance_get_framebuffer(p_render_data->reflection_probe, p_render_data->reflection_probe_pass);
-
-		if (light_storage->reflection_probe_is_interior(light_storage->reflection_probe_instance_get_probe(p_render_data->reflection_probe))) {
-			p_render_data->environment = RID(); //no environment on interiors
-		}
-
-		reverse_cull = true;
-		using_subpass_transparent = true; // we ignore our screen/depth texture here
-		using_subpass_post_process = false; // not applicable at all for reflection probes.
-	} else if (rb_data.is_valid()) {
-		// setup rendering to render buffer
-		screen_size = p_render_data->render_buffers->get_internal_size();
-
-		if (rb->get_scaling_3d_mode() != RS::VIEWPORT_SCALING_3D_MODE_OFF) {
-			// can't do blit subpass because we're scaling
-			using_subpass_post_process = false;
-		} else if (p_render_data->environment.is_valid() && (environment_get_glow_enabled(p_render_data->environment) || RSG::camera_attributes->camera_attributes_uses_auto_exposure(p_render_data->camera_attributes) || RSG::camera_attributes->camera_attributes_uses_dof(p_render_data->camera_attributes))) {
-			// can't do blit subpass because we're using post processes
-			using_subpass_post_process = false;
-		}
-
-		if (scene_state.used_screen_texture || scene_state.used_depth_texture) {
-			// can't use our last two subpasses because we're reading from screen texture or depth texture
-			using_subpass_transparent = false;
-			using_subpass_post_process = false;
-		}
-
-		// We do this last because our get_color_fbs creates and caches the framebuffer if we need it.
-		RID four_subpasses = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_FOUR_SUBPASSES);
-		if (using_subpass_post_process && four_subpasses.is_null()) {
-			// can't do blit subpass because we don't have all subpasses
-			using_subpass_post_process = false;
-		}
-
-		if (using_subpass_post_process) {
-			// all as subpasses
-			framebuffer = four_subpasses;
-		} else if (using_subpass_transparent) {
-			// our tonemap pass is separate
-			framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_THREE_SUBPASSES);
-		} else {
-			// only opaque and sky as subpasses
-			framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_TWO_SUBPASSES);
-		}
-	} else {
-		ERR_FAIL(); //bug?
-	}
-
-	p_render_data->scene_data->emissive_exposure_normalization = -1.0;
-
-	RD::get_singleton()->draw_command_begin_label("Render Setup");
-
-	_setup_lightmaps(p_render_data, *p_render_data->lightmaps, p_render_data->scene_data->cam_transform);
-	_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
-
-	_update_render_base_uniform_set(); //may have changed due to the above (light buffer enlarged, as an example)
-
-	RD::get_singleton()->draw_command_end_label(); // Render Setup
-
-	// setup environment
-	RID radiance_texture;
-	bool draw_sky = false;
-	bool draw_sky_fog_only = false;
-	// We invert luminance_multiplier for sky so that we can combine it with exposure value.
-	float sky_energy_multiplier = 1.0 / _render_buffers_get_luminance_multiplier();
-
-	Color clear_color = p_default_bg_color;
-	bool keep_color = false;
-
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_OVERDRAW) {
-		clear_color = Color(0, 0, 0, 1); //in overdraw mode, BG should always be black
-	} else if (is_environment(p_render_data->environment)) {
-		RS::EnvironmentBG bg_mode = environment_get_background(p_render_data->environment);
-		float bg_energy_multiplier = environment_get_bg_energy_multiplier(p_render_data->environment);
-		bg_energy_multiplier *= environment_get_bg_intensity(p_render_data->environment);
-
-		if (p_render_data->camera_attributes.is_valid()) {
-			bg_energy_multiplier *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_render_data->camera_attributes);
-		}
-
-		switch (bg_mode) {
-			case RS::ENV_BG_CLEAR_COLOR: {
-				clear_color = p_default_bg_color;
-				clear_color.r *= bg_energy_multiplier;
-				clear_color.g *= bg_energy_multiplier;
-				clear_color.b *= bg_energy_multiplier;
-				/*
-				if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_FOG) || environment_get_fog_enabled(p_render_data->environment)) {
-					draw_sky_fog_only = true;
-					RendererRD::MaterialStorage::get_singleton()->material_set_param(sky.sky_scene_state.fog_material, "clear_color", Variant(clear_color.srgb_to_linear()));
-				}
-				*/
-			} break;
-			case RS::ENV_BG_COLOR: {
-				clear_color = environment_get_bg_color(p_render_data->environment);
-				clear_color.r *= bg_energy_multiplier;
-				clear_color.g *= bg_energy_multiplier;
-				clear_color.b *= bg_energy_multiplier;
-				/*
-				if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_FOG) || environment_get_fog_enabled(p_render_data->environment)) {
-					draw_sky_fog_only = true;
-					RendererRD::MaterialStorage::get_singleton()->material_set_param(sky.sky_scene_state.fog_material, "clear_color", Variant(clear_color.srgb_to_linear()));
-				}
-				*/
-			} break;
-			case RS::ENV_BG_SKY: {
-				draw_sky = true;
-			} break;
-			case RS::ENV_BG_CANVAS: {
-				if (rb_data.is_valid()) {
-					RID dest_framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_ONE_PASS);
-					RID texture = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture(rb->get_render_target());
-					copy_effects->copy_to_fb_rect(texture, dest_framebuffer, Rect2i(), false, false, false, false, RID(), false, false, true);
-				}
-				keep_color = true;
-			} break;
-			case RS::ENV_BG_KEEP: {
-				keep_color = true;
-			} break;
-			case RS::ENV_BG_CAMERA_FEED: {
-			} break;
-			default: {
-			}
-		}
-
-		// setup sky if used for ambient, reflections, or background
-		if (draw_sky || draw_sky_fog_only || environment_get_reflection_source(p_render_data->environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(p_render_data->environment) == RS::ENV_AMBIENT_SOURCE_SKY) {
-			RENDER_TIMESTAMP("Setup Sky");
-			RD::get_singleton()->draw_command_begin_label("Setup Sky");
-
-			// Setup our sky render information for this frame/viewport
-			if (is_reflection_probe) {
-				Vector3 eye_offset;
-				Projection correction;
-				correction.set_depth_correction(true);
-				Projection projection = correction * p_render_data->scene_data->cam_projection;
-
-				sky.setup_sky(p_render_data->environment, p_render_data->render_buffers, *p_render_data->lights, p_render_data->camera_attributes, 1, &projection, &eye_offset, p_render_data->scene_data->cam_transform, projection, screen_size, this);
-			} else {
-				sky.setup_sky(p_render_data->environment, p_render_data->render_buffers, *p_render_data->lights, p_render_data->camera_attributes, p_render_data->scene_data->view_count, p_render_data->scene_data->view_projection, p_render_data->scene_data->view_eye_offset, p_render_data->scene_data->cam_transform, p_render_data->scene_data->cam_projection, screen_size, this);
-			}
-
-			sky_energy_multiplier *= bg_energy_multiplier;
-
-			RID sky_rid = environment_get_sky(p_render_data->environment);
-			if (sky_rid.is_valid()) {
-				sky.update_radiance_buffers(rb, p_render_data->environment, p_render_data->scene_data->cam_transform.origin, time, sky_energy_multiplier);
-				radiance_texture = sky.sky_get_radiance_texture_rd(sky_rid);
-			} else {
-				// do not try to draw sky if invalid
-				draw_sky = false;
-			}
-
-			if (draw_sky || draw_sky_fog_only) {
-				// update sky half/quarter res buffers (if required)
-				sky.update_res_buffers(rb, p_render_data->environment, time, sky_energy_multiplier);
-			}
-			RD::get_singleton()->draw_command_end_label(); // Setup Sky
-		}
-	} else {
-		clear_color = p_default_bg_color;
-	}
-
-	_pre_opaque_render(p_render_data);
-
-	uint32_t spec_constant_base_flags = 0;
-
-	{
-		//figure out spec constants
-
-		if (p_render_data->directional_light_count > 0) {
-			if (p_render_data->directional_light_soft_shadows) {
-				spec_constant_base_flags |= 1 << SPEC_CONSTANT_USING_DIRECTIONAL_SOFT_SHADOWS;
-			}
-		} else {
-			spec_constant_base_flags |= 1 << SPEC_CONSTANT_DISABLE_DIRECTIONAL_LIGHTS;
-		}
-
-		if (!is_environment(p_render_data->environment) || !environment_get_fog_enabled(p_render_data->environment)) {
-			spec_constant_base_flags |= 1 << SPEC_CONSTANT_DISABLE_FOG;
-		}
-	}
-	{
-		if (rb_data.is_valid()) {
-			RD::get_singleton()->draw_command_begin_label("Render 3D Pass");
-		} else {
-			RD::get_singleton()->draw_command_begin_label("Render Reflection Probe Pass");
-		}
-
-		// opaque pass
-
-		RD::get_singleton()->draw_command_begin_label("Render Opaque Subpass");
-
-		p_render_data->scene_data->directional_light_count = p_render_data->directional_light_count;
-
-		_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, p_render_data->render_buffers.is_valid());
-
-		if (using_subpass_transparent && using_subpass_post_process) {
-			RENDER_TIMESTAMP("Render Opaque + Transparent + Tonemap");
-		} else if (using_subpass_transparent) {
-			RENDER_TIMESTAMP("Render Opaque + Transparent");
-		} else {
-			RENDER_TIMESTAMP("Render Opaque");
-		}
-
-		RID rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_OPAQUE, p_render_data, radiance_texture, true);
-
-		bool can_continue_color = !using_subpass_transparent && !scene_state.used_screen_texture;
-		bool can_continue_depth = !using_subpass_transparent && !scene_state.used_depth_texture;
-
-		{
-			// regular forward for now
-			Vector<Color> c;
-			c.push_back(clear_color.srgb_to_linear()); // our render buffer
-			if (rb_data.is_valid()) {
-				if (p_render_data->render_buffers->get_msaa_3d() != RS::VIEWPORT_MSAA_DISABLED) {
-					c.push_back(clear_color.srgb_to_linear()); // our resolve buffer
-				}
-				if (using_subpass_post_process) {
-					c.push_back(Color()); // our 2D buffer we're copying into
-				}
-			}
-
-			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
-			RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, PASS_MODE_COLOR, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
-			render_list_params.framebuffer_format = fb_format;
-			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
-				// secondary command buffers need more testing at this time
-				//multi threaded
-				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
-				RD::get_singleton()->draw_list_begin_split(framebuffer, thread_draw_lists.size(), thread_draw_lists.ptr(), keep_color ? RD::INITIAL_ACTION_KEEP : RD::INITIAL_ACTION_CLEAR, can_continue_color ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, can_continue_depth ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, c, 1.0, 0);
-
-				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderList"));
-				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
-
-			} else {
-				//single threaded
-				RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(framebuffer, keep_color ? RD::INITIAL_ACTION_KEEP : RD::INITIAL_ACTION_CLEAR, can_continue_color ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, can_continue_depth ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, c, 1.0, 0);
-				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
-			}
-		}
-
-		RD::get_singleton()->draw_command_end_label(); //Render Opaque Subpass
-
-		if (draw_sky || draw_sky_fog_only) {
-			RD::get_singleton()->draw_command_begin_label("Draw Sky Subpass");
-
-			// Note, sky.setup should have been called up above and setup stuff we need.
-
-			RD::DrawListID draw_list = RD::get_singleton()->draw_list_switch_to_next_pass();
-
-			sky.draw_sky(draw_list, rb, p_render_data->environment, framebuffer, time, sky_energy_multiplier);
-
-			RD::get_singleton()->draw_command_end_label(); // Draw Sky Subpass
-
-			// note, if MSAA is used in 2-subpass approach we should get an automatic resolve here
-		} else {
-			// switch to subpass but we do nothing here so basically we skip (though this should trigger resolve with 2-subpass MSAA).
-			RD::get_singleton()->draw_list_switch_to_next_pass();
-		}
-
-		if (!using_subpass_transparent) {
-			// We're done with our subpasses so end our container pass
-			RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
-
-			RD::get_singleton()->draw_command_end_label(); // Render 3D Pass / Render Reflection Probe Pass
-		}
-
-		if (scene_state.used_screen_texture) {
-			// Copy screen texture to backbuffer so we can read from it
-			_render_buffers_copy_screen_texture(p_render_data);
-		}
-
-		if (scene_state.used_depth_texture) {
-			// Copy depth texture to backbuffer so we can read from it
-			_render_buffers_copy_depth_texture(p_render_data);
-		}
-
-		// transparent pass
-
-		RD::get_singleton()->draw_command_begin_label("Render Transparent Subpass");
-
-		rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_ALPHA, p_render_data, radiance_texture, true);
-
-		if (using_subpass_transparent) {
-			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
-			RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, PASS_MODE_COLOR_TRANSPARENT, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
-			render_list_params.framebuffer_format = fb_format;
-			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
-				// secondary command buffers need more testing at this time
-				//multi threaded
-				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
-				RD::get_singleton()->draw_list_switch_to_next_pass_split(thread_draw_lists.size(), thread_draw_lists.ptr());
-				render_list_params.subpass = RD::get_singleton()->draw_list_get_current_pass();
-				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderSubpass"));
-				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
-
-			} else {
-				//single threaded
-				RD::DrawListID draw_list = RD::get_singleton()->draw_list_switch_to_next_pass();
-				render_list_params.subpass = RD::get_singleton()->draw_list_get_current_pass();
-				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
-			}
-
-			RD::get_singleton()->draw_command_end_label(); // Render Transparent Subpass
-
-			// note if we are using MSAA we should get an automatic resolve through our subpass configuration.
-
-			// blit to tonemap
-			if (rb_data.is_valid() && using_subpass_post_process) {
-				_post_process_subpass(p_render_data->render_buffers->get_internal_texture(), framebuffer, p_render_data);
-			}
-
-			RD::get_singleton()->draw_command_end_label(); // Render 3D Pass / Render Reflection Probe Pass
-
-			RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
-		} else {
-			RENDER_TIMESTAMP("Render Transparent");
-
-			if (rb_data.is_valid()) {
-				framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_ONE_PASS);
-			}
-
-			// this may be needed if we re-introduced steps that change info, not sure which do so in the previous implementation
-			// _setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
-
-			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
-			RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, PASS_MODE_COLOR, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
-			render_list_params.framebuffer_format = fb_format;
-			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
-				// secondary command buffers need more testing at this time
-				//multi threaded
-				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
-				RD::get_singleton()->draw_list_begin_split(framebuffer, thread_draw_lists.size(), thread_draw_lists.ptr(), can_continue_color ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ, can_continue_depth ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ);
-				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderSubpass"));
-				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
-
-				RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
-			} else {
-				//single threaded
-				RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(framebuffer, can_continue_color ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ, can_continue_depth ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ);
-				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
-				RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
-			}
-
-			RD::get_singleton()->draw_command_end_label(); // Render Transparent Subpass
-		}
-	}
-
-	if (rb_data.is_valid() && !using_subpass_post_process) {
-		RD::get_singleton()->draw_command_begin_label("Post process pass");
-
-		// If we need extra effects we do this in its own pass
-		RENDER_TIMESTAMP("Tonemap");
-
-		_render_buffers_post_process_and_tonemap(p_render_data);
-
-		RD::get_singleton()->draw_command_end_label(); // Post process pass
-	}
-
-	if (rb_data.is_valid()) {
-		_disable_clear_request(p_render_data);
-	}
-
-	_render_buffers_debug_draw(rb, p_render_data->shadow_atlas, p_render_data->occluder_debug_tex);
-}
+// void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color &p_default_bg_color) {
+// 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
+
+// 	ERR_FAIL_NULL(p_render_data);
+
+// 	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
+// 	ERR_FAIL_COND(rb.is_null());
+
+// 	Ref<RenderBufferDataForwardMobile> rb_data;
+// 	if (rb->has_custom_data(RB_SCOPE_MOBILE)) {
+// 		// Our forward mobile custom data buffer will only be available when we're rendering our normal view.
+// 		// This will not be available when rendering reflection probes.
+// 		rb_data = rb->get_custom_data(RB_SCOPE_MOBILE);
+// 	}
+// 	bool is_reflection_probe = p_render_data->reflection_probe.is_valid();
+
+// 	RENDER_TIMESTAMP("Prepare 3D Scene");
+
+// 	RENDER_TIMESTAMP("Setup 3D Scene");
+
+// 	/* TODO
+// 	// check if we need motion vectors
+// 	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_MOTION_VECTORS) {
+// 		p_render_data->scene_data->calculate_motion_vectors = true;
+// 	} else if (render target has velocity override) { // TODO
+// 		p_render_data->scene_data->calculate_motion_vectors = true;
+// 	} else {
+// 		p_render_data->scene_data->calculate_motion_vectors = false;
+// 	}
+// 	*/
+// 	p_render_data->scene_data->calculate_motion_vectors = false; // for now, not yet supported...
+
+// 	p_render_data->scene_data->directional_light_count = 0;
+// 	p_render_data->scene_data->opaque_prepass_threshold = 0.0;
+
+// 	// We can only use our full subpass approach if we're:
+// 	// - not reading from SCREEN_TEXTURE/DEPTH_TEXTURE
+// 	// - not using ssr/sss (currently not supported)
+// 	// - not using glow or other post effects (can't do 4th subpass)
+// 	// - rendering to a half sized render buffer (can't do 4th subpass)
+// 	// We'll need to restrict how far we're going with subpasses based on this.
+
+// 	Size2i screen_size;
+// 	RID framebuffer;
+// 	bool reverse_cull = p_render_data->scene_data->cam_transform.basis.determinant() < 0;
+// 	bool using_subpass_transparent = true;
+// 	bool using_subpass_post_process = true;
+
+// 	// fill our render lists early so we can find out if we use various features
+// 	_fill_render_list(RENDER_LIST_OPAQUE, p_render_data, PASS_MODE_COLOR);
+// 	render_list[RENDER_LIST_OPAQUE].sort_by_key();
+// 	render_list[RENDER_LIST_ALPHA].sort_by_reverse_depth_and_priority();
+// 	_fill_element_info(RENDER_LIST_OPAQUE);
+// 	_fill_element_info(RENDER_LIST_ALPHA);
+
+// 	if (p_render_data->render_info) {
+// 		p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME] = p_render_data->instances->size();
+// 		p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME] = p_render_data->instances->size();
+// 	}
+
+// 	if (is_reflection_probe) {
+// 		uint32_t resolution = light_storage->reflection_probe_instance_get_resolution(p_render_data->reflection_probe);
+// 		screen_size.x = resolution;
+// 		screen_size.y = resolution;
+
+// 		framebuffer = light_storage->reflection_probe_instance_get_framebuffer(p_render_data->reflection_probe, p_render_data->reflection_probe_pass);
+
+// 		if (light_storage->reflection_probe_is_interior(light_storage->reflection_probe_instance_get_probe(p_render_data->reflection_probe))) {
+// 			p_render_data->environment = RID(); //no environment on interiors
+// 		}
+
+// 		reverse_cull = true;
+// 		using_subpass_transparent = true; // we ignore our screen/depth texture here
+// 		using_subpass_post_process = false; // not applicable at all for reflection probes.
+// 	} else if (rb_data.is_valid()) {
+// 		// setup rendering to render buffer
+// 		screen_size = p_render_data->render_buffers->get_internal_size();
+
+// 		if (rb->get_scaling_3d_mode() != RS::VIEWPORT_SCALING_3D_MODE_OFF) {
+// 			// can't do blit subpass because we're scaling
+// 			using_subpass_post_process = false;
+// 		} else if (p_render_data->environment.is_valid() && (environment_get_glow_enabled(p_render_data->environment) || RSG::camera_attributes->camera_attributes_uses_auto_exposure(p_render_data->camera_attributes) || RSG::camera_attributes->camera_attributes_uses_dof(p_render_data->camera_attributes))) {
+// 			// can't do blit subpass because we're using post processes
+// 			using_subpass_post_process = false;
+// 		}
+
+// 		if (scene_state.used_screen_texture || scene_state.used_depth_texture) {
+// 			// can't use our last two subpasses because we're reading from screen texture or depth texture
+// 			using_subpass_transparent = false;
+// 			using_subpass_post_process = false;
+// 		}
+
+// 		// We do this last because our get_color_fbs creates and caches the framebuffer if we need it.
+// 		RID four_subpasses = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_FOUR_SUBPASSES);
+// 		if (using_subpass_post_process && four_subpasses.is_null()) {
+// 			// can't do blit subpass because we don't have all subpasses
+// 			using_subpass_post_process = false;
+// 		}
+
+// 		if (using_subpass_post_process) {
+// 			// all as subpasses
+// 			framebuffer = four_subpasses;
+// 		} else if (using_subpass_transparent) {
+// 			// our tonemap pass is separate
+// 			framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_THREE_SUBPASSES);
+// 		} else {
+// 			// only opaque and sky as subpasses
+// 			framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_TWO_SUBPASSES);
+// 		}
+// 	} else {
+// 		ERR_FAIL(); //bug?
+// 	}
+
+// 	p_render_data->scene_data->emissive_exposure_normalization = -1.0;
+
+// 	RD::get_singleton()->draw_command_begin_label("Render Setup");
+
+// 	_setup_lightmaps(p_render_data, *p_render_data->lightmaps, p_render_data->scene_data->cam_transform);
+// 	_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
+
+// 	_update_render_base_uniform_set(); //may have changed due to the above (light buffer enlarged, as an example)
+
+// 	RD::get_singleton()->draw_command_end_label(); // Render Setup
+
+// 	// setup environment
+// 	RID radiance_texture;
+// 	bool draw_sky = false;
+// 	bool draw_sky_fog_only = false;
+// 	// We invert luminance_multiplier for sky so that we can combine it with exposure value.
+// 	float sky_energy_multiplier = 1.0 / _render_buffers_get_luminance_multiplier();
+
+// 	Color clear_color = p_default_bg_color;
+// 	bool keep_color = false;
+
+// 	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_OVERDRAW) {
+// 		clear_color = Color(0, 0, 0, 1); //in overdraw mode, BG should always be black
+// 	} else if (is_environment(p_render_data->environment)) {
+// 		RS::EnvironmentBG bg_mode = environment_get_background(p_render_data->environment);
+// 		float bg_energy_multiplier = environment_get_bg_energy_multiplier(p_render_data->environment);
+// 		bg_energy_multiplier *= environment_get_bg_intensity(p_render_data->environment);
+
+// 		if (p_render_data->camera_attributes.is_valid()) {
+// 			bg_energy_multiplier *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_render_data->camera_attributes);
+// 		}
+
+// 		switch (bg_mode) {
+// 			case RS::ENV_BG_CLEAR_COLOR: {
+// 				clear_color = p_default_bg_color;
+// 				clear_color.r *= bg_energy_multiplier;
+// 				clear_color.g *= bg_energy_multiplier;
+// 				clear_color.b *= bg_energy_multiplier;
+// 				/*
+// 				if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_FOG) || environment_get_fog_enabled(p_render_data->environment)) {
+// 					draw_sky_fog_only = true;
+// 					RendererRD::MaterialStorage::get_singleton()->material_set_param(sky.sky_scene_state.fog_material, "clear_color", Variant(clear_color.srgb_to_linear()));
+// 				}
+// 				*/
+// 			} break;
+// 			case RS::ENV_BG_COLOR: {
+// 				clear_color = environment_get_bg_color(p_render_data->environment);
+// 				clear_color.r *= bg_energy_multiplier;
+// 				clear_color.g *= bg_energy_multiplier;
+// 				clear_color.b *= bg_energy_multiplier;
+// 				/*
+// 				if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_FOG) || environment_get_fog_enabled(p_render_data->environment)) {
+// 					draw_sky_fog_only = true;
+// 					RendererRD::MaterialStorage::get_singleton()->material_set_param(sky.sky_scene_state.fog_material, "clear_color", Variant(clear_color.srgb_to_linear()));
+// 				}
+// 				*/
+// 			} break;
+// 			case RS::ENV_BG_SKY: {
+// 				draw_sky = true;
+// 			} break;
+// 			case RS::ENV_BG_CANVAS: {
+// 				if (rb_data.is_valid()) {
+// 					RID dest_framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_ONE_PASS);
+// 					RID texture = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture(rb->get_render_target());
+// 					copy_effects->copy_to_fb_rect(texture, dest_framebuffer, Rect2i(), false, false, false, false, RID(), false, false, true);
+// 				}
+// 				keep_color = true;
+// 			} break;
+// 			case RS::ENV_BG_KEEP: {
+// 				keep_color = true;
+// 			} break;
+// 			case RS::ENV_BG_CAMERA_FEED: {
+// 			} break;
+// 			default: {
+// 			}
+// 		}
+
+// 		// setup sky if used for ambient, reflections, or background
+// 		if (draw_sky || draw_sky_fog_only || environment_get_reflection_source(p_render_data->environment) == RS::ENV_REFLECTION_SOURCE_SKY || environment_get_ambient_source(p_render_data->environment) == RS::ENV_AMBIENT_SOURCE_SKY) {
+// 			RENDER_TIMESTAMP("Setup Sky");
+// 			RD::get_singleton()->draw_command_begin_label("Setup Sky");
+
+// 			// Setup our sky render information for this frame/viewport
+// 			if (is_reflection_probe) {
+// 				Vector3 eye_offset;
+// 				Projection correction;
+// 				correction.set_depth_correction(true);
+// 				Projection projection = correction * p_render_data->scene_data->cam_projection;
+
+// 				sky.setup_sky(p_render_data->environment, p_render_data->render_buffers, *p_render_data->lights, p_render_data->camera_attributes, 1, &projection, &eye_offset, p_render_data->scene_data->cam_transform, projection, screen_size, this);
+// 			} else {
+// 				sky.setup_sky(p_render_data->environment, p_render_data->render_buffers, *p_render_data->lights, p_render_data->camera_attributes, p_render_data->scene_data->view_count, p_render_data->scene_data->view_projection, p_render_data->scene_data->view_eye_offset, p_render_data->scene_data->cam_transform, p_render_data->scene_data->cam_projection, screen_size, this);
+// 			}
+
+// 			sky_energy_multiplier *= bg_energy_multiplier;
+
+// 			RID sky_rid = environment_get_sky(p_render_data->environment);
+// 			if (sky_rid.is_valid()) {
+// 				sky.update_radiance_buffers(rb, p_render_data->environment, p_render_data->scene_data->cam_transform.origin, time, sky_energy_multiplier);
+// 				radiance_texture = sky.sky_get_radiance_texture_rd(sky_rid);
+// 			} else {
+// 				// do not try to draw sky if invalid
+// 				draw_sky = false;
+// 			}
+
+// 			if (draw_sky || draw_sky_fog_only) {
+// 				// update sky half/quarter res buffers (if required)
+// 				sky.update_res_buffers(rb, p_render_data->environment, time, sky_energy_multiplier);
+// 			}
+// 			RD::get_singleton()->draw_command_end_label(); // Setup Sky
+// 		}
+// 	} else {
+// 		clear_color = p_default_bg_color;
+// 	}
+
+// 	_pre_opaque_render(p_render_data);
+
+// 	uint32_t spec_constant_base_flags = 0;
+
+// 	{
+// 		//figure out spec constants
+
+// 		if (p_render_data->directional_light_count > 0) {
+// 			if (p_render_data->directional_light_soft_shadows) {
+// 				spec_constant_base_flags |= 1 << SPEC_CONSTANT_USING_DIRECTIONAL_SOFT_SHADOWS;
+// 			}
+// 		} else {
+// 			spec_constant_base_flags |= 1 << SPEC_CONSTANT_DISABLE_DIRECTIONAL_LIGHTS;
+// 		}
+
+// 		if (!is_environment(p_render_data->environment) || !environment_get_fog_enabled(p_render_data->environment)) {
+// 			spec_constant_base_flags |= 1 << SPEC_CONSTANT_DISABLE_FOG;
+// 		}
+// 	}
+// 	{
+// 		if (rb_data.is_valid()) {
+// 			RD::get_singleton()->draw_command_begin_label("Render 3D Pass");
+// 		} else {
+// 			RD::get_singleton()->draw_command_begin_label("Render Reflection Probe Pass");
+// 		}
+
+// 		// opaque pass
+
+// 		RD::get_singleton()->draw_command_begin_label("Render Opaque Subpass");
+
+// 		p_render_data->scene_data->directional_light_count = p_render_data->directional_light_count;
+
+// 		_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, p_render_data->render_buffers.is_valid());
+
+// 		if (using_subpass_transparent && using_subpass_post_process) {
+// 			RENDER_TIMESTAMP("Render Opaque + Transparent + Tonemap");
+// 		} else if (using_subpass_transparent) {
+// 			RENDER_TIMESTAMP("Render Opaque + Transparent");
+// 		} else {
+// 			RENDER_TIMESTAMP("Render Opaque");
+// 		}
+
+// 		RID rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_OPAQUE, p_render_data, radiance_texture, true);
+
+// 		bool can_continue_color = !using_subpass_transparent && !scene_state.used_screen_texture;
+// 		bool can_continue_depth = !using_subpass_transparent && !scene_state.used_depth_texture;
+
+// 		{
+// 			// regular forward for now
+// 			Vector<Color> c;
+// 			c.push_back(clear_color.srgb_to_linear()); // our render buffer
+// 			if (rb_data.is_valid()) {
+// 				if (p_render_data->render_buffers->get_msaa_3d() != RS::VIEWPORT_MSAA_DISABLED) {
+// 					c.push_back(clear_color.srgb_to_linear()); // our resolve buffer
+// 				}
+// 				if (using_subpass_post_process) {
+// 					c.push_back(Color()); // our 2D buffer we're copying into
+// 				}
+// 			}
+
+// 			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
+// 			RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, PASS_MODE_COLOR, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+// 			render_list_params.framebuffer_format = fb_format;
+// 			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
+// 				// secondary command buffers need more testing at this time
+// 				//multi threaded
+// 				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
+// 				RD::get_singleton()->draw_list_begin_split(framebuffer, thread_draw_lists.size(), thread_draw_lists.ptr(), keep_color ? RD::INITIAL_ACTION_KEEP : RD::INITIAL_ACTION_CLEAR, can_continue_color ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, can_continue_depth ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, c, 1.0, 0);
+
+// 				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderList"));
+// 				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
+
+// 			} else {
+// 				//single threaded
+// 				RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(framebuffer, keep_color ? RD::INITIAL_ACTION_KEEP : RD::INITIAL_ACTION_CLEAR, can_continue_color ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, can_continue_depth ? RD::FINAL_ACTION_CONTINUE : RD::FINAL_ACTION_READ, c, 1.0, 0);
+// 				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
+// 			}
+// 		}
+
+// 		RD::get_singleton()->draw_command_end_label(); //Render Opaque Subpass
+
+// 		if (draw_sky || draw_sky_fog_only) {
+// 			RD::get_singleton()->draw_command_begin_label("Draw Sky Subpass");
+
+// 			// Note, sky.setup should have been called up above and setup stuff we need.
+
+// 			RD::DrawListID draw_list = RD::get_singleton()->draw_list_switch_to_next_pass();
+
+// 			sky.draw_sky(draw_list, rb, p_render_data->environment, framebuffer, time, sky_energy_multiplier);
+
+// 			RD::get_singleton()->draw_command_end_label(); // Draw Sky Subpass
+
+// 			// note, if MSAA is used in 2-subpass approach we should get an automatic resolve here
+// 		} else {
+// 			// switch to subpass but we do nothing here so basically we skip (though this should trigger resolve with 2-subpass MSAA).
+// 			RD::get_singleton()->draw_list_switch_to_next_pass();
+// 		}
+
+// 		if (!using_subpass_transparent) {
+// 			// We're done with our subpasses so end our container pass
+// 			RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
+
+// 			RD::get_singleton()->draw_command_end_label(); // Render 3D Pass / Render Reflection Probe Pass
+// 		}
+
+// 		if (scene_state.used_screen_texture) {
+// 			// Copy screen texture to backbuffer so we can read from it
+// 			_render_buffers_copy_screen_texture(p_render_data);
+// 		}
+
+// 		if (scene_state.used_depth_texture) {
+// 			// Copy depth texture to backbuffer so we can read from it
+// 			_render_buffers_copy_depth_texture(p_render_data);
+// 		}
+
+// 		// transparent pass
+
+// 		RD::get_singleton()->draw_command_begin_label("Render Transparent Subpass");
+
+// 		rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_ALPHA, p_render_data, radiance_texture, true);
+
+// 		if (using_subpass_transparent) {
+// 			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
+// 			RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, PASS_MODE_COLOR_TRANSPARENT, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+// 			render_list_params.framebuffer_format = fb_format;
+// 			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
+// 				// secondary command buffers need more testing at this time
+// 				//multi threaded
+// 				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
+// 				RD::get_singleton()->draw_list_switch_to_next_pass_split(thread_draw_lists.size(), thread_draw_lists.ptr());
+// 				render_list_params.subpass = RD::get_singleton()->draw_list_get_current_pass();
+// 				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderSubpass"));
+// 				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
+
+// 			} else {
+// 				//single threaded
+// 				RD::DrawListID draw_list = RD::get_singleton()->draw_list_switch_to_next_pass();
+// 				render_list_params.subpass = RD::get_singleton()->draw_list_get_current_pass();
+// 				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
+// 			}
+
+// 			RD::get_singleton()->draw_command_end_label(); // Render Transparent Subpass
+
+// 			// note if we are using MSAA we should get an automatic resolve through our subpass configuration.
+
+// 			// blit to tonemap
+// 			if (rb_data.is_valid() && using_subpass_post_process) {
+// 				_post_process_subpass(p_render_data->render_buffers->get_internal_texture(), framebuffer, p_render_data);
+// 			}
+
+// 			RD::get_singleton()->draw_command_end_label(); // Render 3D Pass / Render Reflection Probe Pass
+
+// 			RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
+// 		} else {
+// 			RENDER_TIMESTAMP("Render Transparent");
+
+// 			if (rb_data.is_valid()) {
+// 				framebuffer = rb_data->get_color_fbs(RenderBufferDataForwardMobile::FB_CONFIG_ONE_PASS);
+// 			}
+
+// 			// this may be needed if we re-introduced steps that change info, not sure which do so in the previous implementation
+// 			// _setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
+
+// 			RD::FramebufferFormatID fb_format = RD::get_singleton()->framebuffer_get_format(framebuffer);
+// 			RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, PASS_MODE_COLOR, rp_uniform_set, spec_constant_base_flags, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+// 			render_list_params.framebuffer_format = fb_format;
+// 			if ((uint32_t)render_list_params.element_count > render_list_thread_threshold && false) {
+// 				// secondary command buffers need more testing at this time
+// 				//multi threaded
+// 				thread_draw_lists.resize(WorkerThreadPool::get_singleton()->get_thread_count());
+// 				RD::get_singleton()->draw_list_begin_split(framebuffer, thread_draw_lists.size(), thread_draw_lists.ptr(), can_continue_color ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ, can_continue_depth ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ);
+// 				WorkerThreadPool::GroupID group_task = WorkerThreadPool::get_singleton()->add_template_group_task(this, &RenderForwardMobile::_render_list_thread_function, &render_list_params, thread_draw_lists.size(), -1, true, SNAME("ForwardMobileRenderSubpass"));
+// 				WorkerThreadPool::get_singleton()->wait_for_group_task_completion(group_task);
+
+// 				RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
+// 			} else {
+// 				//single threaded
+// 				RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(framebuffer, can_continue_color ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ, can_continue_depth ? RD::INITIAL_ACTION_CONTINUE : RD::INITIAL_ACTION_KEEP, RD::FINAL_ACTION_READ);
+// 				_render_list(draw_list, fb_format, &render_list_params, 0, render_list_params.element_count);
+// 				RD::get_singleton()->draw_list_end(RD::BARRIER_MASK_ALL_BARRIERS);
+// 			}
+
+// 			RD::get_singleton()->draw_command_end_label(); // Render Transparent Subpass
+// 		}
+// 	}
+
+// 	if (rb_data.is_valid() && !using_subpass_post_process) {
+// 		RD::get_singleton()->draw_command_begin_label("Post process pass");
+
+// 		// If we need extra effects we do this in its own pass
+// 		RENDER_TIMESTAMP("Tonemap");
+
+// 		_render_buffers_post_process_and_tonemap(p_render_data);
+
+// 		RD::get_singleton()->draw_command_end_label(); // Post process pass
+// 	}
+
+// 	if (rb_data.is_valid()) {
+// 		_disable_clear_request(p_render_data);
+// 	}
+
+// 	_render_buffers_debug_draw(rb, p_render_data->shadow_atlas, p_render_data->occluder_debug_tex);
+// }
 
 /* these are being called from RendererSceneRenderRD::_pre_opaque_render */
 

@@ -458,8 +458,6 @@ void TileSetEditor::_move_tile_set_array_element(Object *p_undo_redo, Object *p_
 	} else if (components.size() >= 2 && components[0].begins_with("terrain_set_") && components[0].trim_prefix("terrain_set_").is_valid_int() && components[1] == "terrain_") {
 		int terrain_set = components[0].trim_prefix("terrain_set_").to_int();
 		end = ed_tile_set->get_terrains_count(terrain_set);
-	} else if (p_array_prefix == "navigation_layer_") {
-		end = ed_tile_set->get_navigation_layers_count();
 	} else if (p_array_prefix == "custom_data_layer_") {
 		end = ed_tile_set->get_custom_data_layers_count();
 	} else {
@@ -500,10 +498,6 @@ void TileSetEditor::_move_tile_set_array_element(Object *p_undo_redo, Object *p_
 		int terrain_set = components[0].trim_prefix("terrain_set_").to_int();
 		if (p_from_index < 0) {
 			undo_redo_man->add_undo_method(ed_tile_set, "remove_terrain", terrain_set, p_to_pos < 0 ? ed_tile_set->get_terrains_count(terrain_set) : p_to_pos);
-		}
-	} else if (p_array_prefix == "navigation_layer_") {
-		if (p_from_index < 0) {
-			undo_redo_man->add_undo_method(ed_tile_set, "remove_navigation_layer", p_to_pos < 0 ? ed_tile_set->get_navigation_layers_count() : p_to_pos);
 		}
 	} else if (p_array_prefix == "custom_data_layer_") {
 		if (p_from_index < 0) {
@@ -577,10 +571,6 @@ void TileSetEditor::_move_tile_set_array_element(Object *p_undo_redo, Object *p_
 								ADD_UNDO(tile_data, "terrains_peering_bit/" + String(TileSet::CELL_NEIGHBOR_ENUM_TO_TEXT[terrain_index]));
 							}
 						}
-					} else if (p_array_prefix == "navigation_layer_") {
-						for (int layer_index = begin; layer_index < end; layer_index++) {
-							ADD_UNDO(tile_data, vformat("navigation_layer_%d/polygon", layer_index));
-						}
 					} else if (p_array_prefix == "custom_data_layer_") {
 						for (int layer_index = begin; layer_index < end; layer_index++) {
 							ADD_UNDO(tile_data, vformat("custom_data_%d", layer_index));
@@ -625,14 +615,6 @@ void TileSetEditor::_move_tile_set_array_element(Object *p_undo_redo, Object *p_
 			undo_redo_man->add_do_method(ed_tile_set, "remove_terrain", terrain_set, p_from_index);
 		} else {
 			undo_redo_man->add_do_method(ed_tile_set, "move_terrain", terrain_set, p_from_index, p_to_pos);
-		}
-	} else if (p_array_prefix == "navigation_layer_") {
-		if (p_from_index < 0) {
-			undo_redo_man->add_do_method(ed_tile_set, "add_navigation_layer", p_to_pos);
-		} else if (p_to_pos < 0) {
-			undo_redo_man->add_do_method(ed_tile_set, "remove_navigation_layer", p_from_index);
-		} else {
-			undo_redo_man->add_do_method(ed_tile_set, "move_navigation_layer", p_from_index, p_to_pos);
 		}
 	} else if (p_array_prefix == "custom_data_layer_") {
 		if (p_from_index < 0) {
