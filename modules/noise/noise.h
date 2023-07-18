@@ -1,32 +1,5 @@
-/**************************************************************************/
-/*  noise.h                                                               */
-/**************************************************************************/
-/*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
-/**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
-/*                                                                        */
-/* Permission is hereby granted, free of charge, to any person obtaining  */
-/* a copy of this software and associated documentation files (the        */
-/* "Software"), to deal in the Software without restriction, including    */
-/* without limitation the rights to use, copy, modify, merge, publish,    */
-/* distribute, sublicense, and/or sell copies of the Software, and to     */
-/* permit persons to whom the Software is furnished to do so, subject to  */
-/* the following conditions:                                              */
-/*                                                                        */
-/* The above copyright notice and this permission notice shall be         */
-/* included in all copies or substantial portions of the Software.        */
-/*                                                                        */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
-/**************************************************************************/
+// noise.h
+// MIT LICENSE -> GODOT ENGINE
 
 #ifndef NOISE_H
 #define NOISE_H
@@ -287,16 +260,11 @@ public:
 	virtual real_t get_noise_2dv(Vector2 p_v) const = 0;
 	virtual real_t get_noise_2d(real_t p_x, real_t p_y) const = 0;
 
-	virtual real_t get_noise_3dv(Vector3 p_v) const = 0;
-	virtual real_t get_noise_3d(real_t p_x, real_t p_y, real_t p_z) const = 0;
+	Vector<Ref<Image>> _get_image(int p_width, int p_height, int p_depth, bool p_invert = false, bool p_normalize = true) const;
+	virtual Ref<Image> get_image(int p_width, int p_height, bool p_invert = false, bool p_normalize = true) const;
 
-	Vector<Ref<Image>> _get_image(int p_width, int p_height, int p_depth, bool p_invert = false, bool p_in_3d_space = false, bool p_normalize = true) const;
-	virtual Ref<Image> get_image(int p_width, int p_height, bool p_invert = false, bool p_in_3d_space = false, bool p_normalize = true) const;
-	virtual TypedArray<Image> get_image_3d(int p_width, int p_height, int p_depth, bool p_invert = false, bool p_normalize = true) const;
-
-	Vector<Ref<Image>> _get_seamless_image(int p_width, int p_height, int p_depth, bool p_invert = false, bool p_in_3d_space = false, real_t p_blend_skirt = 0.1, bool p_normalize = true) const;
-	virtual Ref<Image> get_seamless_image(int p_width, int p_height, bool p_invert = false, bool p_in_3d_space = false, real_t p_blend_skirt = 0.1, bool p_normalize = true) const;
-	virtual TypedArray<Image> get_seamless_image_3d(int p_width, int p_height, int p_depth, bool p_invert = false, real_t p_blend_skirt = 0.1, bool p_normalize = true) const;
+	Vector<Ref<Image>> _get_seamless_image(int p_width, int p_height, int p_depth, bool p_invert = false, real_t p_blend_skirt = 0.1, bool p_normalize = true) const;
+	virtual Ref<Image> get_seamless_image(int p_width, int p_height, bool p_invert = false, real_t p_blend_skirt = 0.1, bool p_normalize = true) const;
 };
 
 #endif // NOISE_H

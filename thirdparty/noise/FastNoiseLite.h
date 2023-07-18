@@ -1,49 +1,4 @@
 // MIT License
-//
-// Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
-// Copyright(c) 2020 Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
-// .'',;:cldxkO00KKXXNNWWWNNXKOkxdollcc::::::;:::ccllloooolllllllllooollc:,'...        ...........',;cldxkO000Okxdlc::;;;,,;;;::cclllllll
-// ..',;:ldxO0KXXNNNNNNNNXXK0kxdolcc::::::;;;,,,,,,;;;;;;;;;;:::cclllllc:;'....       ...........',;:ldxO0KXXXK0Okxdolc::;;;;::cllodddddo
-// ...',:loxO0KXNNNNNXXKK0Okxdolc::;::::::::;;;,,'''''.....''',;:clllllc:;,'............''''''''',;:loxO0KXNNNNNXK0Okxdollccccllodxxxxxxd
-// ....';:ldkO0KXXXKK00Okxdolcc:;;;;;::cclllcc:;;,''..... ....',;clooddolcc:;;;;,,;;;;;::::;;;;;;:cloxk0KXNWWWWWWNXKK0Okxddoooddxxkkkkkxx
-// .....';:ldxkOOOOOkxxdolcc:;;;,,,;;:cllooooolcc:;'...      ..,:codxkkkxddooollloooooooollcc:::::clodkO0KXNWWWWWWNNXK00Okxxxxxxxxkkkkxxx
-// . ....';:cloddddo___________,,,,;;:clooddddoolc:,...      ..,:ldx__00OOOkkk___kkkkkkxxdollc::::cclodkO0KXXNNNNNNXXK0OOkxxxxxxxxxxxxddd
-// .......',;:cccc:|           |,,,;;:cclooddddoll:;'..     ..';cox|  \KKK000|   |KK00OOkxdocc___;::clldxxkO0KKKKK00Okkxdddddddddddddddoo
-// .......'',,,,,''|   ________|',,;;::cclloooooolc:;'......___:ldk|   \KK000|   |XKKK0Okxolc|   |;;::cclodxxkkkkxxdoolllcclllooodddooooo
-// ''......''''....|   |  ....'',,,,;;;::cclloooollc:;,''.'|   |oxk|    \OOO0|   |KKK00Oxdoll|___|;;;;;::ccllllllcc::;;,,;;;:cclloooooooo
-// ;;,''.......... |   |_____',,;;;____:___cllo________.___|   |___|     \xkk|   |KK_______ool___:::;________;;;_______...'',;;:ccclllloo
-// c:;,''......... |         |:::/     '   |lo/        |           |      \dx|   |0/       \d|   |cc/        |'/       \......',,;;:ccllo
-// ol:;,'..........|    _____|ll/    __    |o/   ______|____    ___|   |   \o|   |/   ___   \|   |o/   ______|/   ___   \ .......'',;:clo
-// dlc;,...........|   |::clooo|    /  |   |x\___   \KXKKK0|   |dol|   |\   \|   |   |   |   |   |d\___   \..|   |  /   /       ....',:cl
-// xoc;'...  .....'|   |llodddd|    \__|   |_____\   \KKK0O|   |lc:|   |'\       |   |___|   |   |_____\   \.|   |_/___/...      ...',;:c
-// dlc;'... ....',;|   |oddddddo\          |          |Okkx|   |::;|   |..\      |\         /|   |          | \         |...    ....',;:c
-// ol:,'.......',:c|___|xxxddollc\_____,___|_________/ddoll|___|,,,|___|...\_____|:\ ______/l|___|_________/...\________|'........',;::cc
-// c:;'.......';:codxxkkkkxxolc::;::clodxkOO0OOkkxdollc::;;,,''''',,,,''''''''''',,'''''',;:loxkkOOkxol:;,'''',,;:ccllcc:;,'''''',;::ccll
-// ;,'.......',:codxkOO0OOkxdlc:;,,;;:cldxxkkxxdolc:;;,,''.....'',;;:::;;,,,'''''........,;cldkO0KK0Okdoc::;;::cloodddoolc:;;;;;::ccllooo
-// .........',;:lodxOO0000Okdoc:,,',,;:clloddoolc:;,''.......'',;:clooollc:;;,,''.......',:ldkOKXNNXX0Oxdolllloddxxxxxxdolccccccllooodddd
-// .    .....';:cldxkO0000Okxol:;,''',,;::cccc:;,,'.......'',;:cldxxkkxxdolc:;;,'.......';coxOKXNWWWNXKOkxddddxxkkkkkkxdoollllooddxxxxkkk
-//       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
-//       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
-//
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
@@ -110,9 +65,6 @@ public:
         DomainWarpType_BasicGrid
     };
 
-    /// <summary>
-    /// Create new FastNoise object with optional seed
-    /// </summary>
     FastNoiseLite(int seed = 1337)
     {
         mSeed = seed;
@@ -139,41 +91,16 @@ public:
         mDomainWarpAmp = 1.0f;
     }
 
-    /// <summary>
-    /// Sets seed used for all noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 1337
-    /// </remarks>
     void SetSeed(int seed) { mSeed = seed; }
 
-    /// <summary>
-    /// Sets frequency for all noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.01
-    /// </remarks>
     void SetFrequency(float frequency) { mFrequency = frequency; }
 
-    /// <summary>
-    /// Sets noise algorithm used for GetNoise(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: OpenSimplex2
-    /// </remarks>
     void SetNoiseType(NoiseType noiseType)
     {
         mNoiseType = noiseType;
         UpdateTransformType3D();
     }
 
-    /// <summary>
-    /// Sets domain rotation type for 3D Noise and 3D DomainWarp.
-    /// Can aid in reducing directional artifacts when sampling a 2D plane in 3D
-    /// </summary>
-    /// <remarks>
-    /// Default: None
-    /// </remarks>
     void SetRotationType3D(RotationType3D rotationType3D)
     {
         mRotationType3D = rotationType3D;
@@ -181,119 +108,40 @@ public:
         UpdateWarpTransformType3D();
     }
 
-    /// <summary>
-    /// Sets method for combining octaves in all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: None
-    /// Note: FractalType_DomainWarp... only affects DomainWarp(...)
-    /// </remarks>
     void SetFractalType(FractalType fractalType) { mFractalType = fractalType; }
 
-    /// <summary>
-    /// Sets octave count for all fractal noise types 
-    /// </summary>
-    /// <remarks>
-    /// Default: 3
-    /// </remarks>
     void SetFractalOctaves(int octaves)
     {
         mOctaves = octaves;
         CalculateFractalBounding();
     }
 
-    /// <summary>
-    /// Sets octave lacunarity for all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 2.0
-    /// </remarks>
     void SetFractalLacunarity(float lacunarity) { mLacunarity = lacunarity; }
 
-    /// <summary>
-    /// Sets octave gain for all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.5
-    /// </remarks>
     void SetFractalGain(float gain)
     {
         mGain = gain;
         CalculateFractalBounding();
     }
 
-    /// <summary>
-    /// Sets octave weighting for all none DomainWarp fratal types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.0
-    /// Note: Keep between 0...1 to maintain -1...1 output bounding
-    /// </remarks>
     void SetFractalWeightedStrength(float weightedStrength) { mWeightedStrength = weightedStrength; }
 
-    /// <summary>
-    /// Sets strength of the fractal ping pong effect
-    /// </summary>
-    /// <remarks>
-    /// Default: 2.0
-    /// </remarks>
     void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStrength = pingPongStrength; }
 
-
-    /// <summary>
-    /// Sets distance function used in cellular noise calculations
-    /// </summary>
-    /// <remarks>
-    /// Default: Distance
-    /// </remarks>
     void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { mCellularDistanceFunction = cellularDistanceFunction; }
 
-    /// <summary>
-    /// Sets return type from cellular noise calculations
-    /// </summary>
-    /// <remarks>
-    /// Default: EuclideanSq
-    /// </remarks>
     void SetCellularReturnType(CellularReturnType cellularReturnType) { mCellularReturnType = cellularReturnType; }
 
-    /// <summary>
-    /// Sets the maximum distance a cellular point can move from it's grid position
-    /// </summary>
-    /// <remarks>
-    /// Default: 1.0
-    /// Note: Setting this higher than 1 will cause artifacts
-    /// </remarks> 
     void SetCellularJitter(float cellularJitter) { mCellularJitterModifier = cellularJitter; }
 
-
-    /// <summary>
-    /// Sets the warp algorithm when using DomainWarp(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: OpenSimplex2
-    /// </remarks>
     void SetDomainWarpType(DomainWarpType domainWarpType)
     {
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
     }
 
-
-    /// <summary>
-    /// Sets the maximum warp distance from original position when using DomainWarp(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: 1.0
-    /// </remarks>
     void SetDomainWarpAmp(float domainWarpAmp) { mDomainWarpAmp = domainWarpAmp; }
 
-
-    /// <summary>
-    /// 2D noise at given position using current settings
-    /// </summary>
-    /// <returns>
-    /// Noise output bounded between -1...1
-    /// </returns>
     template <typename FNfloat>
     float GetNoise(FNfloat x, FNfloat y) const
     {
@@ -314,12 +162,6 @@ public:
         }
     }
 
-    /// <summary>
-    /// 3D noise at given position using current settings
-    /// </summary>
-    /// <returns>
-    /// Noise output bounded between -1...1
-    /// </returns>
     template <typename FNfloat>
     float GetNoise(FNfloat x, FNfloat y, FNfloat z) const
     {
@@ -340,15 +182,6 @@ public:
         }
     }
 
-
-    /// <summary>
-    /// 2D warps the input position using current domain warp settings
-    /// </summary>
-    /// <example>
-    /// Example usage with GetNoise
-    /// <code>DomainWarp(x, y)
-    /// noise = GetNoise(x, y)</code>
-    /// </example>
     template <typename FNfloat>
     void DomainWarp(FNfloat& x, FNfloat& y) const
     {
@@ -368,14 +201,6 @@ public:
         }
     }
 
-    /// <summary>
-    /// 3D warps the input position using current domain warp settings
-    /// </summary>
-    /// <example>
-    /// Example usage with GetNoise
-    /// <code>DomainWarp(x, y, z)
-    /// noise = GetNoise(x, y, z)</code>
-    /// </example>
     template <typename FNfloat>
     void DomainWarp(FNfloat& x, FNfloat& y, FNfloat& z) const
     {
@@ -429,7 +254,6 @@ private:
     DomainWarpType mDomainWarpType;
     TransformType3D mWarpTransformType3D;
     float mDomainWarpAmp;
-
 
     template <typename T>
     struct Lookup
@@ -498,7 +322,6 @@ private:
         return hash;
     }
 
-
     static int Hash(int seed, int xPrimed, int yPrimed, int zPrimed)
     {
         int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
@@ -506,7 +329,6 @@ private:
         hash *= 0x27d4eb2d;
         return hash;
     }
-
 
     static float ValCoord(int seed, int xPrimed, int yPrimed)
     {
@@ -517,7 +339,6 @@ private:
         return hash * (1 / 2147483648.0f);
     }
 
-
     static float ValCoord(int seed, int xPrimed, int yPrimed, int zPrimed)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
@@ -526,7 +347,6 @@ private:
         hash ^= hash << 19;
         return hash * (1 / 2147483648.0f);
     }
-
 
     float GradCoord(int seed, int xPrimed, int yPrimed, float xd, float yd) const
     {
@@ -539,7 +359,6 @@ private:
 
         return xd * xg + yd * yg;
     }
-
 
     float GradCoord(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd) const
     {
@@ -554,7 +373,6 @@ private:
         return xd * xg + yd * yg + zd * zg;
     }
 
-
     void GradCoordOut(int seed, int xPrimed, int yPrimed, float& xo, float& yo) const
     {
         int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
@@ -562,7 +380,6 @@ private:
         xo = Lookup<float>::RandVecs2D[hash];
         yo = Lookup<float>::RandVecs2D[hash | 1];
     }
-
 
     void GradCoordOut(int seed, int xPrimed, int yPrimed, int zPrimed, float& xo, float& yo, float& zo) const
     {
@@ -572,7 +389,6 @@ private:
         yo = Lookup<float>::RandVecs3D[hash | 1];
         zo = Lookup<float>::RandVecs3D[hash | 2];
     }
-
 
     void GradCoordDual(int seed, int xPrimed, int yPrimed, float xd, float yd, float& xo, float& yo) const
     {
@@ -590,7 +406,6 @@ private:
         xo = value * xgo;
         yo = value * ygo;
     }
-
 
     void GradCoordDual(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, float& xo, float& yo, float& zo) const
     {
@@ -612,9 +427,7 @@ private:
         zo = value * zgo;
     }
 
-
     // Generic noise gen
-
     template <typename FNfloat>
     float GenNoiseSingle(int seed, FNfloat x, FNfloat y) const
     {
@@ -661,7 +474,6 @@ private:
 
 
     // Noise Coordinate Transforms (frequency, and possible skew or rotation)
-
     template <typename FNfloat>
     void TransformNoiseCoordinate(FNfloat& x, FNfloat& y) const
     {
@@ -753,9 +565,7 @@ private:
         }
     }
 
-
     // Domain Warp Coordinate Transforms
-
     template <typename FNfloat>
     void TransformDomainWarpCoordinate(FNfloat& x, FNfloat& y) const
     {
@@ -840,9 +650,7 @@ private:
         }
     }
 
-
     // Fractal FBm
-
     template <typename FNfloat>
     float GenFractalFBm(FNfloat x, FNfloat y) const
     {
@@ -886,9 +694,7 @@ private:
         return sum;
     }
 
-
     // Fractal Ridged
-
     template <typename FNfloat>
     float GenFractalRidged(FNfloat x, FNfloat y) const
     {
@@ -932,9 +738,7 @@ private:
         return sum;
     }
 
-
     // Fractal PingPong 
-
     template <typename FNfloat>
     float GenFractalPingPong(FNfloat x, FNfloat y) const
     {
@@ -978,23 +782,13 @@ private:
         return sum;
     }
 
-
     // Simplex/OpenSimplex2 Noise
-
     template <typename FNfloat>
     float SingleSimplex(int seed, FNfloat x, FNfloat y) const
     {
         // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
-
         const float SQRT3 = 1.7320508075688772935274463415059f;
         const float G2 = (3 - SQRT3) / 6;
-
-        /*
-         * --- Skew moved to TransformNoiseCoordinate method ---
-         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
-         * FNfloat s = (x + y) * F2;
-         * x += s; y += s;
-        */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1056,14 +850,6 @@ private:
     float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z) const
     {
         // 3D OpenSimplex2 case uses two offset rotated cube grids.
-
-        /*
-         * --- Rotation moved to TransformNoiseCoordinate method ---
-         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-         * x = r - x; y = r - y; z = r - z;
-        */
-
         int i = FastRound(x);
         int j = FastRound(y);
         int k = FastRound(z);
@@ -1151,23 +937,13 @@ private:
         return value * 32.69428253173828125f;
     }
 
-
     // OpenSimplex2S Noise
-
     template <typename FNfloat>
     float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y) const
     {
         // 2D OpenSimplex2S case is a modified 2D simplex noise.
-
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
         const FNfloat G2 = (3 - SQRT3) / 6;
-
-        /*
-         * --- Skew moved to TransformNoiseCoordinate method ---
-         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
-         * FNfloat s = (x + y) * F2;
-         * x += s; y += s;
-        */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1281,7 +1057,6 @@ private:
                 }
             }
         }
-
         return value * 18.24196194486065f;
     }
 
@@ -1289,14 +1064,6 @@ private:
     float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y, FNfloat z) const
     {
         // 3D OpenSimplex2S case uses two offset rotated cube grids.
-
-        /*
-         * --- Rotation moved to TransformNoiseCoordinate method ---
-         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-         * x = r - x; y = r - y; z = r - z;
-        */
-
         int i = FastFloor(x);
         int j = FastFloor(y);
         int k = FastFloor(z);
@@ -1478,9 +1245,7 @@ private:
         return value * 9.046026385208288f;
     }
 
-
     // Cellular Noise
-
     template <typename FNfloat>
     float SingleCellular(int seed, FNfloat x, FNfloat y) const
     {
@@ -1776,7 +1541,6 @@ private:
 #endif
 
     // Perlin Noise
-
     template <typename FNfloat>
     float SinglePerlin(int seed, FNfloat x, FNfloat y) const
     {
@@ -1838,9 +1602,7 @@ private:
         return Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
     }
 
-
     // Value Cubic Noise
-
     template <typename FNfloat>
     float SingleValueCubic(int seed, FNfloat x, FNfloat y) const
     {
@@ -1896,7 +1658,6 @@ private:
         int y3 = y1 + (int)((long)PrimeY << 1);
         int z3 = z1 + (int)((long)PrimeZ << 1);
 
-
         return CubicLerp(
             CubicLerp(
                 CubicLerp(ValCoord(seed, x0, y0, z0), ValCoord(seed, x1, y0, z0), ValCoord(seed, x2, y0, z0), ValCoord(seed, x3, y0, z0), xs),
@@ -1925,9 +1686,7 @@ private:
             zs) * (1 / (1.5f * 1.5f * 1.5f));
     }
 
-
     // Value Noise
-
     template <typename FNfloat>
     float SingleValue(int seed, FNfloat x, FNfloat y) const
     {
@@ -1977,9 +1736,7 @@ private:
         return Lerp(yf0, yf1, zs);
     }
 
-
     // Domain Warp
-
     template <typename FNfloat>
     void DoSingleDomainWarp(int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat& xr, FNfloat& yr) const
     {
@@ -2014,9 +1771,7 @@ private:
         }
     }
 
-
     // Domain Warp Single Wrapper
-
     template <typename FNfloat>
     void DomainWarpSingle(FNfloat& x, FNfloat& y) const
     {
@@ -2046,9 +1801,7 @@ private:
         DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, x, y, z);
     }
 
-
     // Domain Warp Fractal Progressive
-
     template <typename FNfloat>
     void DomainWarpFractalProgressive(FNfloat& x, FNfloat& y) const
     {
@@ -2092,9 +1845,7 @@ private:
         }
     }
 
-
     // Domain Warp Fractal Independant
-
     template <typename FNfloat>
     void DomainWarpFractalIndependent(FNfloat& x, FNfloat& y) const
     {
@@ -2138,9 +1889,7 @@ private:
         }
     }
 
-
     // Domain Warp Basic Grid
-
     template <typename FNfloat>
     void SingleDomainWarpBasicGrid(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat& xr, FNfloat& yr) const
     {
@@ -2233,9 +1982,7 @@ private:
         zr += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * warpAmp;
     }
 
-
     // Domain Warp Simplex/OpenSimplex2
-
     template <typename FNfloat>
     void SingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat& xr, FNfloat& yr, bool outGradOnly) const
     {
@@ -2340,13 +2087,6 @@ private:
         x *= frequency;
         y *= frequency;
         z *= frequency;
-
-        /*
-         * --- Rotation moved to TransformDomainWarpCoordinate method ---
-         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-         * x = r - x; y = r - y; z = r - z;
-        */
 
         int i = FastRound(x);
         int j = FastRound(y);

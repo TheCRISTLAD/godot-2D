@@ -1,32 +1,5 @@
-/**************************************************************************/
-/*  noise_texture_2d.cpp                                                  */
-/**************************************************************************/
-/*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
-/**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
-/*                                                                        */
-/* Permission is hereby granted, free of charge, to any person obtaining  */
-/* a copy of this software and associated documentation files (the        */
-/* "Software"), to deal in the Software without restriction, including    */
-/* without limitation the rights to use, copy, modify, merge, publish,    */
-/* distribute, sublicense, and/or sell copies of the Software, and to     */
-/* permit persons to whom the Software is furnished to do so, subject to  */
-/* the following conditions:                                              */
-/*                                                                        */
-/* The above copyright notice and this permission notice shall be         */
-/* included in all copies or substantial portions of the Software.        */
-/*                                                                        */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
-/**************************************************************************/
+// noise_texture_2d.cpp
+// MIT LICENSE -> GODOT ENGINE
 
 #include "noise_texture_2d.h"
 
@@ -61,9 +34,6 @@ void NoiseTexture2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_invert", "invert"), &NoiseTexture2D::set_invert);
 	ClassDB::bind_method(D_METHOD("get_invert"), &NoiseTexture2D::get_invert);
 
-	ClassDB::bind_method(D_METHOD("set_in_3d_space", "enable"), &NoiseTexture2D::set_in_3d_space);
-	ClassDB::bind_method(D_METHOD("is_in_3d_space"), &NoiseTexture2D::is_in_3d_space);
-
 	ClassDB::bind_method(D_METHOD("set_generate_mipmaps", "invert"), &NoiseTexture2D::set_generate_mipmaps);
 	ClassDB::bind_method(D_METHOD("is_generating_mipmaps"), &NoiseTexture2D::is_generating_mipmaps);
 
@@ -91,7 +61,6 @@ void NoiseTexture2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater,suffix:px"), "set_width", "get_width");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "height", PROPERTY_HINT_RANGE, "1,2048,1,or_greater,suffix:px"), "set_height", "get_height");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "invert"), "set_invert", "get_invert");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "in_3d_space"), "set_in_3d_space", "is_in_3d_space");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "generate_mipmaps"), "set_generate_mipmaps", "is_generating_mipmaps");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "seamless"), "set_seamless", "get_seamless");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "seamless_blend_skirt", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_seamless_blend_skirt", "get_seamless_blend_skirt");
@@ -163,9 +132,9 @@ Ref<Image> NoiseTexture2D::_generate_texture() {
 	Ref<Image> new_image;
 
 	if (seamless) {
-		new_image = ref_noise->get_seamless_image(size.x, size.y, invert, in_3d_space, seamless_blend_skirt, normalize);
+		new_image = ref_noise->get_seamless_image(size.x, size.y, invert, seamless_blend_skirt, normalize);
 	} else {
-		new_image = ref_noise->get_image(size.x, size.y, invert, in_3d_space, normalize);
+		new_image = ref_noise->get_image(size.x, size.y, invert, normalize);
 	}
 	if (color_ramp.is_valid()) {
 		new_image = _modulate_with_gradient(new_image, color_ramp);
@@ -264,17 +233,6 @@ void NoiseTexture2D::set_invert(bool p_invert) {
 
 bool NoiseTexture2D::get_invert() const {
 	return invert;
-}
-
-void NoiseTexture2D::set_in_3d_space(bool p_enable) {
-	if (p_enable == in_3d_space) {
-		return;
-	}
-	in_3d_space = p_enable;
-	_queue_update();
-}
-bool NoiseTexture2D::is_in_3d_space() const {
-	return in_3d_space;
 }
 
 void NoiseTexture2D::set_generate_mipmaps(bool p_enable) {

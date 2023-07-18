@@ -1409,10 +1409,6 @@ Variant AnimationTree::post_process_key_value(const Ref<Animation> &p_anim, int 
 }
 
 Variant AnimationTree::_post_process_key_value(const Ref<Animation> &p_anim, int p_track, Variant p_value, const Object *p_object, int p_object_idx) {
-	switch (p_anim->track_get_type(p_track)) {
-		default: {
-		} break;
-	}
 	return p_value;
 }
 
