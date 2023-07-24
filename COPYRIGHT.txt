@@ -411,12 +411,6 @@ Copyright: 2014-2021, Syoyo Fujita
   2002, Industrial Light & Magic, a division of Lucas Digital Ltd. LLC
 License: BSD-3-clause
 
-Files: ./thirdparty/vhacd/
-Comment: V-HACD
-Copyright: 2011, Khaled Mamou
-  2003-2009, Erwin Coumans
-License: BSD-3-clause
-
 Files: ./thirdparty/volk/
 Comment: volk
 Copyright: 2018-2023, Arseny Kapoulkine

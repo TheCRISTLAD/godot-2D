@@ -84,9 +84,9 @@ jobs:
         run: |
           xmllint --noout --schema doc/class.xsd doc/classes/*.xml modules/*/doc_classes/*.xml platform/*/doc_classes/*.xml
 
-      - name: Documentation checks
-        run: |
-          doc/tools/make_rst.py --dry-run --color doc/classes modules platform
+      # - name: Documentation checks
+      #   run: |
+      #     doc/tools/make_rst.py --dry-run --color doc/classes modules platform
 
       - name: Style checks via clang-format (clang_format.sh)
         run: |

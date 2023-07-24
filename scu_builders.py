@@ -280,7 +280,6 @@ def generate_scu_files(verbose, is_release_build):
     process_folder(["editor/gui"])
     process_folder(["editor/import"])
     process_folder(["editor/plugins"])
-    process_folder(["editor/plugins/gizmos"])
     process_folder(["editor/plugins/tiles"])
 
     process_folder(["platform/android/export"])
@@ -301,7 +300,6 @@ def generate_scu_files(verbose, is_release_build):
     process_folder(["modules/gdscript/language_server"])
 
     process_folder(["scene/2d"])
-    process_folder(["scene/3d"])
     process_folder(["scene/animation"])
     process_folder(["scene/gui"])
     process_folder(["scene/main"])
@@ -315,8 +313,6 @@ def generate_scu_files(verbose, is_release_build):
     process_folder(["servers/rendering/renderer_rd/environment"])
     process_folder(["servers/rendering/renderer_rd/storage_rd"])
     process_folder(["servers/physics_2d"])
-    # process_folder(["servers/physics_3d"])
-    # process_folder(["servers/physics_3d/joints"])
     process_folder(["servers/audio"])
     process_folder(["servers/audio/effects"])
 
