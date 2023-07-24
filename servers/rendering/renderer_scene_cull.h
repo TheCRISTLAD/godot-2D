@@ -511,9 +511,7 @@ public:
 		static void dependency_deleted(const RID &p_dependency, DependencyTracker *tracker) {
 			Instance *instance = (Instance *)tracker->userdata;
 
-			if (p_dependency == instance->base) {
-				singleton->instance_set_base(instance->self, RID());
-			} else if (p_dependency == instance->skeleton) {
+			if (p_dependency == instance->skeleton) {
 				singleton->instance_attach_skeleton(instance->self, RID());
 			} else {
 				// It's possible the same material is used in multiple slots,
@@ -956,7 +954,6 @@ public:
 	virtual RID instance_allocate();
 	virtual void instance_initialize(RID p_rid);
 
-	virtual void instance_set_base(RID p_instance, RID p_base);
 	virtual void instance_set_layer_mask(RID p_instance, uint32_t p_mask);
 	virtual void instance_set_pivot_data(RID p_instance, float p_sorting_offset, bool p_use_aabb_center);
 	virtual void instance_set_transform(RID p_instance, const Transform3D &p_transform);

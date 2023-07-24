@@ -1672,14 +1672,6 @@
 				Sets the visibility range values for the given geometry instance. Equivalent to [member GeometryInstance3D.visibility_range_begin] and related properties.
 			</description>
 		</method>
-		<method name="instance_set_base">
-			<return type="void" />
-			<param index="0" name="instance" type="RID" />
-			<param index="1" name="base" type="RID" />
-			<description>
-				Sets the base of the instance. A base can be any of the 3D objects that are created in the RenderingServer that can be displayed. For example, any of the light types, mesh, multimesh, particle system, reflection probe, decal, lightmap, voxel GI and visibility notifiers are all types that can be set as the base of an instance in order to be displayed in the scenario.
-			</description>
-		</method>
 		<method name="instance_set_blend_shape_weight">
 			<return type="void" />
 			<param index="0" name="instance" type="RID" />
