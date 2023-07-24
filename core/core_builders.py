@@ -114,6 +114,7 @@ def make_authors_header(target, source, env):
     g.close()
     f.close()
 
+
 def make_license_header(target, source, env):
     src_copyright = source[0]
     src_license = source[1]
