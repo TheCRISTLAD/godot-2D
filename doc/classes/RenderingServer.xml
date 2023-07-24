@@ -1599,13 +1599,6 @@
 				Returns the default value of the per-instance shader uniform from the specified 3D geometry instance. Equivalent to [method GeometryInstance3D.get_instance_shader_parameter].
 			</description>
 		</method>
-		<method name="instance_geometry_get_shader_parameter_list" qualifiers="const">
-			<return type="Dictionary[]" />
-			<param index="0" name="instance" type="RID" />
-			<description>
-				Returns a dictionary of per-instance shader uniform names of the per-instance shader uniform from the specified 3D geometry instance. The returned dictionary is in PropertyInfo format, with the keys [code]name[/code], [code]class_name[/code], [code]type[/code], [code]hint[/code], [code]hint_string[/code] and [code]usage[/code]. Equivalent to [method GeometryInstance3D.get_instance_shader_parameter].
-			</description>
-		</method>
 		<method name="instance_geometry_set_cast_shadows_setting">
 			<return type="void" />
 			<param index="0" name="instance" type="RID" />

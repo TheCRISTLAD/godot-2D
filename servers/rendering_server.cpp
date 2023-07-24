@@ -1319,16 +1319,6 @@ Array RenderingServer::mesh_create_arrays_from_surface_data(const SurfaceData &p
 
 	return _get_array_from_surface(format, vertex_data, attrib_data, skin_data, vertex_len, index_data, index_len);
 }
-#if 0
-Array RenderingServer::_mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const {
-	Vector<AABB> vec = RS::get_singleton()->mesh_surface_get_skeleton_aabb(p_mesh, p_surface);
-	Array arr;
-	for (int i = 0; i < vec.size(); i++) {
-		arr[i] = vec[i];
-	}
-	return arr;
-}
-#endif
 
 int RenderingServer::global_shader_uniform_type_get_shader_datatype(GlobalShaderParameterType p_type) {
 	switch (p_type) {
@@ -1558,20 +1548,6 @@ Dictionary RenderingServer::_mesh_get_surface(RID p_mesh, int p_idx) {
 		d["material"] = sd.material;
 	}
 	return d;
-}
-
-TypedArray<Dictionary> RenderingServer::_instance_geometry_get_shader_parameter_list(RID p_instance) const {
-	List<PropertyInfo> params;
-	instance_geometry_get_shader_parameter_list(p_instance, &params);
-	return convert_property_list(&params);
-}
-
-TypedArray<Image> RenderingServer::_bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) {
-	TypedArray<RID> mat_overrides;
-	for (int i = 0; i < p_material_overrides.size(); i++) {
-		mat_overrides.push_back(p_material_overrides[i]);
-	}
-	return bake_render_uv2(p_base, mat_overrides, p_image_size);
 }
 
 void RenderingServer::_particles_set_trail_bind_poses(RID p_particles, const TypedArray<Transform3D> &p_bind_poses) {
@@ -2429,7 +2405,6 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("instance_geometry_set_shader_parameter", "instance", "parameter", "value"), &RenderingServer::instance_geometry_set_shader_parameter);
 	ClassDB::bind_method(D_METHOD("instance_geometry_get_shader_parameter", "instance", "parameter"), &RenderingServer::instance_geometry_get_shader_parameter);
 	ClassDB::bind_method(D_METHOD("instance_geometry_get_shader_parameter_default_value", "instance", "parameter"), &RenderingServer::instance_geometry_get_shader_parameter_default_value);
-	ClassDB::bind_method(D_METHOD("instance_geometry_get_shader_parameter_list", "instance"), &RenderingServer::_instance_geometry_get_shader_parameter_list);
 
 	ClassDB::bind_method(D_METHOD("instances_cull_aabb", "aabb", "scenario"), &RenderingServer::_instances_cull_aabb_bind, DEFVAL(RID()));
 	ClassDB::bind_method(D_METHOD("instances_cull_ray", "from", "to", "scenario"), &RenderingServer::_instances_cull_ray_bind, DEFVAL(RID()));

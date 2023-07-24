@@ -1525,23 +1525,6 @@ Variant RendererSceneCull::instance_geometry_get_shader_parameter_default_value(
 	return Variant();
 }
 
-void RendererSceneCull::instance_geometry_get_shader_parameter_list(RID p_instance, List<PropertyInfo> *p_parameters) const {
-	const Instance *instance = const_cast<RendererSceneCull *>(this)->instance_owner.get_or_null(p_instance);
-	ERR_FAIL_COND(!instance);
-
-	const_cast<RendererSceneCull *>(this)->update_dirty_instances();
-
-	Vector<StringName> names;
-	for (const KeyValue<StringName, Instance::InstanceShaderParameter> &E : instance->instance_shader_uniforms) {
-		names.push_back(E.key);
-	}
-	names.sort_custom<StringName::AlphCompare>();
-	for (int i = 0; i < names.size(); i++) {
-		PropertyInfo pinfo = instance->instance_shader_uniforms[names[i]].info;
-		p_parameters->push_back(pinfo);
-	}
-}
-
 void RendererSceneCull::_update_instance(Instance *p_instance) {
 	p_instance->version++;
 
