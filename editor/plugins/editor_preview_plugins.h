@@ -128,32 +128,6 @@ public:
 	EditorAudioStreamPreviewPlugin();
 };
 
-class EditorMeshPreviewPlugin : public EditorResourcePreviewGenerator {
-	GDCLASS(EditorMeshPreviewPlugin, EditorResourcePreviewGenerator);
-
-	RID scenario;
-	RID mesh_instance;
-	RID viewport;
-	RID viewport_texture;
-	RID light;
-	RID light_instance;
-	RID light2;
-	RID light_instance2;
-	RID camera;
-	RID camera_attributes;
-	Semaphore preview_done;
-
-	void _generate_frame_started();
-	void _preview_done();
-
-public:
-	virtual bool handles(const String &p_type) const override;
-	virtual Ref<Texture2D> generate(const Ref<Resource> &p_from, const Size2 &p_size, Dictionary &p_metadata) const override;
-
-	EditorMeshPreviewPlugin();
-	~EditorMeshPreviewPlugin();
-};
-
 class EditorFontPreviewPlugin : public EditorResourcePreviewGenerator {
 	GDCLASS(EditorFontPreviewPlugin, EditorResourcePreviewGenerator);
 
