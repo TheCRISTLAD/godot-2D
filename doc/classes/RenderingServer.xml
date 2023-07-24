@@ -1573,15 +1573,6 @@
 				[b]Note:[/b] The equivalent node is [VisualInstance3D].
 			</description>
 		</method>
-		<method name="instance_create2">
-			<return type="RID" />
-			<param index="0" name="base" type="RID" />
-			<param index="1" name="scenario" type="RID" />
-			<description>
-				Creates a visual instance, adds it to the RenderingServer, and sets both base and scenario. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] RenderingServer functions.
-				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method. This is a shorthand for using [method instance_create] and setting the base and scenario manually.
-			</description>
-		</method>
 		<method name="instance_geometry_get_shader_parameter" qualifiers="const">
 			<return type="Variant" />
 			<param index="0" name="instance" type="RID" />

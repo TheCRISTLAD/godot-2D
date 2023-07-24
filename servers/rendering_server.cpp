@@ -2374,7 +2374,6 @@ void RenderingServer::_bind_methods() {
 
 	/* INSTANCE */
 
-	ClassDB::bind_method(D_METHOD("instance_create2", "base", "scenario"), &RenderingServer::instance_create2);
 	ClassDB::bind_method(D_METHOD("instance_create"), &RenderingServer::instance_create);
 	ClassDB::bind_method(D_METHOD("instance_set_base", "instance", "base"), &RenderingServer::instance_set_base);
 	ClassDB::bind_method(D_METHOD("instance_set_scenario", "instance", "scenario"), &RenderingServer::instance_set_scenario);
@@ -2720,13 +2719,6 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry
 void RenderingServer::mesh_add_surface_from_planes(RID p_mesh, const Vector<Plane> &p_planes) {
 	Geometry3D::MeshData mdata = Geometry3D::build_convex_mesh(p_planes);
 	mesh_add_surface_from_mesh_data(p_mesh, mdata);
-}
-
-RID RenderingServer::instance_create2(RID p_base, RID p_scenario) {
-	RID instance = instance_create();
-	instance_set_base(instance, p_base);
-	instance_set_scenario(instance, p_scenario);
-	return instance;
 }
 
 bool RenderingServer::is_render_loop_enabled() const {

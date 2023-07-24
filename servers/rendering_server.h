@@ -1201,8 +1201,6 @@ public:
 		INSTANCE_GEOMETRY_MASK = (1 << INSTANCE_MESH) | (1 << INSTANCE_MULTIMESH) | (1 << INSTANCE_PARTICLES)
 	};
 
-	virtual RID instance_create2(RID p_base, RID p_scenario);
-
 	virtual RID instance_create() = 0;
 
 	virtual void instance_set_base(RID p_instance, RID p_base) = 0;
