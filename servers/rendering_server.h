@@ -1215,8 +1215,6 @@ public:
 	virtual void instance_set_surface_override_material(RID p_instance, int p_surface, RID p_material) = 0;
 	virtual void instance_set_visible(RID p_instance, bool p_visible) = 0;
 
-	virtual void instance_set_custom_aabb(RID p_instance, AABB aabb) = 0;
-
 	virtual void instance_attach_skeleton(RID p_instance, RID p_skeleton) = 0;
 
 	virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) = 0;

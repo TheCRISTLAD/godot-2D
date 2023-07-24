@@ -767,8 +767,6 @@ public:
 	FUNC3(instance_set_surface_override_material, RID, int, RID)
 	FUNC2(instance_set_visible, RID, bool)
 
-	FUNC2(instance_set_custom_aabb, RID, AABB)
-
 	FUNC2(instance_attach_skeleton, RID, RID)
 
 	FUNC2(instance_set_extra_visibility_margin, RID, real_t)

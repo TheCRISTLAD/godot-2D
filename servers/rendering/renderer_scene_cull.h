@@ -967,8 +967,6 @@ public:
 	virtual void instance_set_visible(RID p_instance, bool p_visible);
 	virtual void instance_geometry_set_transparency(RID p_instance, float p_transparency);
 
-	virtual void instance_set_custom_aabb(RID p_instance, AABB p_aabb);
-
 	virtual void instance_attach_skeleton(RID p_instance, RID p_skeleton);
 
 	virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin);

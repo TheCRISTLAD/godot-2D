@@ -998,31 +998,6 @@ inline bool is_geometry_instance(RenderingServer::InstanceType p_type) {
 	return p_type == RS::INSTANCE_MESH || p_type == RS::INSTANCE_MULTIMESH || p_type == RS::INSTANCE_PARTICLES;
 }
 
-void RendererSceneCull::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
-	Instance *instance = instance_owner.get_or_null(p_instance);
-	ERR_FAIL_COND(!instance);
-	ERR_FAIL_COND(!is_geometry_instance(instance->base_type));
-
-	if (p_aabb != AABB()) {
-		// Set custom AABB
-		if (instance->custom_aabb == nullptr) {
-			instance->custom_aabb = memnew(AABB);
-		}
-		*instance->custom_aabb = p_aabb;
-
-	} else {
-		// Clear custom AABB
-		if (instance->custom_aabb != nullptr) {
-			memdelete(instance->custom_aabb);
-			instance->custom_aabb = nullptr;
-		}
-	}
-
-	if (instance->scenario) {
-		_instance_queue_update(instance, true, false);
-	}
-}
-
 void RendererSceneCull::instance_attach_skeleton(RID p_instance, RID p_skeleton) {
 	Instance *instance = instance_owner.get_or_null(p_instance);
 	ERR_FAIL_COND(!instance);
