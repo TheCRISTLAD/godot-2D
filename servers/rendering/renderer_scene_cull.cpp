@@ -736,105 +736,6 @@ void RendererSceneCull::instance_set_base(RID p_instance, RID p_base) {
 	_instance_queue_update(instance, true, true);
 }
 
-void RendererSceneCull::instance_set_scenario(RID p_instance, RID p_scenario) {
-	Instance *instance = instance_owner.get_or_null(p_instance);
-	ERR_FAIL_COND(!instance);
-
-	if (instance->scenario) {
-		instance->scenario->instances.remove(&instance->scenario_item);
-
-		if (instance->indexer_id.is_valid()) {
-			_unpair_instance(instance);
-		}
-
-		switch (instance->base_type) {
-			case RS::INSTANCE_LIGHT: {
-				InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-				if (instance->visible && RSG::light_storage->light_get_type(instance->base) != RS::LIGHT_DIRECTIONAL && light->bake_mode == RS::LIGHT_BAKE_DYNAMIC) {
-					instance->scenario->dynamic_lights.erase(light->instance);
-				}
-
-#ifdef DEBUG_ENABLED
-				if (light->geometries.size()) {
-					ERR_PRINT("BUG, indexing did not unpair geometries from light.");
-				}
-#endif
-				if (light->D) {
-					instance->scenario->directional_lights.erase(light->D);
-					light->D = nullptr;
-				}
-			} break;
-			case RS::INSTANCE_REFLECTION_PROBE: {
-				InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(instance->base_data);
-				RSG::light_storage->reflection_probe_release_atlas_index(reflection_probe->instance);
-
-			} break;
-			case RS::INSTANCE_PARTICLES_COLLISION: {
-				heightfield_particle_colliders_update_list.erase(instance);
-			} break;
-			case RS::INSTANCE_VOXEL_GI: {
-				InstanceVoxelGIData *voxel_gi = static_cast<InstanceVoxelGIData *>(instance->base_data);
-
-#ifdef DEBUG_ENABLED
-				if (voxel_gi->geometries.size()) {
-					ERR_PRINT("BUG, indexing did not unpair geometries from VoxelGI.");
-				}
-#endif
-#ifdef DEBUG_ENABLED
-				if (voxel_gi->lights.size()) {
-					ERR_PRINT("BUG, indexing did not unpair lights from VoxelGI.");
-				}
-#endif
-
-				if (voxel_gi->update_element.in_list()) {
-					voxel_gi_update_list.remove(&voxel_gi->update_element);
-				}
-			} break;
-			case RS::INSTANCE_OCCLUDER: {
-				if (instance->visible) {
-					RendererSceneOcclusionCull::get_singleton()->scenario_remove_instance(instance->scenario->self, p_instance);
-				}
-			} break;
-			default: {
-			}
-		}
-
-		instance->scenario = nullptr;
-	}
-
-	if (p_scenario.is_valid()) {
-		Scenario *scenario = scenario_owner.get_or_null(p_scenario);
-		ERR_FAIL_COND(!scenario);
-
-		instance->scenario = scenario;
-
-		scenario->instances.add(&instance->scenario_item);
-
-		switch (instance->base_type) {
-			case RS::INSTANCE_LIGHT: {
-				InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-
-				if (RSG::light_storage->light_get_type(instance->base) == RS::LIGHT_DIRECTIONAL) {
-					light->D = scenario->directional_lights.push_back(instance);
-				}
-			} break;
-			case RS::INSTANCE_VOXEL_GI: {
-				InstanceVoxelGIData *voxel_gi = static_cast<InstanceVoxelGIData *>(instance->base_data);
-				if (!voxel_gi->update_element.in_list()) {
-					voxel_gi_update_list.add(&voxel_gi->update_element);
-				}
-			} break;
-			case RS::INSTANCE_OCCLUDER: {
-				RendererSceneOcclusionCull::get_singleton()->scenario_set_instance(scenario->self, p_instance, instance->base, instance->transform, instance->visible);
-			} break;
-			default: {
-			}
-		}
-
-		_instance_queue_update(instance, true, true);
-	}
-}
-
 void RendererSceneCull::instance_set_layer_mask(RID p_instance, uint32_t p_mask) {
 	Instance *instance = instance_owner.get_or_null(p_instance);
 	ERR_FAIL_COND(!instance);
@@ -3886,9 +3787,6 @@ bool RendererSceneCull::free(RID p_rid) {
 	} else if (scenario_owner.owns(p_rid)) {
 		Scenario *scenario = scenario_owner.get_or_null(p_rid);
 
-		while (scenario->instances.first()) {
-			instance_set_scenario(scenario->instances.first()->self()->self, RID());
-		}
 		scenario->instance_aabbs.reset();
 		scenario->instance_data.reset();
 		scenario->instance_visibility.reset();
@@ -3908,7 +3806,6 @@ bool RendererSceneCull::free(RID p_rid) {
 		Instance *instance = instance_owner.get_or_null(p_rid);
 
 		instance_geometry_set_lightmap(p_rid, RID(), Rect2(), 0);
-		instance_set_scenario(p_rid, RID());
 		instance_set_base(p_rid, RID());
 		instance_geometry_set_material_override(p_rid, RID());
 		instance_geometry_set_material_overlay(p_rid, RID());

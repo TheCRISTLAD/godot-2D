@@ -758,7 +758,6 @@ public:
 	FUNCRIDSPLIT(instance)
 
 	FUNC2(instance_set_base, RID, RID)
-	FUNC2(instance_set_scenario, RID, RID)
 	FUNC2(instance_set_layer_mask, RID, uint32_t)
 	FUNC3(instance_set_pivot_data, RID, float, bool)
 	FUNC2(instance_set_transform, RID, const Transform3D &)
