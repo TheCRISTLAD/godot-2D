@@ -60,7 +60,6 @@ class RenderingServer : public Object {
 	virtual TypedArray<StringName> _global_shader_parameter_get_list() const;
 
 protected:
-	RID _make_test_cube();
 	void _free_internal_rids();
 	RID test_texture;
 	RID white_texture;
@@ -1546,8 +1545,6 @@ public:
 	virtual void gi_set_use_half_resolution(bool p_enable) = 0;
 
 	/* TESTING */
-
-	virtual RID get_test_cube() = 0;
 
 	virtual RID get_test_texture();
 	virtual RID get_white_texture();

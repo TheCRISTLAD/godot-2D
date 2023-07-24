@@ -167,86 +167,6 @@ void RenderingServer::_free_internal_rids() {
 	}
 }
 
-RID RenderingServer::_make_test_cube() {
-	Vector<Vector3> vertices;
-	Vector<Vector3> normals;
-	Vector<float> tangents;
-	Vector<Vector3> uvs;
-
-#define ADD_VTX(m_idx)                           \
-	vertices.push_back(face_points[m_idx]);      \
-	normals.push_back(normal_points[m_idx]);     \
-	tangents.push_back(normal_points[m_idx][1]); \
-	tangents.push_back(normal_points[m_idx][2]); \
-	tangents.push_back(normal_points[m_idx][0]); \
-	tangents.push_back(1.0);                     \
-	uvs.push_back(Vector3(uv_points[m_idx * 2 + 0], uv_points[m_idx * 2 + 1], 0));
-
-	for (int i = 0; i < 6; i++) {
-		Vector3 face_points[4];
-		Vector3 normal_points[4];
-		float uv_points[8] = { 0, 0, 0, 1, 1, 1, 1, 0 };
-
-		for (int j = 0; j < 4; j++) {
-			float v[3];
-			v[0] = 1.0;
-			v[1] = 1 - 2 * ((j >> 1) & 1);
-			v[2] = v[1] * (1 - 2 * (j & 1));
-
-			for (int k = 0; k < 3; k++) {
-				if (i < 3) {
-					face_points[j][(i + k) % 3] = v[k];
-				} else {
-					face_points[3 - j][(i + k) % 3] = -v[k];
-				}
-			}
-			normal_points[j] = Vector3();
-			normal_points[j][i % 3] = (i >= 3 ? -1 : 1);
-		}
-
-		// Tri 1
-		ADD_VTX(0);
-		ADD_VTX(1);
-		ADD_VTX(2);
-		// Tri 2
-		ADD_VTX(2);
-		ADD_VTX(3);
-		ADD_VTX(0);
-	}
-
-	RID test_cube = mesh_create();
-
-	Array d;
-	d.resize(RS::ARRAY_MAX);
-	d[RenderingServer::ARRAY_NORMAL] = normals;
-	d[RenderingServer::ARRAY_TANGENT] = tangents;
-	d[RenderingServer::ARRAY_TEX_UV] = uvs;
-	d[RenderingServer::ARRAY_VERTEX] = vertices;
-
-	Vector<int> indices;
-	indices.resize(vertices.size());
-	for (int i = 0; i < vertices.size(); i++) {
-		indices.set(i, i);
-	}
-	d[RenderingServer::ARRAY_INDEX] = indices;
-
-	mesh_add_surface_from_arrays(test_cube, PRIMITIVE_TRIANGLES, d);
-
-	/*
-	test_material = fixed_material_create();
-	//material_set_flag(material, MATERIAL_FLAG_BILLBOARD_TOGGLE,true);
-	fixed_material_set_texture( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, get_test_texture() );
-	fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR_EXP, 70 );
-	fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_EMISSION, Color(0.2,0.2,0.2) );
-
-	fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, Color(1, 1, 1) );
-	fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR, Color(1,1,1) );
-*/
-	mesh_surface_set_material(test_cube, 0, test_material);
-
-	return test_cube;
-}
-
 RID RenderingServer::make_sphere_mesh(int p_lats, int p_lons, real_t p_radius) {
 	Vector<Vector3> vertices;
 	Vector<Vector3> normals;
@@ -2762,7 +2682,6 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_video_adapter_api_version"), &RenderingServer::get_video_adapter_api_version);
 
 	ClassDB::bind_method(D_METHOD("make_sphere_mesh", "latitudes", "longitudes", "radius"), &RenderingServer::make_sphere_mesh);
-	ClassDB::bind_method(D_METHOD("get_test_cube"), &RenderingServer::get_test_cube);
 
 	ClassDB::bind_method(D_METHOD("get_test_texture"), &RenderingServer::get_test_texture);
 	ClassDB::bind_method(D_METHOD("get_white_texture"), &RenderingServer::get_white_texture);

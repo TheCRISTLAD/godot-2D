@@ -204,10 +204,6 @@ void RenderingServerDefault::_init() {
 }
 
 void RenderingServerDefault::_finish() {
-	if (test_cube.is_valid()) {
-		free(test_cube);
-	}
-
 	RSG::rasterizer->finalize();
 }
 
@@ -306,13 +302,6 @@ void RenderingServerDefault::sdfgi_set_debug_probe_select(const Vector3 &p_posit
 void RenderingServerDefault::set_print_gpu_profile(bool p_enable) {
 	RSG::utilities->capturing_timestamps = p_enable;
 	print_gpu_profile = p_enable;
-}
-
-RID RenderingServerDefault::get_test_cube() {
-	if (!test_cube.is_valid()) {
-		test_cube = _make_test_cube();
-	}
-	return test_cube;
 }
 
 bool RenderingServerDefault::has_os_feature(const String &p_feature) const {

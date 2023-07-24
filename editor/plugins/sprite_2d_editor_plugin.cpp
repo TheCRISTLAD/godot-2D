@@ -38,7 +38,6 @@
 #include "editor/scene_tree_dock.h"
 #include "scene/2d/collision_polygon_2d.h"
 #include "scene/2d/light_occluder_2d.h"
-#include "scene/2d/mesh_instance_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/menu_button.h"
@@ -123,15 +122,6 @@ void Sprite2DEditor::_menu_option(int p_option) {
 	selected_menu_item = (Menu)p_option;
 
 	switch (p_option) {
-		case MENU_OPTION_CONVERT_TO_MESH_2D: {
-			debug_uv_dialog->set_ok_button_text(TTR("Create MeshInstance2D"));
-			debug_uv_dialog->set_title(TTR("MeshInstance2D Preview"));
-
-			_update_mesh_data();
-			debug_uv_dialog->popup_centered();
-			debug_uv->queue_redraw();
-
-		} break;
 		case MENU_OPTION_CONVERT_TO_POLYGON_2D: {
 			debug_uv_dialog->set_ok_button_text(TTR("Create Polygon2D"));
 			debug_uv_dialog->set_title(TTR("Polygon2D Preview"));
@@ -223,46 +213,6 @@ void Sprite2DEditor::_update_mesh_data() {
 		lines.write[i] = expand(lines[i], rect, epsilon);
 	}
 
-	if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D) {
-		for (int j = 0; j < lines.size(); j++) {
-			int index_ofs = computed_vertices.size();
-
-			for (int i = 0; i < lines[j].size(); i++) {
-				Vector2 vtx = lines[j][i];
-				computed_uv.push_back(vtx / img_size);
-
-				vtx -= rect.position; //offset by rect position
-
-				//flip if flipped
-				if (node->is_flipped_h()) {
-					vtx.x = rect.size.x - vtx.x - 1.0;
-				}
-				if (node->is_flipped_v()) {
-					vtx.y = rect.size.y - vtx.y - 1.0;
-				}
-
-				if (node->is_centered()) {
-					vtx -= rect.size / 2.0;
-				}
-
-				computed_vertices.push_back(vtx);
-			}
-
-			Vector<int> poly = Geometry2D::triangulate_polygon(lines[j]);
-
-			for (int i = 0; i < poly.size(); i += 3) {
-				for (int k = 0; k < 3; k++) {
-					int idx = i + k;
-					int idxn = i + (k + 1) % 3;
-					uv_lines.push_back(lines[j][poly[idx]]);
-					uv_lines.push_back(lines[j][poly[idxn]]);
-
-					computed_indices.push_back(poly[idx] + index_ofs);
-				}
-			}
-		}
-	}
-
 	outline_lines.clear();
 	computed_outline_lines.clear();
 
@@ -308,9 +258,6 @@ void Sprite2DEditor::_update_mesh_data() {
 
 void Sprite2DEditor::_create_node() {
 	switch (selected_menu_item) {
-		case MENU_OPTION_CONVERT_TO_MESH_2D: {
-			_convert_to_mesh_2d_node();
-		} break;
 		case MENU_OPTION_CONVERT_TO_POLYGON_2D: {
 			_convert_to_polygon_2d_node();
 		} break;
@@ -321,36 +268,6 @@ void Sprite2DEditor::_create_node() {
 			_create_light_occluder_2d_node();
 		} break;
 	}
-}
-
-void Sprite2DEditor::_convert_to_mesh_2d_node() {
-	if (computed_vertices.size() < 3) {
-		err_dialog->set_text(TTR("Invalid geometry, can't replace by mesh."));
-		err_dialog->popup_centered();
-		return;
-	}
-
-	Ref<ArrayMesh> mesh;
-	mesh.instantiate();
-
-	Array a;
-	a.resize(Mesh::ARRAY_MAX);
-	a[Mesh::ARRAY_VERTEX] = computed_vertices;
-	a[Mesh::ARRAY_TEX_UV] = computed_uv;
-	a[Mesh::ARRAY_INDEX] = computed_indices;
-
-	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, a, Array(), Dictionary(), Mesh::ARRAY_FLAG_USE_2D_VERTICES);
-
-	MeshInstance2D *mesh_instance = memnew(MeshInstance2D);
-	mesh_instance->set_mesh(mesh);
-
-	EditorUndoRedoManager *ur = EditorUndoRedoManager::get_singleton();
-	ur->create_action(TTR("Convert to MeshInstance2D"));
-	ur->add_do_method(SceneTreeDock::get_singleton(), "replace_node", node, mesh_instance, true, false);
-	ur->add_do_reference(mesh_instance);
-	ur->add_undo_method(SceneTreeDock::get_singleton(), "replace_node", mesh_instance, node, false, false);
-	ur->add_undo_reference(node);
-	ur->commit_action();
 }
 
 void Sprite2DEditor::_convert_to_polygon_2d_node() {
@@ -492,10 +409,7 @@ void Sprite2DEditor::_debug_uv_draw() {
 
 	Color color = Color(1.0, 0.8, 0.7);
 
-	if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D && uv_lines.size() > 0) {
-		debug_uv->draw_multiline(uv_lines, color);
-
-	} else if ((selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) && outline_lines.size() > 0) {
+	if ((selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) && outline_lines.size() > 0) {
 		for (int i = 0; i < outline_lines.size(); i++) {
 			Vector<Vector2> outline = outline_lines[i];
 
@@ -511,7 +425,6 @@ void Sprite2DEditor::_notification(int p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
 			options->set_icon(get_theme_icon(SNAME("Sprite2D"), SNAME("EditorIcons")));
 
-			options->get_popup()->set_item_icon(MENU_OPTION_CONVERT_TO_MESH_2D, get_theme_icon(SNAME("MeshInstance2D"), SNAME("EditorIcons")));
 			options->get_popup()->set_item_icon(MENU_OPTION_CONVERT_TO_POLYGON_2D, get_theme_icon(SNAME("Polygon2D"), SNAME("EditorIcons")));
 			options->get_popup()->set_item_icon(MENU_OPTION_CREATE_COLLISION_POLY_2D, get_theme_icon(SNAME("CollisionPolygon2D"), SNAME("EditorIcons")));
 			options->get_popup()->set_item_icon(MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D, get_theme_icon(SNAME("LightOccluder2D"), SNAME("EditorIcons")));
@@ -530,7 +443,6 @@ Sprite2DEditor::Sprite2DEditor() {
 
 	options->set_text(TTR("Sprite2D"));
 
-	options->get_popup()->add_item(TTR("Convert to MeshInstance2D"), MENU_OPTION_CONVERT_TO_MESH_2D);
 	options->get_popup()->add_item(TTR("Convert to Polygon2D"), MENU_OPTION_CONVERT_TO_POLYGON_2D);
 	options->get_popup()->add_item(TTR("Create CollisionPolygon2D Sibling"), MENU_OPTION_CREATE_COLLISION_POLY_2D);
 	options->get_popup()->add_item(TTR("Create LightOccluder2D Sibling"), MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D);

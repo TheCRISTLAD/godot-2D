@@ -56,7 +56,6 @@ class RenderingServerDefault : public RenderingServer {
 	};
 
 	static int changes;
-	RID test_cube;
 
 	List<Callable> frame_drawn_callbacks;
 
@@ -977,8 +976,6 @@ public:
 	virtual void set_frame_profiling_enabled(bool p_enable) override;
 	virtual Vector<FrameProfileArea> get_frame_profile() override;
 	virtual uint64_t get_frame_profile_frame() override;
-
-	virtual RID get_test_cube() override;
 
 	/* TESTING */
 

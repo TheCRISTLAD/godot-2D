@@ -1413,12 +1413,6 @@
 				Returns the parameters of a shader.
 			</description>
 		</method>
-		<method name="get_test_cube">
-			<return type="RID" />
-			<description>
-				Returns the RID of the test cube. This mesh will be created and returned on the first call to [method get_test_cube], then it will be cached for subsequent calls. See also [method make_sphere_mesh].
-			</description>
-		</method>
 		<method name="get_test_texture">
 			<return type="RID" />
 			<description>
@@ -2030,7 +2024,7 @@
 			<param index="1" name="longitudes" type="int" />
 			<param index="2" name="radius" type="float" />
 			<description>
-				Returns a mesh of a sphere with the given number of horizontal subdivisions, vertical subdivisions and radius. See also [method get_test_cube].
+				Returns a mesh of a sphere with the given number of horizontal subdivisions, vertical subdivisions and radius.
 			</description>
 		</method>
 		<method name="material_create">

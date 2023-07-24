@@ -51,8 +51,6 @@
 #include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/line_2d.h"
 #include "scene/2d/marker_2d.h"
-#include "scene/2d/mesh_instance_2d.h"
-#include "scene/2d/multimesh_instance_2d.h"
 #include "scene/2d/parallax_background.h"
 #include "scene/2d/parallax_layer.h"
 #include "scene/2d/path_2d.h"
@@ -541,8 +539,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(AnimatedSprite2D);
 	GDREGISTER_CLASS(Marker2D);
 	GDREGISTER_CLASS(Line2D);
-	GDREGISTER_CLASS(MeshInstance2D);
-	GDREGISTER_CLASS(MultiMeshInstance2D);
 	GDREGISTER_ABSTRACT_CLASS(CollisionObject2D);
 	GDREGISTER_ABSTRACT_CLASS(PhysicsBody2D);
 	GDREGISTER_CLASS(StaticBody2D);
@@ -612,13 +608,11 @@ void register_scene_types() {
 	GDREGISTER_CLASS(MeshConvexDecompositionSettings);
 	GDREGISTER_CLASS(ArrayMesh);
 	GDREGISTER_CLASS(PlaceholderMesh);
-	// GDREGISTER_CLASS(ImmediateMesh);
 	GDREGISTER_CLASS(MultiMesh);
 	GDREGISTER_CLASS(SurfaceTool);
 	GDREGISTER_CLASS(MeshDataTool);
 
 	GDREGISTER_CLASS(PhysicsMaterial);
-	// GDREGISTER_CLASS(World3D);
 	GDREGISTER_CLASS(Environment);
 	GDREGISTER_VIRTUAL_CLASS(CameraAttributes);
 	GDREGISTER_CLASS(CameraAttributesPhysical);

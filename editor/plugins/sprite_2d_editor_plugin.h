@@ -43,7 +43,6 @@ class Sprite2DEditor : public Control {
 	GDCLASS(Sprite2DEditor, Control);
 
 	enum Menu {
-		MENU_OPTION_CONVERT_TO_MESH_2D,
 		MENU_OPTION_CONVERT_TO_POLYGON_2D,
 		MENU_OPTION_CREATE_COLLISION_POLY_2D,
 		MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D
@@ -82,7 +81,6 @@ class Sprite2DEditor : public Control {
 	void _update_mesh_data();
 
 	void _create_node();
-	void _convert_to_mesh_2d_node();
 	void _convert_to_polygon_2d_node();
 	void _create_collision_polygon_2d_node();
 	void _create_light_occluder_2d_node();
