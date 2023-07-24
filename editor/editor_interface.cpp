@@ -80,111 +80,6 @@ Ref<EditorSettings> EditorInterface::get_editor_settings() const {
 	return EditorSettings::get_singleton();
 }
 
-TypedArray<Texture2D> EditorInterface::_make_mesh_previews(const TypedArray<Mesh> &p_meshes, int p_preview_size) {
-	Vector<Ref<Mesh>> meshes;
-
-	for (int i = 0; i < p_meshes.size(); i++) {
-		meshes.push_back(p_meshes[i]);
-	}
-
-	Vector<Ref<Texture2D>> textures = make_mesh_previews(meshes, nullptr, p_preview_size);
-	TypedArray<Texture2D> ret;
-	for (int i = 0; i < textures.size(); i++) {
-		ret.push_back(textures[i]);
-	}
-
-	return ret;
-}
-
-Vector<Ref<Texture2D>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes, Vector<Transform3D> *p_transforms, int p_preview_size) {
-	int size = p_preview_size;
-
-	RID scenario = RS::get_singleton()->scenario_create();
-
-	RID viewport = RS::get_singleton()->viewport_create();
-	RS::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ALWAYS);
-	RS::get_singleton()->viewport_set_scenario(viewport, scenario);
-	RS::get_singleton()->viewport_set_size(viewport, size, size);
-	RS::get_singleton()->viewport_set_transparent_background(viewport, true);
-	RS::get_singleton()->viewport_set_active(viewport, true);
-	RID viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
-
-	RID camera = RS::get_singleton()->camera_create();
-	RS::get_singleton()->viewport_attach_camera(viewport, camera);
-
-	RID light = RS::get_singleton()->directional_light_create();
-	RID light_instance = RS::get_singleton()->instance_create2(light, scenario);
-
-	RID light2 = RS::get_singleton()->directional_light_create();
-	RS::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
-	RID light_instance2 = RS::get_singleton()->instance_create2(light2, scenario);
-
-	EditorProgress ep("mlib", TTR("Creating Mesh Previews"), p_meshes.size());
-
-	Vector<Ref<Texture2D>> textures;
-
-	for (int i = 0; i < p_meshes.size(); i++) {
-		Ref<Mesh> mesh = p_meshes[i];
-		if (!mesh.is_valid()) {
-			textures.push_back(Ref<Texture2D>());
-			continue;
-		}
-
-		Transform3D mesh_xform;
-		if (p_transforms != nullptr) {
-			mesh_xform = (*p_transforms)[i];
-		}
-
-		RID inst = RS::get_singleton()->instance_create2(mesh->get_rid(), scenario);
-		RS::get_singleton()->instance_set_transform(inst, mesh_xform);
-
-		AABB aabb = mesh->get_aabb();
-		Vector3 ofs = aabb.get_center();
-		aabb.position -= ofs;
-		Transform3D xform;
-		xform.basis = Basis().rotated(Vector3(0, 1, 0), -Math_PI / 6);
-		xform.basis = Basis().rotated(Vector3(1, 0, 0), Math_PI / 6) * xform.basis;
-		AABB rot_aabb = xform.xform(aabb);
-		float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
-		if (m == 0) {
-			textures.push_back(Ref<Texture2D>());
-			continue;
-		}
-		xform.origin = -xform.basis.xform(ofs); //-ofs*m;
-		xform.origin.z -= rot_aabb.size.z * 2;
-		xform.invert();
-		xform = mesh_xform * xform;
-
-		RS::get_singleton()->camera_set_transform(camera, xform * Transform3D(Basis(), Vector3(0, 0, 3)));
-		RS::get_singleton()->camera_set_orthogonal(camera, m * 2, 0.01, 1000.0);
-
-		RS::get_singleton()->instance_set_transform(light_instance, xform * Transform3D().looking_at(Vector3(-2, -1, -1), Vector3(0, 1, 0)));
-		RS::get_singleton()->instance_set_transform(light_instance2, xform * Transform3D().looking_at(Vector3(+1, -1, -2), Vector3(0, 1, 0)));
-
-		ep.step(TTR("Thumbnail..."), i);
-		DisplayServer::get_singleton()->process_events();
-		Main::iteration();
-		Main::iteration();
-		Ref<Image> img = RS::get_singleton()->texture_2d_get(viewport_texture);
-		ERR_CONTINUE(!img.is_valid() || img->is_empty());
-		Ref<ImageTexture> it = ImageTexture::create_from_image(img);
-
-		RS::get_singleton()->free(inst);
-
-		textures.push_back(it);
-	}
-
-	RS::get_singleton()->free(viewport);
-	RS::get_singleton()->free(light);
-	RS::get_singleton()->free(light_instance);
-	RS::get_singleton()->free(light2);
-	RS::get_singleton()->free(light_instance2);
-	RS::get_singleton()->free(camera);
-	RS::get_singleton()->free(scenario);
-
-	return textures;
-}
-
 void EditorInterface::set_plugin_enabled(const String &p_plugin, bool p_enabled) {
 	EditorNode::get_singleton()->set_addon_plugin_enabled(p_plugin, p_enabled, true);
 }
@@ -384,8 +279,6 @@ void EditorInterface::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_resource_previewer"), &EditorInterface::get_resource_previewer);
 	ClassDB::bind_method(D_METHOD("get_selection"), &EditorInterface::get_selection);
 	ClassDB::bind_method(D_METHOD("get_editor_settings"), &EditorInterface::get_editor_settings);
-
-	ClassDB::bind_method(D_METHOD("make_mesh_previews", "meshes", "preview_size"), &EditorInterface::_make_mesh_previews);
 
 	ClassDB::bind_method(D_METHOD("set_plugin_enabled", "plugin", "enabled"), &EditorInterface::set_plugin_enabled);
 	ClassDB::bind_method(D_METHOD("is_plugin_enabled", "plugin"), &EditorInterface::is_plugin_enabled);

@@ -171,14 +171,6 @@
 				Returns [code]true[/code] if the specified [param plugin] is enabled. The plugin name is the same as its directory name.
 			</description>
 		</method>
-		<method name="make_mesh_previews">
-			<return type="Texture2D[]" />
-			<param index="0" name="meshes" type="Mesh[]" />
-			<param index="1" name="preview_size" type="int" />
-			<description>
-				Returns mesh previews rendered at the given size as an [Array] of [Texture2D]s.
-			</description>
-		</method>
 		<method name="mark_scene_as_unsaved">
 			<return type="void" />
 			<description>
