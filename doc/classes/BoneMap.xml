@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="BoneMap" inherits="Resource" version="4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
-		Describes a mapping of bone names for retargeting [Skeleton3D] into common names defined by a [SkeletonProfile].
+		Describes a mapping of bone names for retargeting Skeleton3D into common names defined by a [SkeletonProfile].
 	</brief_description>
 	<description>
 		This class contains a dictionary that uses a list of bone names in [SkeletonProfile] as key names.
-		By assigning the actual [Skeleton3D] bone name as the key value, it maps the [Skeleton3D] to the [SkeletonProfile].
+		By assigning the actual Skeleton3D bone name as the key value, it maps the Skeleton3D to the [SkeletonProfile].
 	</description>
 	<tutorials>
 		<link title="Retargeting 3D Skeletons">$DOCS_URL/tutorials/assets_pipeline/retargeting_3d_skeletons.html</link>

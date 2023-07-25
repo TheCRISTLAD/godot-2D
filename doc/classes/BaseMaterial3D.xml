@@ -393,7 +393,7 @@
 			The material's transparency mode. Some transparency modes will disable shadow casting. Any transparency mode other than [constant TRANSPARENCY_DISABLED] has a greater performance impact compared to opaque rendering. See also [member blend_mode].
 		</member>
 		<member name="use_particle_trails" type="bool" setter="set_flag" getter="get_flag" default="false">
-			If [code]true[/code], enables parts of the shader required for [GPUParticles3D] trails to function. This also requires using a mesh with appropriate skinning, such as [RibbonTrailMesh] or [TubeTrailMesh]. Enabling this feature outside of materials used in [GPUParticles3D] meshes will break material rendering.
+			If [code]true[/code], enables parts of the shader required for GPUParticles3D trails to function. This also requires using a mesh with appropriate skinning, such as [RibbonTrailMesh] or [TubeTrailMesh]. Enabling this feature outside of materials used in GPUParticles3D meshes will break material rendering.
 		</member>
 		<member name="use_point_size" type="bool" setter="set_flag" getter="get_flag" default="false">
 			If [code]true[/code], render point size can be changed.
@@ -692,7 +692,7 @@
 			Enables the skin mode for subsurface scattering which is used to improve the look of subsurface scattering when used for human skin.
 		</constant>
 		<constant name="FLAG_PARTICLE_TRAILS_MODE" value="19" enum="Flags">
-			Enables parts of the shader required for [GPUParticles3D] trails to function. This also requires using a mesh with appropriate skinning, such as [RibbonTrailMesh] or [TubeTrailMesh]. Enabling this feature outside of materials used in [GPUParticles3D] meshes will break material rendering.
+			Enables parts of the shader required for GPUParticles3D trails to function. This also requires using a mesh with appropriate skinning, such as [RibbonTrailMesh] or [TubeTrailMesh]. Enabling this feature outside of materials used in GPUParticles3D meshes will break material rendering.
 		</constant>
 		<constant name="FLAG_ALBEDO_TEXTURE_MSDF" value="20" enum="Flags">
 			Enables multichannel signed distance field rendering shader.
@@ -731,7 +731,7 @@
 			The object's X axis will always face the camera.
 		</constant>
 		<constant name="BILLBOARD_PARTICLES" value="3" enum="BillboardMode">
-			Used for particle systems when assigned to [GPUParticles3D] and [CPUParticles3D] nodes. Enables [code]particles_anim_*[/code] properties.
+			Used for particle systems when assigned to GPUParticles3D and CPUParticles3D nodes. Enables [code]particles_anim_*[/code] properties.
 			The [member ParticleProcessMaterial.anim_speed_min] or [member CPUParticles3D.anim_speed_min] should also be set to a value bigger than zero for the animation to play.
 		</constant>
 		<constant name="TEXTURE_CHANNEL_RED" value="0" enum="TextureChannel">

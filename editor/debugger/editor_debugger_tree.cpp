@@ -214,7 +214,7 @@ void EditorDebuggerTree::update_scene_tree(const SceneDebuggerTree *p_tree, int 
 
 			item->set_meta("visible", node_visible);
 			item->add_button(0, button_icon, BUTTON_VISIBILITY, false, tooltip);
-			if (ClassDB::is_parent_class(node.type_name, "CanvasItem") || ClassDB::is_parent_class(node.type_name, "Node3D")) {
+			if (ClassDB::is_parent_class(node.type_name, "CanvasItem")) {
 				item->set_button_color(0, item->get_button_count(0) - 1, node_visible_in_tree ? remote_button_color : Color(1, 1, 1, 0.6));
 			} else {
 				item->set_button_color(0, item->get_button_count(0) - 1, remote_button_color);

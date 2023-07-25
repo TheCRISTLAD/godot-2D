@@ -8,7 +8,7 @@
 		The rendering server can be used to bypass the scene/[Node] system entirely. This can improve performance in cases where the scene system is the bottleneck, but won't improve performance otherwise (for instance, if the GPU is already fully utilized).
 		Resources are created using the [code]*_create[/code] functions. These functions return [RID]s which are not references to the objects themselves, but opaque [i]pointers[/i] towards these objects.
 		All objects are drawn to a viewport. You can use the [Viewport] attached to the [SceneTree] or you can create one yourself with [method viewport_create]. When using a custom scenario or canvas, the scenario or canvas needs to be attached to the viewport using [method viewport_set_scenario] or [method viewport_attach_canvas].
-		[b]Scenarios:[/b] In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the rendering server from a running game, the scenario can be accessed from the scene tree from any [Node3D] node with [method Node3D.get_world_3d]. Otherwise, a scenario can be created with [method scenario_create].
+		[b]Scenarios:[/b] In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the rendering server from a running game, the scenario can be accessed from the scene tree from any Node3D node with [method Node3D.get_world_3d]. Otherwise, a scenario can be created with [method scenario_create].
 		Similarly, in 2D, a canvas is needed to draw all canvas items.
 		[b]2D:[/b] In 2D, all visible objects are some form of canvas item. In order to be visible, a canvas item needs to be the child of a canvas attached to a viewport, or it needs to be the child of another canvas item that is eventually attached to the canvas. 2D-specific RenderingServer methods generally start with [code]canvas_*[/code].
 		[b]Headless mode:[/b] Starting the engine with the [code]--headless[/code] [url=$DOCS_URL/tutorials/editor/command_line_tutorial.html]command line argument[/url] disables all rendering and window management functions. Most functions from [RenderingServer] will return dummy values in this case.
@@ -99,7 +99,7 @@
 			<description>
 				Creates a 3D camera and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]camera_*[/code] RenderingServer functions.
 				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
-				[b]Note:[/b] The equivalent node is [Camera3D].
+				[b]Note:[/b] The equivalent node is camera3d.
 			</description>
 		</method>
 		<method name="camera_set_camera_attributes">
@@ -241,7 +241,7 @@
 			<param index="3" name="modulate" type="Color" default="Color(1, 1, 1, 1)" />
 			<param index="4" name="texture" type="RID" default="RID()" />
 			<description>
-				Draws a mesh created with [method mesh_create] with given [param transform], [param modulate] color, and [param texture]. This is used internally by [MeshInstance2D].
+				Draws a mesh created with [method mesh_create] with given [param transform], [param modulate] color, and [param texture]. This is used internally by MeshInstance2D.
 			</description>
 		</method>
 		<method name="canvas_item_add_msdf_texture_rect_region">
@@ -1015,7 +1015,7 @@
 				Creates a directional light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
 				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
 				To place in a scene, attach this directional light to an instance using [method instance_set_base] using the returned RID.
-				[b]Note:[/b] The equivalent node is [DirectionalLight3D].
+				[b]Note:[/b] The equivalent node is DirectionalLight3D.
 			</description>
 		</method>
 		<method name="directional_shadow_atlas_set_size">
@@ -1569,7 +1569,7 @@
 				Creates a visual instance and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] RenderingServer functions.
 				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
 				An instance is a way of placing a 3D object in the scenario. Objects like particles, meshes, reflection probes and decals need to be associated with an instance to be visible in the scenario using [method instance_set_base].
-				[b]Note:[/b] The equivalent node is [VisualInstance3D].
+				[b]Note:[/b] The equivalent node is VisualInstance3D.
 			</description>
 		</method>
 		<method name="instance_geometry_get_shader_parameter" qualifiers="const">
@@ -1752,7 +1752,7 @@
 			<param index="0" name="aabb" type="AABB" />
 			<param index="1" name="scenario" type="RID" default="RID()" />
 			<description>
-				Returns an array of object IDs intersecting with the provided AABB. Only 3D nodes that inherit from [VisualInstance3D] are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
+				Returns an array of object IDs intersecting with the provided AABB. Only 3D nodes that inherit from VisualInstance3D are considered, such as MeshInstance3D or DirectionalLight3D. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the World3D you want to query. This forces an update for all resources queued to update.
 				[b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
 			</description>
 		</method>
@@ -1761,7 +1761,7 @@
 			<param index="0" name="convex" type="Plane[]" />
 			<param index="1" name="scenario" type="RID" default="RID()" />
 			<description>
-				Returns an array of object IDs intersecting with the provided convex shape. Only 3D nodes that inherit from [VisualInstance3D] are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
+				Returns an array of object IDs intersecting with the provided convex shape. Only 3D nodes that inherit from VisualInstance3D are considered, such as MeshInstance3D or DirectionalLight3D. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the World3D you want to query. This forces an update for all resources queued to update.
 				[b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
 			</description>
 		</method>
@@ -1771,7 +1771,7 @@
 			<param index="1" name="to" type="Vector3" />
 			<param index="2" name="scenario" type="RID" default="RID()" />
 			<description>
-				Returns an array of object IDs intersecting with the provided 3D ray. Only 3D nodes that inherit from [VisualInstance3D] are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
+				Returns an array of object IDs intersecting with the provided 3D ray. Only 3D nodes that inherit from VisualInstance3D are considered, such as MeshInstance3D or DirectionalLight3D. Use [method @GlobalScope.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the World3D you want to query. This forces an update for all resources queued to update.
 				[b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
 			</description>
 		</method>
@@ -2406,14 +2406,14 @@
 				Creates a new omni light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
 				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
 				To place in a scene, attach this omni light to an instance using [method instance_set_base] using the returned RID.
-				[b]Note:[/b] The equivalent node is [OmniLight3D].
+				[b]Note:[/b] The equivalent node is OmniLight3D.
 			</description>
 		</method>
 		<method name="particles_collision_create">
 			<return type="RID" />
 			<description>
 				Creates a new 3D GPU particle collision or attractor and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]particles_collision_*[/code] RenderingServer functions.
-				[b]Note:[/b] The equivalent nodes are [GPUParticlesCollision3D] and [GPUParticlesAttractor3D].
+				[b]Note:[/b] The equivalent nodes are GPUParticlesCollision3D and GPUParticlesAttractor3D.
 			</description>
 		</method>
 		<method name="particles_collision_height_field_update">
@@ -2501,8 +2501,8 @@
 				Creates a GPU-based particle system and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]particles_*[/code] RenderingServer functions.
 				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
 				To place in a scene, attach these particles to an instance using [method instance_set_base] using the returned RID.
-				[b]Note:[/b] The equivalent nodes are [GPUParticles2D] and [GPUParticles3D].
-				[b]Note:[/b] All [code]particles_*[/code] methods only apply to GPU-based particles, not CPU-based particles. [CPUParticles2D] and [CPUParticles3D] do not have equivalent RenderingServer functions available, as these use [MultiMeshInstance2D] and [MultiMeshInstance3D] under the hood (see [code]multimesh_*[/code] methods).
+				[b]Note:[/b] The equivalent nodes are [GPUParticles2D] and GPUParticles3D.
+				[b]Note:[/b] All [code]particles_*[/code] methods only apply to GPU-based particles, not CPU-based particles. [CPUParticles2D] and CPUParticles3D do not have equivalent RenderingServer functions available, as these use MultiMeshInstance2D and [MultiMeshInstance3D] under the hood (see [code]multimesh_*[/code] methods).
 			</description>
 		</method>
 		<method name="particles_emit">
@@ -3482,22 +3482,6 @@
 				If [code]true[/code], the viewport's canvas (i.e. 2D and GUI elements) is not rendered.
 			</description>
 		</method>
-		<method name="viewport_set_disable_3d">
-			<return type="void" />
-			<param index="0" name="viewport" type="RID" />
-			<param index="1" name="disable" type="bool" />
-			<description>
-				If [code]true[/code], the viewport's 3D elements are not rendered.
-			</description>
-		</method>
-		<method name="viewport_set_environment_mode">
-			<return type="void" />
-			<param index="0" name="viewport" type="RID" />
-			<param index="1" name="mode" type="int" enum="RenderingServer.ViewportEnvironmentMode" />
-			<description>
-				Sets the viewport's environment mode which allows enabling or disabling rendering of 3D environment over 2D canvas. When disabled, 2D will not be affected by the environment. When enabled, 2D will be affected by the environment if the environment background mode is [constant ENV_BG_CANVAS]. The default behavior is to inherit the setting from the viewport's parent. If the topmost parent is also set to [constant VIEWPORT_ENVIRONMENT_INHERIT], then the behavior will be the same as if it was set to [constant VIEWPORT_ENVIRONMENT_ENABLED].
-			</description>
-		</method>
 		<method name="viewport_set_fsr_sharpness">
 			<return type="void" />
 			<param index="0" name="viewport" type="RID" />
@@ -3708,7 +3692,7 @@
 			<param index="0" name="viewport" type="RID" />
 			<param index="1" name="use_xr" type="bool" />
 			<description>
-				If [code]true[/code], the viewport uses augmented or virtual reality technologies. See [XRInterface].
+				If [code]true[/code], the viewport uses augmented or virtual reality technologies. See XRInterface.
 			</description>
 		</method>
 		<method name="viewport_set_vrs_mode">
@@ -4158,13 +4142,13 @@
 			Linear filter for light projectors (use for non-pixel art light projectors). Anisotropic mipmaps are used for rendering, which means light projectors at a distance will look smooth and sharp when viewed from oblique angles. This looks better compared to isotropic mipmaps, but is slower. The level of anisotropic filtering is defined by [member ProjectSettings.rendering/textures/default_filters/anisotropic_filtering_level].
 		</constant>
 		<constant name="LIGHT_DIRECTIONAL" value="0" enum="LightType">
-			Directional (sun/moon) light (see [DirectionalLight3D]).
+			Directional (sun/moon) light (see DirectionalLight3D).
 		</constant>
 		<constant name="LIGHT_OMNI" value="1" enum="LightType">
-			Omni light (see [OmniLight3D]).
+			Omni light (see OmniLight3D).
 		</constant>
 		<constant name="LIGHT_SPOT" value="2" enum="LightType">
-			Spot light (see [SpotLight3D]).
+			Spot light (see SpotLight3D).
 		</constant>
 		<constant name="LIGHT_PARAM_ENERGY" value="0" enum="LightParam">
 			The light's energy multiplier.
@@ -4226,7 +4210,7 @@
 		<constant name="LIGHT_PARAM_TRANSMITTANCE_BIAS" value="19" enum="LightParam">
 		</constant>
 		<constant name="LIGHT_PARAM_INTENSITY" value="20" enum="LightParam">
-			Constant representing the intensity of the light, measured in Lumens when dealing with a [SpotLight3D] or [OmniLight3D], or measured in Lux with a [DirectionalLight3D]. Only used when [member ProjectSettings.rendering/lights_and_shadows/use_physical_light_units] is [code]true[/code].
+			Constant representing the intensity of the light, measured in Lumens when dealing with a SpotLight3D or OmniLight3D, or measured in Lux with a DirectionalLight3D. Only used when [member ProjectSettings.rendering/lights_and_shadows/use_physical_light_units] is [code]true[/code].
 		</constant>
 		<constant name="LIGHT_PARAM_MAX" value="21" enum="LightParam">
 			Represents the size of the [enum LightParam] enum.
@@ -4455,20 +4439,8 @@
 		<constant name="VIEWPORT_CLEAR_ONLY_NEXT_FRAME" value="2" enum="ViewportClearMode">
 			Clear the viewport's render target on the next frame, then switch to [constant VIEWPORT_CLEAR_NEVER].
 		</constant>
-		<constant name="VIEWPORT_ENVIRONMENT_DISABLED" value="0" enum="ViewportEnvironmentMode">
-			Disable rendering of 3D environment over 2D canvas.
-		</constant>
-		<constant name="VIEWPORT_ENVIRONMENT_ENABLED" value="1" enum="ViewportEnvironmentMode">
-			Enable rendering of 3D environment over 2D canvas.
-		</constant>
-		<constant name="VIEWPORT_ENVIRONMENT_INHERIT" value="2" enum="ViewportEnvironmentMode">
-			Inherit enable/disable value from parent. If the topmost parent is also set to [constant VIEWPORT_ENVIRONMENT_INHERIT], then this has the same behavior as [constant VIEWPORT_ENVIRONMENT_ENABLED].
-		</constant>
-		<constant name="VIEWPORT_ENVIRONMENT_MAX" value="3" enum="ViewportEnvironmentMode">
-			Represents the size of the [enum ViewportEnvironmentMode] enum.
-		</constant>
 		<constant name="VIEWPORT_SDF_OVERSIZE_100_PERCENT" value="0" enum="ViewportSDFOversize">
-			Do not oversize the 2D signed distance field. Occluders may disappear when touching the viewport's edges, and [GPUParticles3D] collision may stop working earlier than intended. This has the lowest GPU requirements.
+			Do not oversize the 2D signed distance field. Occluders may disappear when touching the viewport's edges, and GPUParticles3D collision may stop working earlier than intended. This has the lowest GPU requirements.
 		</constant>
 		<constant name="VIEWPORT_SDF_OVERSIZE_120_PERCENT" value="1" enum="ViewportSDFOversize">
 			2D signed distance field covers 20% of the viewport's size outside the viewport on each side (top, right, bottom, left).
@@ -4577,10 +4549,10 @@
 			Objects are displayed with only the emission color from [VoxelGI]s.
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_SHADOW_ATLAS" value="9" enum="ViewportDebugDraw">
-			Draws the shadow atlas that stores shadows from [OmniLight3D]s and [SpotLight3D]s in the upper left quadrant of the [Viewport].
+			Draws the shadow atlas that stores shadows from OmniLight3Ds and SpotLight3Ds in the upper left quadrant of the [Viewport].
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_DIRECTIONAL_SHADOW_ATLAS" value="10" enum="ViewportDebugDraw">
-			Draws the shadow atlas that stores shadows from [DirectionalLight3D]s in the upper left quadrant of the [Viewport].
+			Draws the shadow atlas that stores shadows from DirectionalLight3Ds in the upper left quadrant of the [Viewport].
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_SCENE_LUMINANCE" value="11" enum="ViewportDebugDraw">
 			Draws the estimated scene luminance. This is a 1×1 texture that is generated when autoexposure is enabled to control the scene's exposure.
@@ -4592,7 +4564,7 @@
 			Draws the screen space indirect lighting texture instead of the scene so that you can clearly see how it is affecting objects. In order for this display mode to work, you must have [member Environment.ssil_enabled] set in your [WorldEnvironment].
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_PSSM_SPLITS" value="14" enum="ViewportDebugDraw">
-			Colors each PSSM split for the [DirectionalLight3D]s in the scene a different color so you can see where the splits are. In order they will be colored red, green, blue, yellow.
+			Colors each PSSM split for the DirectionalLight3Ds in the scene a different color so you can see where the splits are. In order they will be colored red, green, blue, yellow.
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_DECAL_ATLAS" value="15" enum="ViewportDebugDraw">
 			Draws the decal atlas that stores decal textures from [Decal]s.
@@ -4610,10 +4582,10 @@
 			Disable mesh LOD. All meshes are drawn with full detail, which can be used to compare performance.
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_CLUSTER_OMNI_LIGHTS" value="20" enum="ViewportDebugDraw">
-			Draws the [OmniLight3D] cluster. Clustering determines where lights are positioned in screen-space, which allows the engine to only process these portions of the screen for lighting.
+			Draws the OmniLight3D cluster. Clustering determines where lights are positioned in screen-space, which allows the engine to only process these portions of the screen for lighting.
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_CLUSTER_SPOT_LIGHTS" value="21" enum="ViewportDebugDraw">
-			Draws the [SpotLight3D] cluster. Clustering determines where lights are positioned in screen-space, which allows the engine to only process these portions of the screen for lighting.
+			Draws the SpotLight3D cluster. Clustering determines where lights are positioned in screen-space, which allows the engine to only process these portions of the screen for lighting.
 		</constant>
 		<constant name="VIEWPORT_DEBUG_DRAW_CLUSTER_DECALS" value="22" enum="ViewportDebugDraw">
 			Draws the [Decal] cluster. Clustering determines where decals are positioned in screen-space, which allows the engine to only process these portions of the screen for decals.
@@ -4634,7 +4606,7 @@
 			Variable rate shading uses a texture. Note, for stereoscopic use a texture atlas with a texture for each view.
 		</constant>
 		<constant name="VIEWPORT_VRS_XR" value="2" enum="ViewportVRSMode">
-			Variable rate shading texture is supplied by the primary [XRInterface].
+			Variable rate shading texture is supplied by the primary XRInterface.
 		</constant>
 		<constant name="VIEWPORT_VRS_MAX" value="3" enum="ViewportVRSMode">
 			Represents the size of the [enum ViewportVRSMode] enum.

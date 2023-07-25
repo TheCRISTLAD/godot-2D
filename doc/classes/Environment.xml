@@ -220,7 +220,7 @@
 			The [Sky] resource used for this [Environment].
 		</member>
 		<member name="sky_custom_fov" type="float" setter="set_sky_custom_fov" getter="get_sky_custom_fov" default="0.0">
-			If set to a value greater than [code]0.0[/code], overrides the field of view to use for sky rendering. If set to [code]0.0[/code], the same FOV as the current [Camera3D] is used for sky rendering.
+			If set to a value greater than [code]0.0[/code], overrides the field of view to use for sky rendering. If set to [code]0.0[/code], the same FOV as the current camera3d is used for sky rendering.
 		</member>
 		<member name="sky_rotation" type="Vector3" setter="set_sky_rotation" getter="get_sky_rotation" default="Vector3(0, 0, 0)">
 			The rotation to use for sky rendering.
@@ -254,7 +254,7 @@
 			The amount that the screen-space ambient occlusion effect is allowed to blur over the edges of objects. Setting too high will result in aliasing around the edges of objects. Setting too low will make object edges appear blurry.
 		</member>
 		<member name="ssil_enabled" type="bool" setter="set_ssil_enabled" getter="is_ssil_enabled" default="false">
-			If [code]true[/code], the screen-space indirect lighting effect is enabled. Screen space indirect lighting is a form of indirect lighting that allows diffuse light to bounce between nearby objects. Screen-space indirect lighting works very similarly to screen-space ambient occlusion, in that it only affects a limited range. It is intended to be used along with a form of proper global illumination like SDFGI or [VoxelGI]. Screen-space indirect lighting is not affected by individual light's [member Light3D.light_indirect_energy].
+			If [code]true[/code], the screen-space indirect lighting effect is enabled. Screen space indirect lighting is a form of indirect lighting that allows diffuse light to bounce between nearby objects. Screen-space indirect lighting works very similarly to screen-space ambient occlusion, in that it only affects a limited range. It is intended to be used along with a form of proper global illumination like SDFGI or [VoxelGI]. Screen-space indirect lighting is not affected by individual light's Light3D.light_indirect_energy.
 			[b]Note:[/b] SSIL is only supported in the Forward+ rendering method, not Mobile or Compatibility.
 		</member>
 		<member name="ssil_intensity" type="float" setter="set_ssil_intensity" getter="get_ssil_intensity" default="1.0">
@@ -307,7 +307,7 @@
 		<member name="volumetric_fog_density" type="float" setter="set_volumetric_fog_density" getter="get_volumetric_fog_density" default="0.05">
 			The base [i]exponential[/i] density of the volumetric fog. Set this to the lowest density you want to have globally. [FogVolume]s can be used to add to or subtract from this density in specific areas. Fog rendering is exponential as in real life.
 			A value of [code]0.0[/code] disables global volumetric fog while allowing [FogVolume]s to display volumetric fog in specific areas.
-			To make volumetric fog work as a volumetric [i]lighting[/i] solution, set [member volumetric_fog_density] to the lowest non-zero value ([code]0.0001[/code]) then increase lights' [member Light3D.light_volumetric_fog_energy] to values between [code]10000[/code] and [code]100000[/code] to compensate for the very low density.
+			To make volumetric fog work as a volumetric [i]lighting[/i] solution, set [member volumetric_fog_density] to the lowest non-zero value ([code]0.0001[/code]) then increase lights' member Light3D.light_volumetric_fog_energy to values between [code]10000[/code] and [code]100000[/code] to compensate for the very low density.
 		</member>
 		<member name="volumetric_fog_detail_spread" type="float" setter="set_volumetric_fog_detail_spread" getter="get_volumetric_fog_detail_spread" default="2.0">
 			The distribution of size down the length of the froxel buffer. A higher value compresses the froxels closer to the camera and places more detail closer to the camera.
@@ -338,7 +338,7 @@
 			The amount by which to blend the last frame with the current frame. A higher number results in smoother volumetric fog, but makes "ghosting" much worse. A lower value reduces ghosting but can result in the per-frame temporal jitter becoming visible.
 		</member>
 		<member name="volumetric_fog_temporal_reprojection_enabled" type="bool" setter="set_volumetric_fog_temporal_reprojection_enabled" getter="is_volumetric_fog_temporal_reprojection_enabled" default="true">
-			Enables temporal reprojection in the volumetric fog. Temporal reprojection blends the current frame's volumetric fog with the last frame's volumetric fog to smooth out jagged edges. The performance cost is minimal; however, it leads to moving [FogVolume]s and [Light3D]s "ghosting" and leaving a trail behind them. When temporal reprojection is enabled, try to avoid moving [FogVolume]s or [Light3D]s too fast. Short-lived dynamic lighting effects should have [member Light3D.light_volumetric_fog_energy] set to [code]0.0[/code] to avoid ghosting.
+			Enables temporal reprojection in the volumetric fog. Temporal reprojection blends the current frame's volumetric fog with the last frame's volumetric fog to smooth out jagged edges. The performance cost is minimal; however, it leads to moving [FogVolume]s and Light3Ds "ghosting" and leaving a trail behind them. When temporal reprojection is enabled, try to avoid moving [FogVolume]s or Light3Ds too fast. Short-lived dynamic lighting effects should have Light3D.light_volumetric_fog_energy set to [code]0.0[/code] to avoid ghosting.
 		</member>
 	</members>
 	<constants>
