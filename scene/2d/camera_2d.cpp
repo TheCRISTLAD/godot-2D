@@ -33,6 +33,10 @@
 #include "core/config/project_settings.h"
 #include "scene/main/window.h"
 
+bool Camera2D::_is_editing_in_editor() {
+	return get_tree()->get_edited_scene_root() && get_viewport() == get_tree()->get_edited_scene_root()->get_viewport();
+}
+
 void Camera2D::_update_scroll() {
 	if (!is_inside_tree()) {
 		return;
@@ -41,7 +45,7 @@ void Camera2D::_update_scroll() {
 	if (Engine::get_singleton()->is_editor_hint()) {
 		queue_redraw();
 		// Only set viewport transform when not bound to the main viewport.
-		if (get_tree()->get_edited_scene_root() && get_viewport() == get_tree()->get_edited_scene_root()->get_viewport()) {
+		if (_is_editing_in_editor()) {
 			return;
 		}
 	}
@@ -65,7 +69,7 @@ void Camera2D::_update_scroll() {
 }
 
 void Camera2D::_update_process_callback() {
-	if (Engine::get_singleton()->is_editor_hint()) {
+	if (Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor()) {
 		set_process_internal(false);
 		set_physics_process_internal(false);
 	} else if (process_callback == CAMERA2D_PROCESS_IDLE) {
@@ -106,7 +110,7 @@ Transform2D Camera2D::get_camera_transform() {
 
 	if (!first) {
 		if (anchor_mode == ANCHOR_MODE_DRAG_CENTER) {
-			if (drag_horizontal_enabled && !Engine::get_singleton()->is_editor_hint() && !drag_horizontal_offset_changed) {
+			if (drag_horizontal_enabled && !(Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor()) && !drag_horizontal_offset_changed) {
 				camera_pos.x = MIN(camera_pos.x, (new_camera_pos.x + screen_size.x * 0.5 * zoom_scale.x * drag_margin[SIDE_LEFT]));
 				camera_pos.x = MAX(camera_pos.x, (new_camera_pos.x - screen_size.x * 0.5 * zoom_scale.x * drag_margin[SIDE_RIGHT]));
 			} else {
@@ -119,7 +123,7 @@ Transform2D Camera2D::get_camera_transform() {
 				drag_horizontal_offset_changed = false;
 			}
 
-			if (drag_vertical_enabled && !Engine::get_singleton()->is_editor_hint() && !drag_vertical_offset_changed) {
+			if (drag_vertical_enabled && !(Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor()) && !drag_vertical_offset_changed) {
 				camera_pos.y = MIN(camera_pos.y, (new_camera_pos.y + screen_size.y * 0.5 * zoom_scale.y * drag_margin[SIDE_TOP]));
 				camera_pos.y = MAX(camera_pos.y, (new_camera_pos.y - screen_size.y * 0.5 * zoom_scale.y * drag_margin[SIDE_BOTTOM]));
 
@@ -158,7 +162,7 @@ Transform2D Camera2D::get_camera_transform() {
 			}
 		}
 
-		if (position_smoothing_enabled && !Engine::get_singleton()->is_editor_hint()) {
+		if (position_smoothing_enabled && !(Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor())) {
 			real_t c = position_smoothing_speed * (process_callback == CAMERA2D_PROCESS_PHYSICS ? get_physics_process_delta_time() : get_process_delta_time());
 			smoothed_camera_pos = ((camera_pos - smoothed_camera_pos) * c) + smoothed_camera_pos;
 			ret_camera_pos = smoothed_camera_pos;
@@ -175,7 +179,7 @@ Transform2D Camera2D::get_camera_transform() {
 	Point2 screen_offset = (anchor_mode == ANCHOR_MODE_DRAG_CENTER ? (screen_size * 0.5 * zoom_scale) : Point2());
 
 	if (!ignore_rotation) {
-		if (rotation_smoothing_enabled && !Engine::get_singleton()->is_editor_hint()) {
+		if (rotation_smoothing_enabled && !(Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor())) {
 			real_t step = rotation_smoothing_speed * (process_callback == CAMERA2D_PROCESS_PHYSICS ? get_physics_process_delta_time() : get_process_delta_time());
 			camera_angle = Math::lerp_angle(camera_angle, get_global_rotation(), step);
 		} else {
@@ -250,7 +254,7 @@ void Camera2D::_notification(int p_what) {
 			add_to_group(group_name);
 			add_to_group(canvas_group_name);
 
-			if (!Engine::get_singleton()->is_editor_hint() && enabled && !viewport->get_camera_2d()) {
+			if (!(Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor()) && enabled && !viewport->get_camera_2d()) {
 				make_current();
 			}
 
@@ -272,7 +276,7 @@ void Camera2D::_notification(int p_what) {
 
 #ifdef TOOLS_ENABLED
 		case NOTIFICATION_DRAW: {
-			if (!is_inside_tree() || !Engine::get_singleton()->is_editor_hint()) {
+			if (!is_inside_tree() || !Engine::get_singleton()->is_editor_hint() || !_is_editing_in_editor()) {
 				break;
 			}
 
@@ -434,7 +438,7 @@ void Camera2D::_make_current(Object *p_which) {
 }
 
 void Camera2D::_update_process_internal_for_smoothing() {
-	bool is_not_in_scene_or_editor = !(is_inside_tree() && Engine::get_singleton()->is_editor_hint());
+	bool is_not_in_scene_or_editor = !(is_inside_tree() && Engine::get_singleton()->is_editor_hint() && _is_editing_in_editor());
 	bool is_any_smoothing_valid = position_smoothing_speed > 0 || rotation_smoothing_speed > 0;
 
 	bool enable = is_any_smoothing_valid && is_not_in_scene_or_editor;
@@ -568,7 +572,8 @@ Point2 Camera2D::get_camera_screen_center() const {
 
 Size2 Camera2D::_get_camera_screen_size() const {
 	// special case if the camera2D is in the root viewport
-	if (Engine::get_singleton()->is_editor_hint() && get_viewport()->get_parent_viewport() == get_tree()->get_root()) {
+	bool is_editing = get_tree() && get_tree()->get_edited_scene_root() && get_viewport() == get_tree()->get_edited_scene_root()->get_viewport();
+	if (Engine::get_singleton()->is_editor_hint() && is_editing && get_viewport()->get_parent_viewport() == get_tree()->get_root()) {
 		return Size2(GLOBAL_GET("display/window/size/viewport_width"), GLOBAL_GET("display/window/size/viewport_height"));
 	}
 	return get_viewport_rect().size;
