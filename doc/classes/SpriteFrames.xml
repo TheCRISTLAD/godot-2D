@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="SpriteFrames" inherits="Resource" version="4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
-		Sprite frame library for AnimatedSprite2D and AnimatedSprite3D.
+		Sprite frame library for AnimatedSprite2D.
 	</brief_description>
 	<description>
-		Sprite frame library for an [AnimatedSprite2D] or [AnimatedSprite3D] node. Contains frames and animation data for playback.
+		Sprite frame library for an [AnimatedSprite2D]. Contains frames and animation data for playback.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -75,7 +75,7 @@
 				[codeblock]
 				absolute_duration = relative_duration / (animation_fps * abs(playing_speed))
 				[/codeblock]
-				In this example, [code]playing_speed[/code] refers to either [method AnimatedSprite2D.get_playing_speed] or [method AnimatedSprite3D.get_playing_speed].
+				In this example, [code]playing_speed[/code] refers to either [method AnimatedSprite2D.get_playing_speed].
 			</description>
 		</method>
 		<method name="get_frame_texture" qualifiers="const">

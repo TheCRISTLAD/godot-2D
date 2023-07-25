@@ -395,21 +395,18 @@ void ProjectDialog::_renderer_selected() {
 	if (renderer_type == "forward_plus") {
 		renderer_info->set_text(
 				String::utf8("•  ") + TTR("Supports desktop platforms only.") +
-				String::utf8("\n•  ") + TTR("Advanced 3D graphics available.") +
 				String::utf8("\n•  ") + TTR("Can scale to large complex scenes.") +
 				String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
 				String::utf8("\n•  ") + TTR("Slower rendering of simple scenes."));
 	} else if (renderer_type == "mobile") {
 		renderer_info->set_text(
 				String::utf8("•  ") + TTR("Supports desktop + mobile platforms.") +
-				String::utf8("\n•  ") + TTR("Less advanced 3D graphics.") +
 				String::utf8("\n•  ") + TTR("Less scalable for complex scenes.") +
 				String::utf8("\n•  ") + TTR("Uses RenderingDevice backend.") +
 				String::utf8("\n•  ") + TTR("Fast rendering of simple scenes."));
 	} else if (renderer_type == "gl_compatibility") {
 		renderer_info->set_text(
 				String::utf8("•  ") + TTR("Supports desktop, mobile + web platforms.") +
-				String::utf8("\n•  ") + TTR("Least advanced 3D graphics (currently work-in-progress).") +
 				String::utf8("\n•  ") + TTR("Intended for low-end/older devices.") +
 				String::utf8("\n•  ") + TTR("Uses OpenGL 3 backend (OpenGL 3.3/ES 3.0/WebGL2).") +
 				String::utf8("\n•  ") + TTR("Fastest rendering of simple scenes."));
@@ -2767,7 +2764,6 @@ ProjectManager::ProjectManager() {
 	}
 
 	// Turn off some servers we aren't going to be using in the Project Manager.
-	// PhysicsServer3D::get_singleton()->set_active(false);
 	PhysicsServer2D::get_singleton()->set_active(false);
 
 	EditorSettings::get_singleton()->set_optimize_save(false); //just write settings as they came

@@ -4,11 +4,9 @@
 		Library of meshes.
 	</brief_description>
 	<description>
-		A library of meshes. Contains a list of [Mesh] resources, each with a name and ID. Each item can also include collision and navigation shapes. This resource is used in [GridMap].
+		A library of meshes. Contains a list of [Mesh] resources, each with a name and ID. Each item can also include collision shapes. This resource is used in GridMap.
 	</description>
 	<tutorials>
-		<link title="3D Kinematic Character Demo">https://godotengine.org/asset-library/asset/126</link>
-		<link title="3D Platformer Demo">https://godotengine.org/asset-library/asset/125</link>
 	</tutorials>
 	<methods>
 		<method name="clear">
@@ -59,27 +57,6 @@
 				Returns the item's name.
 			</description>
 		</method>
-		<method name="get_item_navigation_layers" qualifiers="const">
-			<return type="int" />
-			<param index="0" name="id" type="int" />
-			<description>
-				Returns the item's navigation layers bitmask.
-			</description>
-		</method>
-		<method name="get_item_navigation_mesh" qualifiers="const">
-			<return type="NavigationMesh" />
-			<param index="0" name="id" type="int" />
-			<description>
-				Returns the item's navigation mesh.
-			</description>
-		</method>
-		<method name="get_item_navigation_mesh_transform" qualifiers="const">
-			<return type="Transform3D" />
-			<param index="0" name="id" type="int" />
-			<description>
-				Returns the transform applied to the item's navigation mesh.
-			</description>
-		</method>
 		<method name="get_item_preview" qualifiers="const">
 			<return type="Texture2D" />
 			<param index="0" name="id" type="int" />
@@ -92,7 +69,7 @@
 			<param index="0" name="id" type="int" />
 			<description>
 				Returns an item's collision shapes.
-				The array consists of each [Shape3D] followed by its [Transform3D].
+				The array consists of each Shape3D followed by its [Transform3D].
 			</description>
 		</method>
 		<method name="get_last_unused_item_id" qualifiers="const">
@@ -133,30 +110,6 @@
 				This name is shown in the editor. It can also be used to look up the item later using [method find_item_by_name].
 			</description>
 		</method>
-		<method name="set_item_navigation_layers">
-			<return type="void" />
-			<param index="0" name="id" type="int" />
-			<param index="1" name="navigation_layers" type="int" />
-			<description>
-				Sets the item's navigation layers bitmask.
-			</description>
-		</method>
-		<method name="set_item_navigation_mesh">
-			<return type="void" />
-			<param index="0" name="id" type="int" />
-			<param index="1" name="navigation_mesh" type="NavigationMesh" />
-			<description>
-				Sets the item's navigation mesh.
-			</description>
-		</method>
-		<method name="set_item_navigation_mesh_transform">
-			<return type="void" />
-			<param index="0" name="id" type="int" />
-			<param index="1" name="navigation_mesh" type="Transform3D" />
-			<description>
-				Sets the transform to apply to the item's navigation mesh.
-			</description>
-		</method>
 		<method name="set_item_preview">
 			<return type="void" />
 			<param index="0" name="id" type="int" />
@@ -171,7 +124,7 @@
 			<param index="1" name="shapes" type="Array" />
 			<description>
 				Sets an item's collision shapes.
-				The array should consist of [Shape3D] objects, each followed by a [Transform3D] that will be applied to it. For shapes that should not have a transform, use [constant Transform3D.IDENTITY].
+				The array should consist of Shape3D objects, each followed by a [Transform3D] that will be applied to it. For shapes that should not have a transform, use [constant Transform3D.IDENTITY].
 			</description>
 		</method>
 	</methods>

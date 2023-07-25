@@ -5,7 +5,7 @@
 	</brief_description>
 	<description>
 		Plays an audio stream non-positionally.
-		To play audio positionally, use [AudioStreamPlayer2D] or [AudioStreamPlayer3D] instead of [AudioStreamPlayer].
+		To play audio positionally, use [AudioStreamPlayer2D] or AudioStreamPlayer3D instead of [AudioStreamPlayer].
 	</description>
 	<tutorials>
 		<link title="Audio streams">$DOCS_URL/tutorials/audio/audio_streams.html</link>

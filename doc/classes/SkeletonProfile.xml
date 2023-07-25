@@ -4,7 +4,7 @@
 		Base class for a profile of a virtual skeleton used as a target for retargeting.
 	</brief_description>
 	<description>
-		This resource is used in [EditorScenePostImport]. Some parameters are referring to bones in [Skeleton3D], [Skin], [Animation], and some other nodes are rewritten based on the parameters of [SkeletonProfile].
+		This resource is used in [EditorScenePostImport]. Some parameters are referring to bones in Skeleton3D, [Skin], [Animation], and some other nodes are rewritten based on the parameters of [SkeletonProfile].
 		[b]Note:[/b] These parameters need to be set only when creating a custom profile. In [SkeletonProfileHumanoid], they are defined internally as read-only values.
 	</description>
 	<tutorials>

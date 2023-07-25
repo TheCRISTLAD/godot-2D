@@ -1971,10 +1971,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
 			} else if (ClassDB::is_parent_class(resource_type, "AudioStream")) {
 				external_program = EDITOR_GET("filesystem/external_programs/audio_editor");
 			} else if (resource_type == "PackedScene") {
-				// Ignore non-model scenes.
-				if (file.get_extension() != "tscn" && file.get_extension() != "scn" && file.get_extension() != "res") {
-					external_program = EDITOR_GET("filesystem/external_programs/3d_model_editor");
-				}
+				// Ignore
 			} else if (ClassDB::is_parent_class(resource_type, "Script")) {
 				external_program = EDITOR_GET("text_editor/external/exec_path");
 			}

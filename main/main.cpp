@@ -268,16 +268,6 @@ static Vector<String> get_files_with_extension(const String &p_root, const Strin
 
 // FIXME: Could maybe be moved to have less code in main.cpp.
 void initialize_physics() {
-	/// 3D Physics Server
-	// physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
-	// 		GLOBAL_GET(PhysicsServer3DManager::setting_property_name));
-	// if (!physics_server_3d) {
-	// 	// Physics server not found, Use the default physics
-	// 	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_default_server();
-	// }
-	// ERR_FAIL_COND(!physics_server_3d);
-	// physics_server_3d->init();
-
 	// 2D Physics server
 	physics_server_2d = PhysicsServer2DManager::get_singleton()->new_server(
 			GLOBAL_GET(PhysicsServer2DManager::get_singleton()->setting_property_name));
@@ -290,9 +280,6 @@ void initialize_physics() {
 }
 
 void finalize_physics() {
-	// physics_server_3d->finish();
-	// memdelete(physics_server_3d);
-
 	physics_server_2d->finish();
 	memdelete(physics_server_2d);
 }
@@ -491,7 +478,6 @@ Error Main::test_setup() {
 		tsman->add_interface(ts);
 	}
 
-	// physics_server_3d_manager = memnew(PhysicsServer3DManager);
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 
 	// From `Main::setup2()`.
@@ -610,9 +596,6 @@ void Main::test_cleanup() {
 	if (tsman) {
 		memdelete(tsman);
 	}
-	// if (physics_server_3d_manager) {
-	// 	memdelete(physics_server_3d_manager);
-	// }
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);
 	}
@@ -2020,7 +2003,6 @@ Error Main::setup2() {
 		tsman->add_interface(ts);
 	}
 
-	// physics_server_3d_manager = memnew(PhysicsServer3DManager);
 	physics_server_2d_manager = memnew(PhysicsServer2DManager);
 
 	register_server_types();
@@ -3273,14 +3255,10 @@ bool Main::iteration() {
 
 		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
-		// PhysicsServer3D::get_singleton()->sync();
-		// PhysicsServer3D::get_singleton()->flush_queries();
-
 		PhysicsServer2D::get_singleton()->sync();
 		PhysicsServer2D::get_singleton()->flush_queries();
 
 		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
-			// PhysicsServer3D::get_singleton()->end_sync();
 			PhysicsServer2D::get_singleton()->end_sync();
 
 			exit = true;
@@ -3522,9 +3500,6 @@ void Main::cleanup(bool p_force) {
 	if (tsman) {
 		memdelete(tsman);
 	}
-	// if (physics_server_3d_manager) {
-	// 	memdelete(physics_server_3d_manager);
-	// }
 	if (physics_server_2d_manager) {
 		memdelete(physics_server_2d_manager);
 	}

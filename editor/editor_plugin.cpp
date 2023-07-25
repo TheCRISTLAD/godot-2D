@@ -237,20 +237,6 @@ int EditorPlugin::update_overlays() const {
 	return 1;
 }
 
-// EditorPlugin::AfterGUIInput EditorPlugin::forward_3d_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
-// 	int success = EditorPlugin::AFTER_GUI_INPUT_PASS;
-// 	GDVIRTUAL_CALL(_forward_3d_gui_input, p_camera, p_event, success);
-// 	return static_cast<EditorPlugin::AfterGUIInput>(success);
-// }
-
-// void EditorPlugin::forward_3d_draw_over_viewport(Control *p_overlay) {
-// 	GDVIRTUAL_CALL(_forward_3d_draw_over_viewport, p_overlay);
-// }
-
-// void EditorPlugin::forward_3d_force_draw_over_viewport(Control *p_overlay) {
-// 	GDVIRTUAL_CALL(_forward_3d_force_draw_over_viewport, p_overlay);
-// }
-
 String EditorPlugin::get_name() const {
 	String name;
 	GDVIRTUAL_CALL(_get_plugin_name, name);
@@ -504,9 +490,6 @@ void EditorPlugin::_bind_methods() {
 	GDVIRTUAL_BIND(_forward_canvas_gui_input, "event");
 	GDVIRTUAL_BIND(_forward_canvas_draw_over_viewport, "viewport_control");
 	GDVIRTUAL_BIND(_forward_canvas_force_draw_over_viewport, "viewport_control");
-	// GDVIRTUAL_BIND(_forward_3d_gui_input, "viewport_camera", "event");
-	// GDVIRTUAL_BIND(_forward_3d_draw_over_viewport, "viewport_control");
-	// GDVIRTUAL_BIND(_forward_3d_force_draw_over_viewport, "viewport_control");
 	GDVIRTUAL_BIND(_get_plugin_name);
 	GDVIRTUAL_BIND(_get_plugin_icon);
 	GDVIRTUAL_BIND(_has_main_screen);

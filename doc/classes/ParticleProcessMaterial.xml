@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="ParticleProcessMaterial" inherits="Material" version="4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
 	<brief_description>
-		Particle properties for [GPUParticles3D] and [GPUParticles2D] nodes.
+		Particle properties for GPUParticles3D and [GPUParticles2D] nodes.
 	</brief_description>
 	<description>
-		ParticleProcessMaterial defines particle properties and behavior. It is used in the [code]process_material[/code] of [GPUParticles3D] and [GPUParticles2D] emitter nodes.
+		ParticleProcessMaterial defines particle properties and behavior. It is used in the [code]process_material[/code] of GPUParticles3D and [GPUParticles2D] emitter nodes.
 		Some of this material's properties are applied to each particle when emitted, while others can have a [CurveTexture] applied to vary values over the lifetime of the particle.
 		Particle animation is available only in [GPUParticles2D]. To use it, attach a [CanvasItemMaterial], with [member CanvasItemMaterial.particles_animation] enabled, to the particles node.
 	</description>
@@ -123,7 +123,7 @@
 		</member>
 		<member name="collision_mode" type="int" setter="set_collision_mode" getter="get_collision_mode" enum="ParticleProcessMaterial.CollisionMode" default="0">
 			The particles' collision mode.
-			[b]Note:[/b] 3D Particles can only collide with [GPUParticlesCollision3D] nodes, not [PhysicsBody3D] nodes. To make particles collide with various objects, you can add [GPUParticlesCollision3D] nodes as children of [PhysicsBody3D] nodes.
+			[b]Note:[/b] 3D Particles can only collide with GPUParticlesCollision3D nodes, not [PhysicsBody3D] nodes. To make particles collide with various objects, you can add GPUParticlesCollision3D nodes as children of [PhysicsBody3D] nodes.
 			[b]Note:[/b] 2D Particles can only collide with [LightOccluder2D] nodes, not [PhysicsBody2D] nodes.
 		</member>
 		<member name="collision_use_scale" type="bool" setter="set_collision_use_scale" getter="is_collision_using_scale" default="false">
@@ -417,13 +417,13 @@
 			Represents the size of the [enum SubEmitterMode] enum.
 		</constant>
 		<constant name="COLLISION_DISABLED" value="0" enum="CollisionMode">
-			No collision for particles. Particles will go through [GPUParticlesCollision3D] nodes.
+			No collision for particles. Particles will go through GPUParticlesCollision3D nodes.
 		</constant>
 		<constant name="COLLISION_RIGID" value="1" enum="CollisionMode">
-			[RigidBody3D]-style collision for particles using [GPUParticlesCollision3D] nodes.
+			RigidBody3D-style collision for particles using GPUParticlesCollision3D nodes.
 		</constant>
 		<constant name="COLLISION_HIDE_ON_CONTACT" value="2" enum="CollisionMode">
-			Hide particles instantly when colliding with a [GPUParticlesCollision3D] node. This can be combined with a subemitter that uses the [constant COLLISION_RIGID] collision mode to "replace" the parent particle with the subemitter on impact.
+			Hide particles instantly when colliding with a GPUParticlesCollision3D node. This can be combined with a subemitter that uses the [constant COLLISION_RIGID] collision mode to "replace" the parent particle with the subemitter on impact.
 		</constant>
 		<constant name="COLLISION_MAX" value="3" enum="CollisionMode">
 			Represents the size of the [enum CollisionMode] enum.
