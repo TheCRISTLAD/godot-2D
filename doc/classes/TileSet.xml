@@ -5,7 +5,7 @@
 	</brief_description>
 	<description>
 		A TileSet is a library of tiles for a [TileMap]. A TileSet handles a list of [TileSetSource], each of them storing a set of tiles.
-		Tiles can either be from a [TileSetAtlasSource], that render tiles out of a texture with support for physics, navigation, etc... or from a [TileSetScenesCollectionSource] which exposes scene-based tiles.
+		Tiles can either be from a [TileSetAtlasSource], that render tiles out of a texture with support for physics or from a [TileSetScenesCollectionSource] which exposes scene-based tiles.
 		Tiles are referenced by using three IDs: their source ID, their atlas coordinates ID and their alternative tile ID.
 		A TileSet can be configured so that its tiles expose more or less properties. To do so, the TileSet resources uses property layers, that you can add or remove depending on your needs.
 		For example, adding a physics layer allows giving collision shapes to your tiles. Each layer having dedicated properties (physics layer and mask), you may add several TileSet physics layers for each type of collision you need.
@@ -16,7 +16,6 @@
 		<link title="2D Platformer Demo">https://godotengine.org/asset-library/asset/120</link>
 		<link title="2D Isometric Demo">https://godotengine.org/asset-library/asset/112</link>
 		<link title="2D Hexagonal Demo">https://godotengine.org/asset-library/asset/111</link>
-		<link title="2D Navigation Astar Demo">https://godotengine.org/asset-library/asset/519</link>
 		<link title="2D Role Playing Game Demo">https://godotengine.org/asset-library/asset/520</link>
 		<link title="2D Kinematic Character Demo">https://godotengine.org/asset-library/asset/113</link>
 	</tutorials>
@@ -27,14 +26,6 @@
 			<description>
 				Adds a custom data layer to the TileSet at the given position [param to_position] in the array. If [param to_position] is -1, adds it at the end of the array.
 				Custom data layers allow assigning custom properties to atlas tiles.
-			</description>
-		</method>
-		<method name="add_navigation_layer">
-			<return type="void" />
-			<param index="0" name="to_position" type="int" default="-1" />
-			<description>
-				Adds a navigation layer to the TileSet at the given position [param to_position] in the array. If [param to_position] is -1, adds it at the end of the array.
-				Navigation layers allow assigning a navigable area to atlas tiles.
 			</description>
 		</method>
 		<method name="add_occlusion_layer">
@@ -142,27 +133,6 @@
 			<return type="int" />
 			<description>
 				Returns the custom data layers count.
-			</description>
-		</method>
-		<method name="get_navigation_layer_layer_value" qualifiers="const">
-			<return type="bool" />
-			<param index="0" name="layer_index" type="int" />
-			<param index="1" name="layer_number" type="int" />
-			<description>
-				Returns whether or not the specified navigation layer of the TileSet navigation data layer identified by the given [param layer_index] is enabled, given a navigation_layers [param layer_number] between 1 and 32.
-			</description>
-		</method>
-		<method name="get_navigation_layer_layers" qualifiers="const">
-			<return type="int" />
-			<param index="0" name="layer_index" type="int" />
-			<description>
-				Returns the navigation layers (as in the Navigation server) of the given TileSet navigation layer.
-			</description>
-		</method>
-		<method name="get_navigation_layers_count" qualifiers="const">
-			<return type="int" />
-			<description>
-				Returns the navigation layers count.
 			</description>
 		</method>
 		<method name="get_next_source_id" qualifiers="const">
@@ -345,14 +315,6 @@
 				Moves the custom data layer at index [param layer_index] to the given position [param to_position] in the array. Also updates the atlas tiles accordingly.
 			</description>
 		</method>
-		<method name="move_navigation_layer">
-			<return type="void" />
-			<param index="0" name="layer_index" type="int" />
-			<param index="1" name="to_position" type="int" />
-			<description>
-				Moves the navigation layer at index [param layer_index] to the given position [param to_position] in the array. Also updates the atlas tiles accordingly.
-			</description>
-		</method>
 		<method name="move_occlusion_layer">
 			<return type="void" />
 			<param index="0" name="layer_index" type="int" />
@@ -408,13 +370,6 @@
 			<param index="0" name="layer_index" type="int" />
 			<description>
 				Removes the custom data layer at index [param layer_index]. Also updates the atlas tiles accordingly.
-			</description>
-		</method>
-		<method name="remove_navigation_layer">
-			<return type="void" />
-			<param index="0" name="layer_index" type="int" />
-			<description>
-				Removes the navigation layer at index [param layer_index]. Also updates the atlas tiles accordingly.
 			</description>
 		</method>
 		<method name="remove_occlusion_layer">
@@ -507,23 +462,6 @@
 			<param index="1" name="layer_type" type="int" enum="Variant.Type" />
 			<description>
 				Sets the type of the custom data layer identified by the given index.
-			</description>
-		</method>
-		<method name="set_navigation_layer_layer_value">
-			<return type="void" />
-			<param index="0" name="layer_index" type="int" />
-			<param index="1" name="layer_number" type="int" />
-			<param index="2" name="value" type="bool" />
-			<description>
-				Based on [param value], enables or disables the specified navigation layer of the TileSet navigation data layer identified by the given [param layer_index], given a navigation_layers [param layer_number] between 1 and 32.
-			</description>
-		</method>
-		<method name="set_navigation_layer_layers">
-			<return type="void" />
-			<param index="0" name="layer_index" type="int" />
-			<param index="1" name="layers" type="int" />
-			<description>
-				Sets the navigation layers (as in the navigation server) for navigation regions in the given TileSet navigation layer.
 			</description>
 		</method>
 		<method name="set_occlusion_layer_light_mask">

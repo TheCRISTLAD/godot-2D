@@ -468,7 +468,7 @@
 			<return type="void" />
 			<param index="0" name="plugin" type="EditorNode3DGizmoPlugin" />
 			<description>
-				Registers a new [EditorNode3DGizmoPlugin]. Gizmo plugins are used to add custom gizmos to the 3D preview viewport for a [Node3D].
+				Registers a new [EditorNode3DGizmoPlugin]. Gizmo plugins are used to add custom gizmos to the 3D preview viewport for a Node3D.
 				See [method add_inspector_plugin] for an example of how to register a plugin.
 			</description>
 		</method>
@@ -796,7 +796,7 @@
 			Prevents the [InputEvent] from reaching other Editor classes.
 		</constant>
 		<constant name="AFTER_GUI_INPUT_CUSTOM" value="2" enum="AfterGUIInput">
-			Pass the [InputEvent] to other editor plugins except the main [Node3D] one. This can be used to prevent node selection changes and work with sub-gizmos instead.
+			Pass the [InputEvent] to other editor plugins except the main Node3D one. This can be used to prevent node selection changes and work with sub-gizmos instead.
 		</constant>
 	</constants>
 </class>

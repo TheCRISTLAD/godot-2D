@@ -27,22 +27,10 @@
 				Returns the first valid [World2D] for this viewport, searching the [member world_2d] property of itself and any Viewport ancestor.
 			</description>
 		</method>
-		<method name="find_world_3d" qualifiers="const">
-			<return type="World3D" />
-			<description>
-				Returns the first valid [World3D] for this viewport, searching the [member world_3d] property of itself and any Viewport ancestor.
-			</description>
-		</method>
 		<method name="get_camera_2d" qualifiers="const">
 			<return type="Camera2D" />
 			<description>
 				Returns the currently active 2D camera. Returns null if there are no active cameras.
-			</description>
-		</method>
-		<method name="get_camera_3d" qualifiers="const">
-			<return type="Camera3D" />
-			<description>
-				Returns the currently active 3D camera.
 			</description>
 		</method>
 		<method name="get_canvas_cull_mask_bit" qualifiers="const">
@@ -278,7 +266,7 @@
 		<member name="mesh_lod_threshold" type="float" setter="set_mesh_lod_threshold" getter="get_mesh_lod_threshold" default="1.0">
 			The automatic LOD bias to use for meshes rendered within the [Viewport] (this is analogous to [member ReflectionProbe.mesh_lod_threshold]). Higher values will use less detailed versions of meshes that have LOD variations generated. If set to [code]0.0[/code], automatic LOD is disabled. Increase [member mesh_lod_threshold] to improve performance at the cost of geometry detail.
 			To control this property on the root viewport, set the [member ProjectSettings.rendering/mesh_lod/lod_change/threshold_pixels] project setting.
-			[b]Note:[/b] [member mesh_lod_threshold] does not affect [GeometryInstance3D] visibility ranges (also known as "manual" LOD or hierarchical LOD).
+			[b]Note:[/b] [member mesh_lod_threshold] does not affect GeometryInstance3D visibility ranges (also known as "manual" LOD or hierarchical LOD).
 		</member>
 		<member name="msaa_2d" type="int" setter="set_msaa_2d" getter="get_msaa_2d" enum="Viewport.MSAA" default="0">
 			The multisample anti-aliasing mode for 2D/Canvas rendering. A higher number results in smoother edges at the cost of significantly worse performance. A value of 2 or 4 is best unless targeting very high-end systems. This has no effect on shader-induced aliasing or texture aliasing.
@@ -287,7 +275,7 @@
 			The multisample anti-aliasing mode for 3D rendering. A higher number results in smoother edges at the cost of significantly worse performance. A value of 2 or 4 is best unless targeting very high-end systems. See also bilinear scaling 3d [member scaling_3d_mode] for supersampling, which provides higher quality but is much more expensive. This has no effect on shader-induced aliasing or texture aliasing.
 		</member>
 		<member name="own_world_3d" type="bool" setter="set_use_own_world_3d" getter="is_using_own_world_3d" default="false">
-			If [code]true[/code], the viewport will use a unique copy of the [World3D] defined in [member world_3d].
+			If [code]true[/code], the viewport will use a unique copy of the World3D defined in [member world_3d].
 		</member>
 		<member name="physics_object_picking" type="bool" setter="set_physics_object_picking" getter="get_physics_object_picking" default="false">
 			If [code]true[/code], the objects rendered by viewport become subjects of mouse picking process.
@@ -382,7 +370,7 @@
 			The custom [World2D] which can be used as 2D environment source.
 		</member>
 		<member name="world_3d" type="World3D" setter="set_world_3d" getter="get_world_3d">
-			The custom [World3D] which can be used as 3D environment source.
+			The custom World3D which can be used as 3D environment source.
 		</member>
 	</members>
 	<signals>
@@ -500,10 +488,10 @@
 			Objects are displayed with only the emission color from [VoxelGI]s.
 		</constant>
 		<constant name="DEBUG_DRAW_SHADOW_ATLAS" value="9" enum="DebugDraw">
-			Draws the shadow atlas that stores shadows from [OmniLight3D]s and [SpotLight3D]s in the upper left quadrant of the [Viewport].
+			Draws the shadow atlas that stores shadows from OmniLight3Ds and SpotLight3Ds in the upper left quadrant of the [Viewport].
 		</constant>
 		<constant name="DEBUG_DRAW_DIRECTIONAL_SHADOW_ATLAS" value="10" enum="DebugDraw">
-			Draws the shadow atlas that stores shadows from [DirectionalLight3D]s in the upper left quadrant of the [Viewport].
+			Draws the shadow atlas that stores shadows from DirectionalLight3Ds in the upper left quadrant of the [Viewport].
 		</constant>
 		<constant name="DEBUG_DRAW_SCENE_LUMINANCE" value="11" enum="DebugDraw">
 		</constant>
@@ -514,7 +502,7 @@
 			Draws the screen-space indirect lighting texture instead of the scene so that you can clearly see how it is affecting objects. In order for this display mode to work, you must have [member Environment.ssil_enabled] set in your [WorldEnvironment].
 		</constant>
 		<constant name="DEBUG_DRAW_PSSM_SPLITS" value="14" enum="DebugDraw">
-			Colors each PSSM split for the [DirectionalLight3D]s in the scene a different color so you can see where the splits are. In order, they will be colored red, green, blue, and yellow.
+			Colors each PSSM split for the DirectionalLight3Ds in the scene a different color so you can see where the splits are. In order, they will be colored red, green, blue, and yellow.
 		</constant>
 		<constant name="DEBUG_DRAW_DECAL_ATLAS" value="15" enum="DebugDraw">
 			Draws the decal atlas used by [Decal]s and light projector textures in the upper left quadrant of the [Viewport].
@@ -591,7 +579,7 @@
 			VRS uses a texture. Note, for stereoscopic use a texture atlas with a texture for each view.
 		</constant>
 		<constant name="VRS_XR" value="2" enum="VRSMode">
-			VRS texture is supplied by the primary [XRInterface].
+			VRS texture is supplied by the primary XRInterface.
 		</constant>
 		<constant name="VRS_MAX" value="3" enum="VRSMode">
 			Represents the size of the [enum VRSMode] enum.

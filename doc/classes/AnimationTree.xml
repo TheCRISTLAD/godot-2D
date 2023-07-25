@@ -36,7 +36,7 @@
 				Retrieve the motion delta of position with the [member root_motion_track] as a [Vector3] that can be used elsewhere.
 				If [member root_motion_track] is not a path to a track of type [constant Animation.TYPE_POSITION_3D], returns [code]Vector3(0, 0, 0)[/code].
 				See also [member root_motion_track] and [RootMotionView].
-				The most basic example is applying position to [CharacterBody3D]:
+				The most basic example is applying position to CharacterBody3D:
 				[codeblocks]
 				[gdscript]
 				var current_rotation: Quaternion
@@ -92,7 +92,7 @@
 				Retrieve the motion delta of rotation with the [member root_motion_track] as a [Quaternion] that can be used elsewhere.
 				If [member root_motion_track] is not a path to a track of type [constant Animation.TYPE_ROTATION_3D], returns [code]Quaternion(0, 0, 0, 1)[/code].
 				See also [member root_motion_track] and [RootMotionView].
-				The most basic example is applying rotation to [CharacterBody3D]:
+				The most basic example is applying rotation to CharacterBody3D:
 				[codeblocks]
 				[gdscript]
 				func _process(delta):
@@ -132,7 +132,7 @@
 				Retrieve the motion delta of scale with the [member root_motion_track] as a [Vector3] that can be used elsewhere.
 				If [member root_motion_track] is not a path to a track of type [constant Animation.TYPE_SCALE_3D], returns [code]Vector3(0, 0, 0)[/code].
 				See also [member root_motion_track] and [RootMotionView].
-				The most basic example is applying scale to [CharacterBody3D]:
+				The most basic example is applying scale to CharacterBody3D:
 				[codeblocks]
 				[gdscript]
 				var current_scale: Vector3 = Vector3(1, 1, 1)
