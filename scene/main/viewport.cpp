@@ -3017,17 +3017,6 @@ bool Viewport::is_using_debanding() const {
 	return use_debanding;
 }
 
-void Viewport::set_mesh_lod_threshold(float p_pixels) {
-	ERR_MAIN_THREAD_GUARD;
-	mesh_lod_threshold = p_pixels;
-	RS::get_singleton()->viewport_set_mesh_lod_threshold(viewport, mesh_lod_threshold);
-}
-
-float Viewport::get_mesh_lod_threshold() const {
-	ERR_READ_THREAD_GUARD_V(0);
-	return mesh_lod_threshold;
-}
-
 void Viewport::set_debug_draw(DebugDraw p_debug_draw) {
 	ERR_MAIN_THREAD_GUARD;
 	debug_draw = p_debug_draw;
@@ -3445,9 +3434,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_sdf_scale", "scale"), &Viewport::set_sdf_scale);
 	ClassDB::bind_method(D_METHOD("get_sdf_scale"), &Viewport::get_sdf_scale);
 
-	ClassDB::bind_method(D_METHOD("set_mesh_lod_threshold", "pixels"), &Viewport::set_mesh_lod_threshold);
-	ClassDB::bind_method(D_METHOD("get_mesh_lod_threshold"), &Viewport::get_mesh_lod_threshold);
-
 	ClassDB::bind_method(D_METHOD("_process_picking"), &Viewport::_process_picking);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "world_2d", PROPERTY_HINT_RESOURCE_TYPE, "World2D", PROPERTY_USAGE_NONE), "set_world_2d", "get_world_2d");
@@ -3460,7 +3446,6 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "screen_space_aa", PROPERTY_HINT_ENUM, "Disabled (Fastest),FXAA (Fast)"), "set_screen_space_aa", "get_screen_space_aa");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_taa"), "set_use_taa", "is_using_taa");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_debanding"), "set_use_debanding", "is_using_debanding");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mesh_lod_threshold", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_mesh_lod_threshold", "get_mesh_lod_threshold");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
 
 	ADD_GROUP("Canvas Items", "canvas_item_");
@@ -3601,8 +3586,6 @@ Viewport::Viewport() {
 	set_positional_shadow_atlas_quadrant_subdiv(1, SHADOW_ATLAS_QUADRANT_SUBDIV_4);
 	set_positional_shadow_atlas_quadrant_subdiv(2, SHADOW_ATLAS_QUADRANT_SUBDIV_16);
 	set_positional_shadow_atlas_quadrant_subdiv(3, SHADOW_ATLAS_QUADRANT_SUBDIV_64);
-
-	set_mesh_lod_threshold(mesh_lod_threshold);
 
 	String id = itos(get_instance_id());
 	input_group = "_vp_input" + id;

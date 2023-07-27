@@ -1242,55 +1242,16 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 		while (surf) {
 			// LOD
 
-			if (p_render_data->screen_mesh_lod_threshold > 0.0 && mesh_storage->mesh_surface_has_lod(surf->surface)) {
-				// Get the LOD support points on the mesh AABB.
-				Vector3 lod_support_min = inst->transformed_aabb.get_support(p_render_data->cam_transform.basis.get_column(Vector3::AXIS_Z));
-				Vector3 lod_support_max = inst->transformed_aabb.get_support(-p_render_data->cam_transform.basis.get_column(Vector3::AXIS_Z));
+			surf->lod_index = 0;
 
-				// Get the distances to those points on the AABB from the camera origin.
-				float distance_min = (float)p_render_data->cam_transform.origin.distance_to(lod_support_min);
-				float distance_max = (float)p_render_data->cam_transform.origin.distance_to(lod_support_max);
-
-				float distance = 0.0;
-
-				if (distance_min * distance_max < 0.0) {
-					//crossing plane
-					distance = 0.0;
-				} else if (distance_min >= 0.0) {
-					distance = distance_min;
-				} else if (distance_max <= 0.0) {
-					distance = -distance_max;
-				}
-
-				if (p_render_data->cam_orthogonal) {
-					distance = 1.0;
-				}
-
-				uint32_t indices = 0;
-				surf->lod_index = mesh_storage->mesh_surface_get_lod(surf->surface, inst->lod_model_scale * inst->lod_bias, distance * p_render_data->lod_distance_multiplier, p_render_data->screen_mesh_lod_threshold, indices);
-				surf->index_count = indices;
-
-				if (p_render_data->render_info) {
-					indices = _indices_to_primitives(surf->primitive, indices);
-					if (p_render_list == RENDER_LIST_OPAQUE) { //opaque
-						p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += indices;
-					} else if (p_render_list == RENDER_LIST_SECONDARY) { //shadow
-						p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_SHADOW][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += indices;
-					}
-				}
-
-			} else {
-				surf->lod_index = 0;
-
-				if (p_render_data->render_info) {
-					uint32_t to_draw = mesh_storage->mesh_surface_get_vertices_drawn_count(surf->surface);
-					to_draw = _indices_to_primitives(surf->primitive, to_draw);
-					to_draw *= inst->instance_count > 0 ? inst->instance_count : 1;
-					if (p_render_list == RENDER_LIST_OPAQUE) { //opaque
-						p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
-					} else if (p_render_list == RENDER_LIST_SECONDARY) { //shadow
-						p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_SHADOW][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
-					}
+			if (p_render_data->render_info) {
+				uint32_t to_draw = mesh_storage->mesh_surface_get_vertices_drawn_count(surf->surface);
+				to_draw = _indices_to_primitives(surf->primitive, to_draw);
+				to_draw *= inst->instance_count > 0 ? inst->instance_count : 1;
+				if (p_render_list == RENDER_LIST_OPAQUE) { //opaque
+					p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
+				} else if (p_render_list == RENDER_LIST_SECONDARY) { //shadow
+					p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_SHADOW][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
 				}
 			}
 

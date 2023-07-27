@@ -268,7 +268,6 @@ private:
 	bool use_taa = false;
 
 	bool use_debanding = false;
-	float mesh_lod_threshold = 1.0;
 
 	Ref<ViewportTexture> default_texture;
 	HashSet<ViewportTexture *> viewport_textures;
@@ -503,9 +502,6 @@ public:
 
 	void set_use_debanding(bool p_use_debanding);
 	bool is_using_debanding() const;
-
-	void set_mesh_lod_threshold(float p_pixels);
-	float get_mesh_lod_threshold() const;
 
 	Vector2 get_camera_coords(const Vector2 &p_viewport_coords) const;
 	Vector2 get_camera_rect_size() const;

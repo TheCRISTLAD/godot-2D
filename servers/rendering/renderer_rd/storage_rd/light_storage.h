@@ -232,7 +232,6 @@ private:
 		bool box_projection = false;
 		bool enable_shadows = false;
 		uint32_t cull_mask = (1 << 20) - 1;
-		float mesh_lod_threshold = 0.01;
 		float baked_exposure = 1.0;
 
 		Dependency dependency;
@@ -799,7 +798,6 @@ public:
 	virtual void reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) override;
 	virtual void reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) override;
 	virtual void reflection_probe_set_resolution(RID p_probe, int p_resolution) override;
-	virtual void reflection_probe_set_mesh_lod_threshold(RID p_probe, float p_ratio) override;
 
 	void reflection_probe_set_baked_exposure(RID p_probe, float p_exposure);
 
@@ -809,7 +807,6 @@ public:
 	virtual Vector3 reflection_probe_get_size(RID p_probe) const override;
 	virtual Vector3 reflection_probe_get_origin_offset(RID p_probe) const override;
 	virtual float reflection_probe_get_origin_max_distance(RID p_probe) const override;
-	virtual float reflection_probe_get_mesh_lod_threshold(RID p_probe) const override;
 
 	int reflection_probe_get_resolution(RID p_probe) const;
 	float reflection_probe_get_baked_exposure(RID p_probe) const;

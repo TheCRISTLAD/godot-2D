@@ -1127,15 +1127,6 @@ void LightStorage::reflection_probe_set_resolution(RID p_probe, int p_resolution
 	reflection_probe->resolution = p_resolution;
 }
 
-void LightStorage::reflection_probe_set_mesh_lod_threshold(RID p_probe, float p_ratio) {
-	ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
-	ERR_FAIL_COND(!reflection_probe);
-
-	reflection_probe->mesh_lod_threshold = p_ratio;
-
-	reflection_probe->dependency.changed_notify(Dependency::DEPENDENCY_CHANGED_REFLECTION_PROBE);
-}
-
 void LightStorage::reflection_probe_set_baked_exposure(RID p_probe, float p_exposure) {
 	ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
 	ERR_FAIL_COND(!reflection_probe);
@@ -1194,13 +1185,6 @@ float LightStorage::reflection_probe_get_origin_max_distance(RID p_probe) const 
 	ERR_FAIL_COND_V(!reflection_probe, 0);
 
 	return reflection_probe->max_distance;
-}
-
-float LightStorage::reflection_probe_get_mesh_lod_threshold(RID p_probe) const {
-	const ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
-	ERR_FAIL_COND_V(!reflection_probe, 0);
-
-	return reflection_probe->mesh_lod_threshold;
 }
 
 int LightStorage::reflection_probe_get_resolution(RID p_probe) const {

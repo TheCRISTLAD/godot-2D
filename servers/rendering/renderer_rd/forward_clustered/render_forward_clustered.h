@@ -199,7 +199,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 		bool force_wireframe = false;
 		Vector2 uv_offset;
 		float lod_distance_multiplier = 0.0;
-		float screen_mesh_lod_threshold = 0.0;
 		RD::FramebufferFormatID framebuffer_format = 0;
 		uint32_t element_offset = 0;
 		uint32_t barrier = RD::BARRIER_MASK_ALL_BARRIERS;
@@ -218,7 +217,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 			force_wireframe = p_force_wireframe;
 			uv_offset = p_uv_offset;
 			lod_distance_multiplier = p_lod_distance_multiplier;
-			screen_mesh_lod_threshold = p_screen_mesh_lod_threshold;
 			element_offset = p_element_offset;
 			barrier = p_barrier;
 			use_directional_soft_shadow = p_use_directional_soft_shadows;
@@ -336,7 +334,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 			RID rp_uniform_set;
 			Plane camera_plane;
 			float lod_distance_multiplier;
-			float screen_mesh_lod_threshold;
 
 			RID framebuffer;
 			RD::InitialAction initial_depth_action;

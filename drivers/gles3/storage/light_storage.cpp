@@ -460,13 +460,6 @@ bool LightStorage::reflection_probe_renders_shadows(RID p_probe) const {
 	return false;
 }
 
-void LightStorage::reflection_probe_set_mesh_lod_threshold(RID p_probe, float p_ratio) {
-}
-
-float LightStorage::reflection_probe_get_mesh_lod_threshold(RID p_probe) const {
-	return 0.0;
-}
-
 /* REFLECTION ATLAS */
 
 RID LightStorage::reflection_atlas_create() {

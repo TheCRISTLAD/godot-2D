@@ -2829,14 +2829,6 @@
 				Sets the max distance away from the probe an object can be before it is culled. Equivalent to [member ReflectionProbe.max_distance].
 			</description>
 		</method>
-		<method name="reflection_probe_set_mesh_lod_threshold">
-			<return type="void" />
-			<param index="0" name="probe" type="RID" />
-			<param index="1" name="pixels" type="float" />
-			<description>
-				Sets the mesh level of detail to use in the reflection probe rendering. Higher values will use less detailed versions of meshes that have LOD variations generated, which can improve performance. Equivalent to [member ReflectionProbe.mesh_lod_threshold].
-			</description>
-		</method>
 		<method name="reflection_probe_set_origin_offset">
 			<return type="void" />
 			<param index="0" name="probe" type="RID" />
