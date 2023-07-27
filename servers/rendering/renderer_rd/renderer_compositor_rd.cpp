@@ -148,7 +148,6 @@ uint64_t RendererCompositorRD::frame = 1;
 void RendererCompositorRD::finalize() {
 	memdelete(scene);
 	memdelete(canvas);
-	memdelete(fog);
 	memdelete(particles_storage);
 	memdelete(light_storage);
 	memdelete(mesh_storage);
@@ -300,7 +299,6 @@ RendererCompositorRD::RendererCompositorRD() {
 	mesh_storage = memnew(RendererRD::MeshStorage);
 	light_storage = memnew(RendererRD::LightStorage);
 	particles_storage = memnew(RendererRD::ParticlesStorage);
-	fog = memnew(RendererRD::Fog);
 	canvas = memnew(RendererCanvasRenderRD());
 
 	String rendering_method = GLOBAL_GET("rendering/renderer/rendering_method");

@@ -550,11 +550,6 @@ void RendererSceneCull::instance_set_visible(RID p_instance, bool p_visible) {
 		RSG::particles_storage->particles_collision_instance_set_active(collision->instance, p_visible);
 	}
 
-	if (instance->base_type == RS::INSTANCE_FOG_VOLUME) {
-		InstanceFogVolumeData *volume = static_cast<InstanceFogVolumeData *>(instance->base_data);
-		scene_render->fog_volume_instance_set_active(volume->instance, p_visible);
-	}
-
 	if (instance->base_type == RS::INSTANCE_OCCLUDER) {
 		if (instance->scenario) {
 			RendererSceneOcclusionCull::get_singleton()->scenario_set_instance(instance->scenario->self, p_instance, instance->base, instance->transform, p_visible);
@@ -1126,9 +1121,6 @@ void RendererSceneCull::_update_instance(Instance *p_instance) {
 			heightfield_particle_colliders_update_list.insert(p_instance);
 		}
 		RSG::particles_storage->particles_collision_instance_set_transform(collision->instance, p_instance->transform);
-	} else if (p_instance->base_type == RS::INSTANCE_FOG_VOLUME) {
-		InstanceFogVolumeData *volume = static_cast<InstanceFogVolumeData *>(p_instance->base_data);
-		scene_render->fog_volume_instance_set_transform(volume->instance, p_instance->transform);
 	} else if (p_instance->base_type == RS::INSTANCE_OCCLUDER) {
 		if (p_instance->scenario) {
 			RendererSceneOcclusionCull::get_singleton()->scenario_set_instance(p_instance->scenario->self, p_instance->self, p_instance->base, p_instance->transform, p_instance->visible);
@@ -1251,9 +1243,6 @@ void RendererSceneCull::_update_instance(Instance *p_instance) {
 			} break;
 			case RS::INSTANCE_VOXEL_GI: {
 				idata.instance_data_rid = static_cast<InstanceVoxelGIData *>(p_instance->base_data)->probe_instance.get_id();
-			} break;
-			case RS::INSTANCE_FOG_VOLUME: {
-				idata.instance_data_rid = static_cast<InstanceFogVolumeData *>(p_instance->base_data)->instance.get_id();
 			} break;
 			case RS::INSTANCE_VISIBLITY_NOTIFIER: {
 				idata.visibility_notifier = static_cast<InstanceVisibilityNotifierData *>(p_instance->base_data);
@@ -1465,9 +1454,6 @@ void RendererSceneCull::_update_instance_aabb(Instance *p_instance) {
 		case RenderingServer::INSTANCE_PARTICLES_COLLISION: {
 			new_aabb = RSG::particles_storage->particles_collision_get_aabb(p_instance->base);
 
-		} break;
-		case RenderingServer::INSTANCE_FOG_VOLUME: {
-			new_aabb = RSG::fog->fog_volume_get_aabb(p_instance->base);
 		} break;
 		case RenderingServer::INSTANCE_VISIBLITY_NOTIFIER: {
 			new_aabb = RSG::utilities->visibility_notifier_get_aabb(p_instance->base);
@@ -2025,9 +2011,6 @@ bool RendererSceneCull::_light_instance_update_shadow(Instance *p_instance, cons
 	return animated_material_found;
 }
 
-void RendererSceneCull::render_camera(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_camera, RID p_scenario, RID p_viewport, Size2 p_viewport_size, bool p_use_taa, float p_screen_mesh_lod_threshold, RID p_shadow_atlas, RenderInfo *r_render_info) {
-}
-
 void RendererSceneCull::_visibility_cull_threaded(uint32_t p_thread, VisibilityCullData *cull_data) {
 	uint32_t total_threads = WorkerThreadPool::get_singleton()->get_thread_count();
 	uint32_t bin_from = p_thread * cull_data->cull_count / total_threads;
@@ -2204,8 +2187,6 @@ void RendererSceneCull::_scene_cull(CullData &cull_data, InstanceCullResult &cul
 
 				} else if (base_type == RS::INSTANCE_LIGHTMAP) {
 					cull_result.lightmaps.push_back(RID::from_uint64(idata.instance_data_rid));
-				} else if (base_type == RS::INSTANCE_FOG_VOLUME) {
-					cull_result.fog_volumes.push_back(RID::from_uint64(idata.instance_data_rid));
 				} else if (base_type == RS::INSTANCE_VISIBLITY_NOTIFIER) {
 					InstanceVisibilityNotifierData *vnd = idata.visibility_notifier;
 					if (!vnd->list_element.in_list()) {
@@ -2767,30 +2748,6 @@ void RendererSceneCull::_scene_cull(CullData &cull_data, InstanceCullResult &cul
 // 	}
 // }
 
-RID RendererSceneCull::_render_get_environment(RID p_camera, RID p_scenario) {
-	Camera *camera = camera_owner.get_or_null(p_camera);
-	if (camera && scene_render->is_environment(camera->env)) {
-		return camera->env;
-	}
-
-	Scenario *scenario = scenario_owner.get_or_null(p_scenario);
-	if (!scenario) {
-		return RID();
-	}
-	if (scene_render->is_environment(scenario->environment)) {
-		return scenario->environment;
-	}
-
-	if (scene_render->is_environment(scenario->fallback_environment)) {
-		return scenario->fallback_environment;
-	}
-
-	return RID();
-}
-
-void RendererSceneCull::render_empty_scene(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_scenario, RID p_shadow_atlas) {
-}
-
 bool RendererSceneCull::_render_reflection_probe_step(Instance *p_instance, int p_step) {
 	InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(p_instance->base_data);
 	Scenario *scenario = p_instance->scenario;
@@ -2869,287 +2826,6 @@ bool RendererSceneCull::_render_reflection_probe_step(Instance *p_instance, int 
 	}
 
 	return false;
-}
-
-void RendererSceneCull::render_probes() {
-	/* REFLECTION PROBES */
-
-	SelfList<InstanceReflectionProbeData> *ref_probe = reflection_probe_render_list.first();
-
-	bool busy = false;
-
-	while (ref_probe) {
-		SelfList<InstanceReflectionProbeData> *next = ref_probe->next();
-		RID base = ref_probe->self()->owner->base;
-
-		switch (RSG::light_storage->reflection_probe_get_update_mode(base)) {
-			case RS::REFLECTION_PROBE_UPDATE_ONCE: {
-				if (busy) { //already rendering something
-					break;
-				}
-
-				bool done = _render_reflection_probe_step(ref_probe->self()->owner, ref_probe->self()->render_step);
-				if (done) {
-					reflection_probe_render_list.remove(ref_probe);
-				} else {
-					ref_probe->self()->render_step++;
-				}
-
-				busy = true; //do not render another one of this kind
-			} break;
-			case RS::REFLECTION_PROBE_UPDATE_ALWAYS: {
-				int step = 0;
-				bool done = false;
-				while (!done) {
-					done = _render_reflection_probe_step(ref_probe->self()->owner, step);
-					step++;
-				}
-
-				reflection_probe_render_list.remove(ref_probe);
-			} break;
-		}
-
-		ref_probe = next;
-	}
-
-	/* VOXEL GIS */
-
-	SelfList<InstanceVoxelGIData> *voxel_gi = voxel_gi_update_list.first();
-
-	if (voxel_gi) {
-		RENDER_TIMESTAMP("Render VoxelGI");
-	}
-
-	while (voxel_gi) {
-		SelfList<InstanceVoxelGIData> *next = voxel_gi->next();
-
-		InstanceVoxelGIData *probe = voxel_gi->self();
-		//Instance *instance_probe = probe->owner;
-
-		//check if probe must be setup, but don't do if on the lighting thread
-
-		bool cache_dirty = false;
-		int cache_count = 0;
-		{
-			int light_cache_size = probe->light_cache.size();
-			const InstanceVoxelGIData::LightCache *caches = probe->light_cache.ptr();
-			const RID *instance_caches = probe->light_instances.ptr();
-
-			int idx = 0; //must count visible lights
-			for (Instance *E : probe->lights) {
-				Instance *instance = E;
-				InstanceLightData *instance_light = (InstanceLightData *)instance->base_data;
-				if (!instance->visible) {
-					continue;
-				}
-				if (cache_dirty) {
-					//do nothing, since idx must count all visible lights anyway
-				} else if (idx >= light_cache_size) {
-					cache_dirty = true;
-				} else {
-					const InstanceVoxelGIData::LightCache *cache = &caches[idx];
-
-					if (
-							instance_caches[idx] != instance_light->instance ||
-							cache->has_shadow != RSG::light_storage->light_has_shadow(instance->base) ||
-							cache->type != RSG::light_storage->light_get_type(instance->base) ||
-							cache->transform != instance->transform ||
-							cache->color != RSG::light_storage->light_get_color(instance->base) ||
-							cache->energy != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ENERGY) ||
-							cache->intensity != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INTENSITY) ||
-							cache->bake_energy != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INDIRECT_ENERGY) ||
-							cache->radius != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_RANGE) ||
-							cache->attenuation != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ATTENUATION) ||
-							cache->spot_angle != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ANGLE) ||
-							cache->spot_attenuation != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ATTENUATION)) {
-						cache_dirty = true;
-					}
-				}
-
-				idx++;
-			}
-
-			for (const Instance *instance : probe->owner->scenario->directional_lights) {
-				InstanceLightData *instance_light = (InstanceLightData *)instance->base_data;
-				if (!instance->visible) {
-					continue;
-				}
-				if (cache_dirty) {
-					//do nothing, since idx must count all visible lights anyway
-				} else if (idx >= light_cache_size) {
-					cache_dirty = true;
-				} else {
-					const InstanceVoxelGIData::LightCache *cache = &caches[idx];
-
-					if (
-							instance_caches[idx] != instance_light->instance ||
-							cache->has_shadow != RSG::light_storage->light_has_shadow(instance->base) ||
-							cache->type != RSG::light_storage->light_get_type(instance->base) ||
-							cache->transform != instance->transform ||
-							cache->color != RSG::light_storage->light_get_color(instance->base) ||
-							cache->energy != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ENERGY) ||
-							cache->intensity != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INTENSITY) ||
-							cache->bake_energy != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INDIRECT_ENERGY) ||
-							cache->radius != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_RANGE) ||
-							cache->attenuation != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ATTENUATION) ||
-							cache->spot_angle != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ANGLE) ||
-							cache->spot_attenuation != RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ATTENUATION) ||
-							cache->sky_mode != RSG::light_storage->light_directional_get_sky_mode(instance->base)) {
-						cache_dirty = true;
-					}
-				}
-
-				idx++;
-			}
-
-			if (idx != light_cache_size) {
-				cache_dirty = true;
-			}
-
-			cache_count = idx;
-		}
-
-		bool update_lights = scene_render->voxel_gi_needs_update(probe->probe_instance);
-
-		if (cache_dirty) {
-			probe->light_cache.resize(cache_count);
-			probe->light_instances.resize(cache_count);
-
-			if (cache_count) {
-				InstanceVoxelGIData::LightCache *caches = probe->light_cache.ptrw();
-				RID *instance_caches = probe->light_instances.ptrw();
-
-				int idx = 0; //must count visible lights
-				for (Instance *E : probe->lights) {
-					Instance *instance = E;
-					InstanceLightData *instance_light = (InstanceLightData *)instance->base_data;
-					if (!instance->visible) {
-						continue;
-					}
-
-					InstanceVoxelGIData::LightCache *cache = &caches[idx];
-
-					instance_caches[idx] = instance_light->instance;
-					cache->has_shadow = RSG::light_storage->light_has_shadow(instance->base);
-					cache->type = RSG::light_storage->light_get_type(instance->base);
-					cache->transform = instance->transform;
-					cache->color = RSG::light_storage->light_get_color(instance->base);
-					cache->energy = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ENERGY);
-					cache->intensity = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INTENSITY);
-					cache->bake_energy = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
-					cache->radius = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_RANGE);
-					cache->attenuation = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ATTENUATION);
-					cache->spot_angle = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ANGLE);
-					cache->spot_attenuation = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
-
-					idx++;
-				}
-				for (const Instance *instance : probe->owner->scenario->directional_lights) {
-					InstanceLightData *instance_light = (InstanceLightData *)instance->base_data;
-					if (!instance->visible) {
-						continue;
-					}
-
-					InstanceVoxelGIData::LightCache *cache = &caches[idx];
-
-					instance_caches[idx] = instance_light->instance;
-					cache->has_shadow = RSG::light_storage->light_has_shadow(instance->base);
-					cache->type = RSG::light_storage->light_get_type(instance->base);
-					cache->transform = instance->transform;
-					cache->color = RSG::light_storage->light_get_color(instance->base);
-					cache->energy = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ENERGY);
-					cache->intensity = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INTENSITY);
-					cache->bake_energy = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_INDIRECT_ENERGY);
-					cache->radius = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_RANGE);
-					cache->attenuation = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_ATTENUATION);
-					cache->spot_angle = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ANGLE);
-					cache->spot_attenuation = RSG::light_storage->light_get_param(instance->base, RS::LIGHT_PARAM_SPOT_ATTENUATION);
-					cache->sky_mode = RSG::light_storage->light_directional_get_sky_mode(instance->base);
-
-					idx++;
-				}
-			}
-
-			update_lights = true;
-		}
-
-		scene_cull_result.geometry_instances.clear();
-
-		RID instance_pair_buffer[MAX_INSTANCE_PAIRS];
-
-		for (Instance *E : probe->dynamic_geometries) {
-			Instance *ins = E;
-			if (!ins->visible) {
-				continue;
-			}
-			InstanceGeometryData *geom = (InstanceGeometryData *)ins->base_data;
-
-			if (ins->scenario && ins->array_index >= 0 && (ins->scenario->instance_data[ins->array_index].flags & InstanceData::FLAG_GEOM_VOXEL_GI_DIRTY)) {
-				uint32_t idx = 0;
-				for (const Instance *F : geom->voxel_gi_instances) {
-					InstanceVoxelGIData *voxel_gi2 = static_cast<InstanceVoxelGIData *>(F->base_data);
-
-					instance_pair_buffer[idx++] = voxel_gi2->probe_instance;
-					if (idx == MAX_INSTANCE_PAIRS) {
-						break;
-					}
-				}
-
-				ERR_FAIL_NULL(geom->geometry_instance);
-				geom->geometry_instance->pair_voxel_gi_instances(instance_pair_buffer, idx);
-
-				ins->scenario->instance_data[ins->array_index].flags &= ~uint32_t(InstanceData::FLAG_GEOM_VOXEL_GI_DIRTY);
-			}
-
-			ERR_FAIL_NULL(geom->geometry_instance);
-			scene_cull_result.geometry_instances.push_back(geom->geometry_instance);
-		}
-
-		scene_render->voxel_gi_update(probe->probe_instance, update_lights, probe->light_instances, scene_cull_result.geometry_instances);
-
-		voxel_gi_update_list.remove(voxel_gi);
-
-		voxel_gi = next;
-	}
-}
-
-void RendererSceneCull::render_particle_colliders() {
-	while (heightfield_particle_colliders_update_list.begin()) {
-		Instance *hfpc = *heightfield_particle_colliders_update_list.begin();
-
-		if (hfpc->scenario && hfpc->base_type == RS::INSTANCE_PARTICLES_COLLISION && RSG::particles_storage->particles_collision_is_heightfield(hfpc->base)) {
-			//update heightfield
-			instance_cull_result.clear();
-			scene_cull_result.geometry_instances.clear();
-
-			struct CullAABB {
-				PagedArray<Instance *> *result;
-				_FORCE_INLINE_ bool operator()(void *p_data) {
-					Instance *p_instance = (Instance *)p_data;
-					result->push_back(p_instance);
-					return false;
-				}
-			};
-
-			CullAABB cull_aabb;
-			cull_aabb.result = &instance_cull_result;
-			hfpc->scenario->indexers[Scenario::INDEXER_GEOMETRY].aabb_query(hfpc->transformed_aabb, cull_aabb);
-			hfpc->scenario->indexers[Scenario::INDEXER_VOLUMES].aabb_query(hfpc->transformed_aabb, cull_aabb);
-
-			for (int i = 0; i < (int)instance_cull_result.size(); i++) {
-				Instance *instance = instance_cull_result[i];
-				if (!instance || !((1 << instance->base_type) & (RS::INSTANCE_GEOMETRY_MASK & (~(1 << RS::INSTANCE_PARTICLES))))) { //all but particles to avoid self collision
-					continue;
-				}
-				InstanceGeometryData *geom = static_cast<InstanceGeometryData *>(instance->base_data);
-				ERR_FAIL_NULL(geom->geometry_instance);
-				scene_cull_result.geometry_instances.push_back(geom->geometry_instance);
-			}
-
-			scene_render->render_particle_collider_heightfield(hfpc->base, hfpc->transform, scene_cull_result.geometry_instances);
-		}
-		heightfield_particle_colliders_update_list.remove(heightfield_particle_colliders_update_list.begin());
-	}
 }
 
 void RendererSceneCull::_update_instance_shader_uniforms_from_material(HashMap<StringName, Instance::InstanceShaderParameter> &isparams, const HashMap<StringName, Instance::InstanceShaderParameter> &existing_isparams, RID p_material) {
@@ -3435,7 +3111,6 @@ void RendererSceneCull::update() {
 	}
 	scene_render->update();
 	update_dirty_instances();
-	render_particle_colliders();
 }
 
 bool RendererSceneCull::free(RID p_rid) {

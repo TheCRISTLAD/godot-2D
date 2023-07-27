@@ -31,7 +31,6 @@
 #ifndef RENDERING_SERVER_GLOBALS_H
 #define RENDERING_SERVER_GLOBALS_H
 
-#include "servers/rendering/environment/renderer_fog.h"
 #include "servers/rendering/environment/renderer_gi.h"
 #include "servers/rendering/renderer_canvas_cull.h"
 #include "servers/rendering/renderer_canvas_render.h"
@@ -59,7 +58,6 @@ public:
 	static RendererParticlesStorage *particles_storage;
 	static RendererTextureStorage *texture_storage;
 	static RendererGI *gi;
-	static RendererFog *fog;
 	static RendererCameraAttributes *camera_attributes;
 	static RendererCanvasRender *canvas_render;
 	static RendererCompositor *rasterizer;

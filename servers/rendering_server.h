@@ -738,8 +738,6 @@ public:
 
 	/* FOG VOLUME API */
 
-	virtual RID fog_volume_create() = 0;
-
 	enum FogVolumeShape {
 		FOG_VOLUME_SHAPE_ELLIPSOID,
 		FOG_VOLUME_SHAPE_CONE,
@@ -748,10 +746,6 @@ public:
 		FOG_VOLUME_SHAPE_WORLD,
 		FOG_VOLUME_SHAPE_MAX,
 	};
-
-	virtual void fog_volume_set_shape(RID p_fog_volume, FogVolumeShape p_shape) = 0;
-	virtual void fog_volume_set_size(RID p_fog_volume, const Vector3 &p_size) = 0;
-	virtual void fog_volume_set_material(RID p_fog_volume, RID p_material) = 0;
 
 	/* VISIBILITY NOTIFIER API */
 
@@ -953,15 +947,7 @@ public:
 		SKY_MODE_REALTIME
 	};
 
-	virtual RID sky_create() = 0;
-	virtual void sky_set_radiance_size(RID p_sky, int p_radiance_size) = 0;
-	virtual void sky_set_mode(RID p_sky, SkyMode p_mode) = 0;
-	virtual void sky_set_material(RID p_sky, RID p_material) = 0;
-	virtual Ref<Image> sky_bake_panorama(RID p_sky, float p_energy, bool p_bake_irradiance, const Size2i &p_size) = 0;
-
 	/* ENVIRONMENT API */
-
-	virtual RID environment_create() = 0;
 
 	enum EnvironmentBG {
 		ENV_BG_CLEAR_COLOR,
@@ -986,15 +972,6 @@ public:
 		ENV_REFLECTION_SOURCE_SKY,
 	};
 
-	virtual void environment_set_background(RID p_env, EnvironmentBG p_bg) = 0;
-	virtual void environment_set_sky(RID p_env, RID p_sky) = 0;
-	virtual void environment_set_sky_custom_fov(RID p_env, float p_scale) = 0;
-	virtual void environment_set_sky_orientation(RID p_env, const Basis &p_orientation) = 0;
-	virtual void environment_set_bg_color(RID p_env, const Color &p_color) = 0;
-	virtual void environment_set_bg_energy(RID p_env, float p_multiplier, float p_exposure_value) = 0;
-	virtual void environment_set_canvas_max_layer(RID p_env, int p_max_layer) = 0;
-	virtual void environment_set_ambient_light(RID p_env, const Color &p_color, EnvironmentAmbientSource p_ambient = ENV_AMBIENT_SOURCE_BG, float p_energy = 1.0, float p_sky_contribution = 0.0, EnvironmentReflectionSource p_reflection_source = ENV_REFLECTION_SOURCE_BG) = 0;
-
 	enum EnvironmentGlowBlendMode {
 		ENV_GLOW_BLEND_MODE_ADDITIVE,
 		ENV_GLOW_BLEND_MODE_SCREEN,
@@ -1003,10 +980,6 @@ public:
 		ENV_GLOW_BLEND_MODE_MIX,
 	};
 
-	virtual void environment_set_glow(RID p_env, bool p_enable, Vector<float> p_levels, float p_intensity, float p_strength, float p_mix, float p_bloom_threshold, EnvironmentGlowBlendMode p_blend_mode, float p_hdr_bleed_threshold, float p_hdr_bleed_scale, float p_hdr_luminance_cap, float p_glow_map_strength, RID p_glow_map) = 0;
-
-	virtual void environment_glow_set_use_bicubic_upscale(bool p_enable) = 0;
-
 	enum EnvironmentToneMapper {
 		ENV_TONE_MAPPER_LINEAR,
 		ENV_TONE_MAPPER_REINHARD,
@@ -1014,21 +987,12 @@ public:
 		ENV_TONE_MAPPER_ACES
 	};
 
-	virtual void environment_set_tonemap(RID p_env, EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white) = 0;
-	virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction) = 0;
-
-	virtual void environment_set_ssr(RID p_env, bool p_enable, int p_max_steps, float p_fade_in, float p_fade_out, float p_depth_tolerance) = 0;
-
 	enum EnvironmentSSRRoughnessQuality {
 		ENV_SSR_ROUGHNESS_QUALITY_DISABLED,
 		ENV_SSR_ROUGHNESS_QUALITY_LOW,
 		ENV_SSR_ROUGHNESS_QUALITY_MEDIUM,
 		ENV_SSR_ROUGHNESS_QUALITY_HIGH,
 	};
-
-	virtual void environment_set_ssr_roughness_quality(EnvironmentSSRRoughnessQuality p_quality) = 0;
-
-	virtual void environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_power, float p_detail, float p_horizon, float p_sharpness, float p_light_affect, float p_ao_channel_affect) = 0;
 
 	enum EnvironmentSSAOQuality {
 		ENV_SSAO_QUALITY_VERY_LOW,
@@ -1038,10 +1002,6 @@ public:
 		ENV_SSAO_QUALITY_ULTRA,
 	};
 
-	virtual void environment_set_ssao_quality(EnvironmentSSAOQuality p_quality, bool p_half_size, float p_adaptive_target, int p_blur_passes, float p_fadeout_from, float p_fadeout_to) = 0;
-
-	virtual void environment_set_ssil(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_sharpness, float p_normal_rejection) = 0;
-
 	enum EnvironmentSSILQuality {
 		ENV_SSIL_QUALITY_VERY_LOW,
 		ENV_SSIL_QUALITY_LOW,
@@ -1050,15 +1010,11 @@ public:
 		ENV_SSIL_QUALITY_ULTRA,
 	};
 
-	virtual void environment_set_ssil_quality(EnvironmentSSILQuality p_quality, bool p_half_size, float p_adaptive_target, int p_blur_passes, float p_fadeout_from, float p_fadeout_to) = 0;
-
 	enum EnvironmentSDFGIYScale {
 		ENV_SDFGI_Y_SCALE_50_PERCENT,
 		ENV_SDFGI_Y_SCALE_75_PERCENT,
 		ENV_SDFGI_Y_SCALE_100_PERCENT,
 	};
-
-	virtual void environment_set_sdfgi(RID p_env, bool p_enable, int p_cascades, float p_min_cell_size, EnvironmentSDFGIYScale p_y_scale, bool p_use_occlusion, float p_bounce_feedback, bool p_read_sky, float p_energy, float p_normal_bias, float p_probe_bias) = 0;
 
 	enum EnvironmentSDFGIRayCount {
 		ENV_SDFGI_RAY_COUNT_4,
@@ -1071,8 +1027,6 @@ public:
 		ENV_SDFGI_RAY_COUNT_MAX,
 	};
 
-	virtual void environment_set_sdfgi_ray_count(EnvironmentSDFGIRayCount p_ray_count) = 0;
-
 	enum EnvironmentSDFGIFramesToConverge {
 		ENV_SDFGI_CONVERGE_IN_5_FRAMES,
 		ENV_SDFGI_CONVERGE_IN_10_FRAMES,
@@ -1083,8 +1037,6 @@ public:
 		ENV_SDFGI_CONVERGE_MAX
 	};
 
-	virtual void environment_set_sdfgi_frames_to_converge(EnvironmentSDFGIFramesToConverge p_frames) = 0;
-
 	enum EnvironmentSDFGIFramesToUpdateLight {
 		ENV_SDFGI_UPDATE_LIGHT_IN_1_FRAME,
 		ENV_SDFGI_UPDATE_LIGHT_IN_2_FRAMES,
@@ -1093,16 +1045,6 @@ public:
 		ENV_SDFGI_UPDATE_LIGHT_IN_16_FRAMES,
 		ENV_SDFGI_UPDATE_LIGHT_MAX,
 	};
-
-	virtual void environment_set_sdfgi_frames_to_update_light(EnvironmentSDFGIFramesToUpdateLight p_update) = 0;
-
-	virtual void environment_set_fog(RID p_env, bool p_enable, const Color &p_light_color, float p_light_energy, float p_sun_scatter, float p_density, float p_height, float p_height_density, float p_aerial_perspective, float p_sky_affect) = 0;
-
-	virtual void environment_set_volumetric_fog(RID p_env, bool p_enable, float p_density, const Color &p_albedo, const Color &p_emission, float p_emission_energy, float p_anisotropy, float p_length, float p_detail_spread, float p_gi_inject, bool p_temporal_reprojection, float p_temporal_reprojection_amount, float p_ambient_inject, float p_sky_affect) = 0;
-	virtual void environment_set_volumetric_fog_volume_size(int p_size, int p_depth) = 0;
-	virtual void environment_set_volumetric_fog_filter_active(bool p_enable) = 0;
-
-	virtual Ref<Image> environment_bake_panorama(RID p_env, bool p_bake_irradiance, const Size2i &p_size) = 0;
 
 	virtual void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_limit) = 0;
 
@@ -1156,7 +1098,6 @@ public:
 		INSTANCE_LIGHTMAP,
 		INSTANCE_OCCLUDER,
 		INSTANCE_VISIBLITY_NOTIFIER,
-		INSTANCE_FOG_VOLUME,
 		INSTANCE_MAX,
 
 		INSTANCE_GEOMETRY_MASK = (1 << INSTANCE_MESH) | (1 << INSTANCE_MULTIMESH) | (1 << INSTANCE_PARTICLES)

@@ -529,20 +529,6 @@ public:
 	FUNC1(particles_collision_height_field_update, RID)
 	FUNC2(particles_collision_set_height_field_resolution, RID, ParticlesCollisionHeightfieldResolution)
 
-	/* FOG VOLUME */
-
-#undef ServerName
-#undef server_name
-
-#define ServerName RendererFog
-#define server_name RSG::fog
-
-	FUNCRIDSPLIT(fog_volume)
-
-	FUNC2(fog_volume_set_shape, RID, FogVolumeShape)
-	FUNC2(fog_volume_set_size, RID, const Vector3 &)
-	FUNC2(fog_volume_set_material, RID, RID)
-
 	/* VISIBILITY_NOTIFIER */
 
 #undef ServerName
@@ -647,58 +633,6 @@ public:
 #define server_name RSG::scene
 
 	FUNC1(voxel_gi_set_quality, VoxelGIQuality)
-
-	/* SKY API */
-
-	FUNCRIDSPLIT(sky)
-	FUNC2(sky_set_radiance_size, RID, int)
-	FUNC2(sky_set_mode, RID, SkyMode)
-	FUNC2(sky_set_material, RID, RID)
-	FUNC4R(Ref<Image>, sky_bake_panorama, RID, float, bool, const Size2i &)
-
-	FUNCRIDSPLIT(environment)
-
-	FUNC2(environment_set_background, RID, EnvironmentBG)
-	FUNC2(environment_set_sky, RID, RID)
-	FUNC2(environment_set_sky_custom_fov, RID, float)
-	FUNC2(environment_set_sky_orientation, RID, const Basis &)
-	FUNC2(environment_set_bg_color, RID, const Color &)
-	FUNC3(environment_set_bg_energy, RID, float, float)
-	FUNC2(environment_set_canvas_max_layer, RID, int)
-	FUNC6(environment_set_ambient_light, RID, const Color &, EnvironmentAmbientSource, float, float, EnvironmentReflectionSource)
-
-// FIXME: Disabled during Vulkan refactoring, should be ported.
-#if 0
-	FUNC2(environment_set_camera_feed_id, RID, int)
-#endif
-	FUNC6(environment_set_ssr, RID, bool, int, float, float, float)
-	FUNC1(environment_set_ssr_roughness_quality, EnvironmentSSRRoughnessQuality)
-
-	FUNC10(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, float)
-	FUNC6(environment_set_ssao_quality, EnvironmentSSAOQuality, bool, float, int, float, float)
-
-	FUNC6(environment_set_ssil, RID, bool, float, float, float, float)
-	FUNC6(environment_set_ssil_quality, EnvironmentSSILQuality, bool, float, int, float, float)
-
-	FUNC13(environment_set_glow, RID, bool, Vector<float>, float, float, float, float, EnvironmentGlowBlendMode, float, float, float, float, RID)
-	FUNC1(environment_glow_set_use_bicubic_upscale, bool)
-
-	FUNC4(environment_set_tonemap, RID, EnvironmentToneMapper, float, float)
-
-	FUNC7(environment_set_adjustment, RID, bool, float, float, float, bool, RID)
-
-	FUNC10(environment_set_fog, RID, bool, const Color &, float, float, float, float, float, float, float)
-	FUNC14(environment_set_volumetric_fog, RID, bool, float, const Color &, const Color &, float, float, float, float, float, bool, float, float, float)
-
-	FUNC2(environment_set_volumetric_fog_volume_size, int, int)
-	FUNC1(environment_set_volumetric_fog_filter_active, bool)
-
-	FUNC11(environment_set_sdfgi, RID, bool, int, float, EnvironmentSDFGIYScale, bool, float, bool, float, float, float)
-	FUNC1(environment_set_sdfgi_ray_count, EnvironmentSDFGIRayCount)
-	FUNC1(environment_set_sdfgi_frames_to_converge, EnvironmentSDFGIFramesToConverge)
-	FUNC1(environment_set_sdfgi_frames_to_update_light, EnvironmentSDFGIFramesToUpdateLight)
-
-	FUNC3R(Ref<Image>, environment_bake_panorama, RID, bool, const Size2i &)
 
 	FUNC3(screen_space_roughness_limiter_set_active, bool, float, float)
 	FUNC1(sub_surface_scattering_set_quality, SubSurfaceScatteringQuality)

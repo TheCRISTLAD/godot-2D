@@ -120,64 +120,6 @@ void RenderSceneDataRD::update_ubo(RID p_uniform_buffer, RS::ViewportDebugDraw p
 		ubo.ambient_light_color_energy[3] = 1.0;
 		ubo.use_ambient_cubemap = false;
 		ubo.use_reflection_cubemap = false;
-	} else if (p_env.is_valid()) {
-		RS::EnvironmentBG env_bg = render_scene_render->environment_get_background(p_env);
-		RS::EnvironmentAmbientSource ambient_src = render_scene_render->environment_get_ambient_source(p_env);
-
-		float bg_energy_multiplier = render_scene_render->environment_get_bg_energy_multiplier(p_env);
-
-		ubo.ambient_light_color_energy[3] = bg_energy_multiplier;
-
-		ubo.ambient_color_sky_mix = render_scene_render->environment_get_ambient_sky_contribution(p_env);
-
-		//ambient
-		if (ambient_src == RS::ENV_AMBIENT_SOURCE_BG && (env_bg == RS::ENV_BG_CLEAR_COLOR || env_bg == RS::ENV_BG_COLOR)) {
-			Color color = env_bg == RS::ENV_BG_CLEAR_COLOR ? p_default_bg_color : render_scene_render->environment_get_bg_color(p_env);
-			color = color.srgb_to_linear();
-
-			ubo.ambient_light_color_energy[0] = color.r * bg_energy_multiplier;
-			ubo.ambient_light_color_energy[1] = color.g * bg_energy_multiplier;
-			ubo.ambient_light_color_energy[2] = color.b * bg_energy_multiplier;
-			ubo.use_ambient_light = true;
-			ubo.use_ambient_cubemap = false;
-		} else {
-			float energy = render_scene_render->environment_get_ambient_light_energy(p_env);
-			Color color = render_scene_render->environment_get_ambient_light(p_env);
-			color = color.srgb_to_linear();
-			ubo.ambient_light_color_energy[0] = color.r * energy;
-			ubo.ambient_light_color_energy[1] = color.g * energy;
-			ubo.ambient_light_color_energy[2] = color.b * energy;
-
-			Basis sky_transform = render_scene_render->environment_get_sky_orientation(p_env);
-			sky_transform = sky_transform.inverse() * cam_transform.basis;
-			RendererRD::MaterialStorage::store_transform_3x3(sky_transform, ubo.radiance_inverse_xform);
-
-			ubo.use_ambient_cubemap = (ambient_src == RS::ENV_AMBIENT_SOURCE_BG && env_bg == RS::ENV_BG_SKY) || ambient_src == RS::ENV_AMBIENT_SOURCE_SKY;
-			ubo.use_ambient_light = ubo.use_ambient_cubemap || ambient_src == RS::ENV_AMBIENT_SOURCE_COLOR;
-		}
-
-		//specular
-		RS::EnvironmentReflectionSource ref_src = render_scene_render->environment_get_reflection_source(p_env);
-		if ((ref_src == RS::ENV_REFLECTION_SOURCE_BG && env_bg == RS::ENV_BG_SKY) || ref_src == RS::ENV_REFLECTION_SOURCE_SKY) {
-			ubo.use_reflection_cubemap = true;
-		} else {
-			ubo.use_reflection_cubemap = false;
-		}
-
-		ubo.fog_enabled = render_scene_render->environment_get_fog_enabled(p_env);
-		ubo.fog_density = render_scene_render->environment_get_fog_density(p_env);
-		ubo.fog_height = render_scene_render->environment_get_fog_height(p_env);
-		ubo.fog_height_density = render_scene_render->environment_get_fog_height_density(p_env);
-		ubo.fog_aerial_perspective = render_scene_render->environment_get_fog_aerial_perspective(p_env);
-
-		Color fog_color = render_scene_render->environment_get_fog_light_color(p_env).srgb_to_linear();
-		float fog_energy = render_scene_render->environment_get_fog_light_energy(p_env);
-
-		ubo.fog_light_color[0] = fog_color.r * fog_energy;
-		ubo.fog_light_color[1] = fog_color.g * fog_energy;
-		ubo.fog_light_color[2] = fog_color.b * fog_energy;
-
-		ubo.fog_sun_scatter = render_scene_render->environment_get_fog_sun_scatter(p_env);
 	} else {
 		if (p_reflection_probe_instance.is_valid() && RendererRD::LightStorage::get_singleton()->reflection_probe_is_interior(p_reflection_probe_instance)) {
 			ubo.use_ambient_light = false;
@@ -198,13 +140,6 @@ void RenderSceneDataRD::update_ubo(RID p_uniform_buffer, RS::ViewportDebugDraw p
 	if (p_camera_attributes.is_valid()) {
 		ubo.emissive_exposure_normalization = RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_camera_attributes);
 		ubo.IBL_exposure_normalization = 1.0;
-		if (p_env.is_valid()) {
-			RID sky_rid = render_scene_render->environment_get_sky(p_env);
-			if (sky_rid.is_valid()) {
-				float current_exposure = RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_camera_attributes) * render_scene_render->environment_get_bg_intensity(p_env) / p_luminance_multiplier;
-				ubo.IBL_exposure_normalization = current_exposure / MAX(0.001, render_scene_render->get_sky()->sky_get_baked_exposure(sky_rid));
-			}
-		}
 	} else if (emissive_exposure_normalization > 0.0) {
 		// This branch is triggered when using render_material().
 		// Emissive is set outside the function.

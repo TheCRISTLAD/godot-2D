@@ -86,8 +86,6 @@ void RenderingServerDefault::_draw(bool p_swap_buffers, double frame_step) {
 
 	RSG::particles_storage->update_particles(); //need to be done after instances are updated (colliders and particle transforms), and colliders are rendered
 
-	RSG::scene->render_probes();
-
 	RSG::viewport->draw_viewports();
 	RSG::canvas_render->update();
 
@@ -407,7 +405,6 @@ RenderingServerDefault::RenderingServerDefault(bool p_create_thread) :
 	RSG::particles_storage = RSG::rasterizer->get_particles_storage();
 	RSG::texture_storage = RSG::rasterizer->get_texture_storage();
 	RSG::gi = RSG::rasterizer->get_gi();
-	RSG::fog = RSG::rasterizer->get_fog();
 	RSG::canvas_render = RSG::rasterizer->get_canvas();
 	sr->set_scene_render(RSG::rasterizer->get_scene());
 

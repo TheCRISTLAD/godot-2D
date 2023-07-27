@@ -29,7 +29,6 @@
 /**************************************************************************/
 
 #include "utilities.h"
-#include "../environment/fog.h"
 #include "../environment/gi.h"
 #include "light_storage.h"
 #include "mesh_storage.h"
@@ -78,9 +77,6 @@ RS::InstanceType Utilities::get_base_type(RID p_rid) const {
 	if (RendererRD::ParticlesStorage::get_singleton()->owns_particles_collision(p_rid)) {
 		return RS::INSTANCE_PARTICLES_COLLISION;
 	}
-	if (RendererRD::Fog::get_singleton()->owns_fog_volume(p_rid)) {
-		return RS::INSTANCE_FOG_VOLUME;
-	}
 	if (owns_visibility_notifier(p_rid)) {
 		return RS::INSTANCE_VISIBLITY_NOTIFIER;
 	}
@@ -101,9 +97,6 @@ bool Utilities::free(RID p_rid) {
 		return true;
 	} else if (RendererRD::GI::get_singleton()->owns_voxel_gi(p_rid)) {
 		RendererRD::GI::get_singleton()->voxel_gi_free(p_rid);
-		return true;
-	} else if (RendererRD::Fog::get_singleton()->owns_fog_volume(p_rid)) {
-		RendererRD::Fog::get_singleton()->fog_volume_free(p_rid);
 		return true;
 	} else if (owns_visibility_notifier(p_rid)) {
 		visibility_notifier_free(p_rid);
@@ -147,9 +140,6 @@ void Utilities::base_update_dependency(RID p_base, DependencyTracker *p_instance
 		p_instance->update_dependency(dependency);
 	} else if (ParticlesStorage::get_singleton()->owns_particles_collision(p_base)) {
 		Dependency *dependency = ParticlesStorage::get_singleton()->particles_collision_get_dependency(p_base);
-		p_instance->update_dependency(dependency);
-	} else if (Fog::get_singleton()->owns_fog_volume(p_base)) {
-		Dependency *dependency = Fog::get_singleton()->fog_volume_get_dependency(p_base);
 		p_instance->update_dependency(dependency);
 	} else if (owns_visibility_notifier(p_base)) {
 		VisibilityNotifier *vn = get_visibility_notifier(p_base);

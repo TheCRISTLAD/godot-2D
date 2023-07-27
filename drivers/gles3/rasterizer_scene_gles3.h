@@ -565,14 +565,6 @@ protected:
 	Sky *dirty_sky_list = nullptr;
 	mutable RID_Owner<Sky, true> sky_owner;
 
-	void _setup_sky(const RenderDataGLES3 *p_render_data, const PagedArray<RID> &p_lights, const Projection &p_projection, const Transform3D &p_transform, const Size2i p_screen_size);
-	void _invalidate_sky(Sky *p_sky);
-	void _update_dirty_skys();
-	void _update_sky_radiance(RID p_env, const Projection &p_projection, const Transform3D &p_transform, float p_luminance_multiplier);
-	void _filter_sky_radiance(Sky *p_sky, int p_base_layer);
-	void _draw_sky(RID p_env, const Projection &p_projection, const Transform3D &p_transform, float p_luminance_multiplier, bool p_use_multiview, bool p_flip_y);
-	void _free_sky_data(Sky *p_sky);
-
 public:
 	static RasterizerSceneGLES3 *get_singleton() { return singleton; }
 
@@ -583,47 +575,7 @@ public:
 
 	uint32_t geometry_instance_get_pair_mask() override;
 
-	/* SDFGI UPDATE */
-
-	void sdfgi_update(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_environment, const Vector3 &p_world_position) override {}
-	int sdfgi_get_pending_region_count(const Ref<RenderSceneBuffers> &p_render_buffers) const override {
-		return 0;
-	}
-	AABB sdfgi_get_pending_region_bounds(const Ref<RenderSceneBuffers> &p_render_buffers, int p_region) const override {
-		return AABB();
-	}
-	uint32_t sdfgi_get_pending_region_cascade(const Ref<RenderSceneBuffers> &p_render_buffers, int p_region) const override {
-		return 0;
-	}
-
-	/* SKY API */
-
-	RID sky_allocate() override;
-	void sky_initialize(RID p_rid) override;
-	void sky_set_radiance_size(RID p_sky, int p_radiance_size) override;
-	void sky_set_mode(RID p_sky, RS::SkyMode p_mode) override;
-	void sky_set_material(RID p_sky, RID p_material) override;
-	Ref<Image> sky_bake_panorama(RID p_sky, float p_energy, bool p_bake_irradiance, const Size2i &p_size) override;
-	float sky_get_baked_exposure(RID p_sky) const;
-
 	/* ENVIRONMENT API */
-
-	void environment_glow_set_use_bicubic_upscale(bool p_enable) override;
-
-	void environment_set_ssr_roughness_quality(RS::EnvironmentSSRRoughnessQuality p_quality) override;
-
-	void environment_set_ssao_quality(RS::EnvironmentSSAOQuality p_quality, bool p_half_size, float p_adaptive_target, int p_blur_passes, float p_fadeout_from, float p_fadeout_to) override;
-
-	void environment_set_ssil_quality(RS::EnvironmentSSILQuality p_quality, bool p_half_size, float p_adaptive_target, int p_blur_passes, float p_fadeout_from, float p_fadeout_to) override;
-
-	void environment_set_sdfgi_ray_count(RS::EnvironmentSDFGIRayCount p_ray_count) override;
-	void environment_set_sdfgi_frames_to_converge(RS::EnvironmentSDFGIFramesToConverge p_frames) override;
-	void environment_set_sdfgi_frames_to_update_light(RS::EnvironmentSDFGIFramesToUpdateLight p_update) override;
-
-	void environment_set_volumetric_fog_volume_size(int p_size, int p_depth) override;
-	void environment_set_volumetric_fog_filter_active(bool p_enable) override;
-
-	Ref<Image> environment_bake_panorama(RID p_env, bool p_bake_irradiance, const Size2i &p_size) override;
 
 	_FORCE_INLINE_ bool is_using_physical_light_units() {
 		return use_physical_light_units;
@@ -631,12 +583,6 @@ public:
 
 	void positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
 	void directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
-
-	RID fog_volume_instance_create(RID p_fog_volume) override;
-	void fog_volume_instance_set_transform(RID p_fog_volume_instance, const Transform3D &p_transform) override;
-	void fog_volume_instance_set_active(RID p_fog_volume_instance, bool p_active) override;
-	RID fog_volume_instance_get_volume(RID p_fog_volume_instance) const override;
-	Vector3 fog_volume_instance_get_position(RID p_fog_volume_instance) const override;
 
 	RID voxel_gi_instance_create(RID p_voxel_gi) override;
 	void voxel_gi_instance_set_transform_to_data(RID p_probe, const Transform3D &p_xform) override;
@@ -646,7 +592,6 @@ public:
 	void voxel_gi_set_quality(RS::VoxelGIQuality) override;
 
 	void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-	void render_particle_collider_heightfield(RID p_collider, const Transform3D &p_transform, const PagedArray<RenderGeometryInstance *> &p_instances) override;
 
 	void set_scene_pass(uint64_t p_pass) override {
 		scene_pass = p_pass;

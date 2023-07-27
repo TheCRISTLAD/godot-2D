@@ -611,7 +611,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(MeshDataTool);
 
 	GDREGISTER_CLASS(PhysicsMaterial);
-	GDREGISTER_CLASS(Environment);
 	GDREGISTER_VIRTUAL_CLASS(CameraAttributes);
 	GDREGISTER_CLASS(CameraAttributesPhysical);
 	GDREGISTER_CLASS(CameraAttributesPractical);

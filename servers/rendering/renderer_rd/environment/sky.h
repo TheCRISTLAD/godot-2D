@@ -296,26 +296,19 @@ public:
 	void set_texture_format(RD::DataFormat p_texture_format);
 	~SkyRD();
 
-	void setup_sky(RID p_env, Ref<RenderSceneBuffersRD> p_render_buffers, const PagedArray<RID> &p_lights, RID p_camera_attributes, uint32_t p_view_count, const Projection *p_view_projections, const Vector3 *p_view_eye_offsets, const Transform3D &p_cam_transform, const Projection &p_cam_projection, const Size2i p_screen_size, RendererSceneRenderRD *p_scene_render);
 	void update_radiance_buffers(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_env, const Vector3 &p_global_pos, double p_time, float p_luminance_multiplier = 1.0);
 	void update_res_buffers(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_env, double p_time, float p_luminance_multiplier = 1.0);
-	void draw_sky(RD::DrawListID p_draw_list, Ref<RenderSceneBuffersRD> p_render_buffers, RID p_env, RID p_fb, double p_time, float p_luminance_multiplier = 1.0);
 
 	void invalidate_sky(Sky *p_sky);
 	void update_dirty_skys();
 
 	RID sky_get_material(RID p_sky) const;
 	RID sky_get_radiance_texture_rd(RID p_sky) const;
-	float sky_get_baked_exposure(RID p_sky) const;
 
 	RID allocate_sky_rid();
 	void initialize_sky_rid(RID p_rid);
 	Sky *get_sky(RID p_sky) const;
 	void free_sky(RID p_sky);
-	void sky_set_radiance_size(RID p_sky, int p_radiance_size);
-	void sky_set_mode(RID p_sky, RS::SkyMode p_mode);
-	void sky_set_material(RID p_sky, RID p_material);
-	Ref<Image> sky_bake_panorama(RID p_sky, float p_energy, bool p_bake_irradiance, const Size2i &p_size);
 };
 
 } // namespace RendererRD

@@ -810,7 +810,6 @@ public:
 		PagedArray<RID> decals;
 		PagedArray<RID> voxel_gi_instances;
 		PagedArray<RID> mesh_instances;
-		PagedArray<RID> fog_volumes;
 
 		struct DirectionalShadow {
 			PagedArray<RenderGeometryInstance *> cascade_geometry_instances[RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES];
@@ -828,7 +827,6 @@ public:
 			decals.clear();
 			voxel_gi_instances.clear();
 			mesh_instances.clear();
-			fog_volumes.clear();
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
 					directional_shadows[i].cascade_geometry_instances[j].clear();
@@ -853,7 +851,6 @@ public:
 			decals.reset();
 			voxel_gi_instances.reset();
 			mesh_instances.reset();
-			fog_volumes.reset();
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
 					directional_shadows[i].cascade_geometry_instances[j].reset();
@@ -878,7 +875,6 @@ public:
 			decals.merge_unordered(p_cull_result.decals);
 			voxel_gi_instances.merge_unordered(p_cull_result.voxel_gi_instances);
 			mesh_instances.merge_unordered(p_cull_result.mesh_instances);
-			fog_volumes.merge_unordered(p_cull_result.fog_volumes);
 
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
@@ -904,7 +900,6 @@ public:
 			decals.set_page_pool(p_rid_pool);
 			voxel_gi_instances.set_page_pool(p_rid_pool);
 			mesh_instances.set_page_pool(p_rid_pool);
-			fog_volumes.set_page_pool(p_rid_pool);
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
 					directional_shadows[i].cascade_geometry_instances[j].set_page_pool(p_geometry_instance_pool);
@@ -993,8 +988,6 @@ public:
 
 	_FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform3D p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, bool p_cam_vaspect, RID p_shadow_atlas, Scenario *p_scenario, float p_scren_mesh_lod_threshold, uint32_t p_visible_layers = 0xFFFFFF);
 
-	RID _render_get_environment(RID p_camera, RID p_scenario);
-
 	struct Cull {
 		struct Shadow {
 			RID light_instance;
@@ -1063,13 +1056,8 @@ public:
 	_FORCE_INLINE_ bool _visibility_parent_check(const CullData &p_cull_data, const InstanceData &p_instance_data);
 
 	bool _render_reflection_probe_step(Instance *p_instance, int p_step);
-	void render_empty_scene(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_scenario, RID p_shadow_atlas);
 
-	void render_camera(const Ref<RenderSceneBuffers> &p_render_buffers, RID p_camera, RID p_scenario, RID p_viewport, Size2 p_viewport_size, bool p_use_taa, float p_screen_mesh_lod_threshold, RID p_shadow_atlas, RenderingMethod::RenderInfo *r_render_info = nullptr);
 	void update_dirty_instances();
-
-	void render_particle_colliders();
-	virtual void render_probes();
 
 	TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size);
 
@@ -1087,167 +1075,7 @@ public:
 
 	/* SKY API */
 
-	PASS0R(RID, sky_allocate)
-	PASS1(sky_initialize, RID)
-
-	PASS2(sky_set_radiance_size, RID, int)
-	PASS2(sky_set_mode, RID, RS::SkyMode)
-	PASS2(sky_set_material, RID, RID)
-	PASS4R(Ref<Image>, sky_bake_panorama, RID, float, bool, const Size2i &)
-
-	PASS0R(RID, environment_allocate)
-	PASS1(environment_initialize, RID)
-
-	PASS1RC(bool, is_environment, RID)
-
-	// Background
-	PASS2(environment_set_background, RID, RS::EnvironmentBG)
-	PASS2(environment_set_sky, RID, RID)
-	PASS2(environment_set_sky_custom_fov, RID, float)
-	PASS2(environment_set_sky_orientation, RID, const Basis &)
-	PASS2(environment_set_bg_color, RID, const Color &)
-	PASS3(environment_set_bg_energy, RID, float, float)
-	PASS2(environment_set_canvas_max_layer, RID, int)
-	PASS6(environment_set_ambient_light, RID, const Color &, RS::EnvironmentAmbientSource, float, float, RS::EnvironmentReflectionSource)
-
-	PASS1RC(RS::EnvironmentBG, environment_get_background, RID)
-	PASS1RC(RID, environment_get_sky, RID)
-	PASS1RC(float, environment_get_sky_custom_fov, RID)
-	PASS1RC(Basis, environment_get_sky_orientation, RID)
-	PASS1RC(Color, environment_get_bg_color, RID)
-	PASS1RC(float, environment_get_bg_energy_multiplier, RID)
-	PASS1RC(float, environment_get_bg_intensity, RID)
-	PASS1RC(int, environment_get_canvas_max_layer, RID)
-	PASS1RC(RS::EnvironmentAmbientSource, environment_get_ambient_source, RID)
-	PASS1RC(Color, environment_get_ambient_light, RID)
-	PASS1RC(float, environment_get_ambient_light_energy, RID)
-	PASS1RC(float, environment_get_ambient_sky_contribution, RID)
-	PASS1RC(RS::EnvironmentReflectionSource, environment_get_reflection_source, RID)
-
-	// Tonemap
-	PASS4(environment_set_tonemap, RID, RS::EnvironmentToneMapper, float, float)
-	PASS1RC(RS::EnvironmentToneMapper, environment_get_tone_mapper, RID)
-	PASS1RC(float, environment_get_exposure, RID)
-	PASS1RC(float, environment_get_white, RID)
-
-	// Fog
-	PASS10(environment_set_fog, RID, bool, const Color &, float, float, float, float, float, float, float)
-
-	PASS1RC(bool, environment_get_fog_enabled, RID)
-	PASS1RC(Color, environment_get_fog_light_color, RID)
-	PASS1RC(float, environment_get_fog_light_energy, RID)
-	PASS1RC(float, environment_get_fog_sun_scatter, RID)
-	PASS1RC(float, environment_get_fog_density, RID)
-	PASS1RC(float, environment_get_fog_sky_affect, RID)
-	PASS1RC(float, environment_get_fog_height, RID)
-	PASS1RC(float, environment_get_fog_height_density, RID)
-	PASS1RC(float, environment_get_fog_aerial_perspective, RID)
-
-	PASS2(environment_set_volumetric_fog_volume_size, int, int)
-	PASS1(environment_set_volumetric_fog_filter_active, bool)
-
-	// Volumentric Fog
-	PASS14(environment_set_volumetric_fog, RID, bool, float, const Color &, const Color &, float, float, float, float, float, bool, float, float, float)
-
-	PASS1RC(bool, environment_get_volumetric_fog_enabled, RID)
-	PASS1RC(float, environment_get_volumetric_fog_density, RID)
-	PASS1RC(Color, environment_get_volumetric_fog_scattering, RID)
-	PASS1RC(Color, environment_get_volumetric_fog_emission, RID)
-	PASS1RC(float, environment_get_volumetric_fog_emission_energy, RID)
-	PASS1RC(float, environment_get_volumetric_fog_anisotropy, RID)
-	PASS1RC(float, environment_get_volumetric_fog_length, RID)
-	PASS1RC(float, environment_get_volumetric_fog_detail_spread, RID)
-	PASS1RC(float, environment_get_volumetric_fog_gi_inject, RID)
-	PASS1RC(float, environment_get_volumetric_fog_sky_affect, RID)
-	PASS1RC(bool, environment_get_volumetric_fog_temporal_reprojection, RID)
-	PASS1RC(float, environment_get_volumetric_fog_temporal_reprojection_amount, RID)
-	PASS1RC(float, environment_get_volumetric_fog_ambient_inject, RID)
-
-	// Glow
-	PASS13(environment_set_glow, RID, bool, Vector<float>, float, float, float, float, RS::EnvironmentGlowBlendMode, float, float, float, float, RID)
-
-	PASS1RC(bool, environment_get_glow_enabled, RID)
-	PASS1RC(Vector<float>, environment_get_glow_levels, RID)
-	PASS1RC(float, environment_get_glow_intensity, RID)
-	PASS1RC(float, environment_get_glow_strength, RID)
-	PASS1RC(float, environment_get_glow_bloom, RID)
-	PASS1RC(float, environment_get_glow_mix, RID)
-	PASS1RC(RS::EnvironmentGlowBlendMode, environment_get_glow_blend_mode, RID)
-	PASS1RC(float, environment_get_glow_hdr_bleed_threshold, RID)
-	PASS1RC(float, environment_get_glow_hdr_luminance_cap, RID)
-	PASS1RC(float, environment_get_glow_hdr_bleed_scale, RID)
-	PASS1RC(float, environment_get_glow_map_strength, RID)
-	PASS1RC(RID, environment_get_glow_map, RID)
-
-	PASS1(environment_glow_set_use_bicubic_upscale, bool)
-
-	// SSR
-	PASS6(environment_set_ssr, RID, bool, int, float, float, float)
-
-	PASS1RC(bool, environment_get_ssr_enabled, RID)
-	PASS1RC(int, environment_get_ssr_max_steps, RID)
-	PASS1RC(float, environment_get_ssr_fade_in, RID)
-	PASS1RC(float, environment_get_ssr_fade_out, RID)
-	PASS1RC(float, environment_get_ssr_depth_tolerance, RID)
-
-	PASS1(environment_set_ssr_roughness_quality, RS::EnvironmentSSRRoughnessQuality)
-
-	// SSAO
-	PASS10(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, float)
-
-	PASS1RC(bool, environment_get_ssao_enabled, RID)
-	PASS1RC(float, environment_get_ssao_radius, RID)
-	PASS1RC(float, environment_get_ssao_intensity, RID)
-	PASS1RC(float, environment_get_ssao_power, RID)
-	PASS1RC(float, environment_get_ssao_detail, RID)
-	PASS1RC(float, environment_get_ssao_horizon, RID)
-	PASS1RC(float, environment_get_ssao_sharpness, RID)
-	PASS1RC(float, environment_get_ssao_direct_light_affect, RID)
-	PASS1RC(float, environment_get_ssao_ao_channel_affect, RID)
-
-	PASS6(environment_set_ssao_quality, RS::EnvironmentSSAOQuality, bool, float, int, float, float)
-
-	// SSIL
-	PASS6(environment_set_ssil, RID, bool, float, float, float, float)
-
-	PASS1RC(bool, environment_get_ssil_enabled, RID)
-	PASS1RC(float, environment_get_ssil_radius, RID)
-	PASS1RC(float, environment_get_ssil_intensity, RID)
-	PASS1RC(float, environment_get_ssil_sharpness, RID)
-	PASS1RC(float, environment_get_ssil_normal_rejection, RID)
-
-	PASS6(environment_set_ssil_quality, RS::EnvironmentSSILQuality, bool, float, int, float, float)
-
-	// SDFGI
-
-	PASS11(environment_set_sdfgi, RID, bool, int, float, RS::EnvironmentSDFGIYScale, bool, float, bool, float, float, float)
-
-	PASS1RC(bool, environment_get_sdfgi_enabled, RID)
-	PASS1RC(int, environment_get_sdfgi_cascades, RID)
-	PASS1RC(float, environment_get_sdfgi_min_cell_size, RID)
-	PASS1RC(bool, environment_get_sdfgi_use_occlusion, RID)
-	PASS1RC(float, environment_get_sdfgi_bounce_feedback, RID)
-	PASS1RC(bool, environment_get_sdfgi_read_sky_light, RID)
-	PASS1RC(float, environment_get_sdfgi_energy, RID)
-	PASS1RC(float, environment_get_sdfgi_normal_bias, RID)
-	PASS1RC(float, environment_get_sdfgi_probe_bias, RID)
-	PASS1RC(RS::EnvironmentSDFGIYScale, environment_get_sdfgi_y_scale, RID)
-
-	PASS1(environment_set_sdfgi_ray_count, RS::EnvironmentSDFGIRayCount)
-	PASS1(environment_set_sdfgi_frames_to_converge, RS::EnvironmentSDFGIFramesToConverge)
-	PASS1(environment_set_sdfgi_frames_to_update_light, RS::EnvironmentSDFGIFramesToUpdateLight)
-
 	// Adjustment
-	PASS7(environment_set_adjustment, RID, bool, float, float, float, bool, RID)
-
-	PASS1RC(bool, environment_get_adjustments_enabled, RID)
-	PASS1RC(float, environment_get_adjustments_brightness, RID)
-	PASS1RC(float, environment_get_adjustments_contrast, RID)
-	PASS1RC(float, environment_get_adjustments_saturation, RID)
-	PASS1RC(bool, environment_get_use_1d_color_correction, RID)
-	PASS1RC(RID, environment_get_color_correction, RID)
-
-	PASS3R(Ref<Image>, environment_bake_panorama, RID, bool, const Size2i &)
 
 	PASS3(screen_space_roughness_limiter_set_active, bool, float, float)
 	PASS1(sub_surface_scattering_set_quality, RS::SubSurfaceScatteringQuality)

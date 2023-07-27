@@ -39,7 +39,6 @@
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
-#include "servers/rendering/renderer_rd/environment/fog.h"
 #include "servers/rendering/renderer_rd/environment/gi.h"
 #include "servers/rendering/renderer_rd/environment/sky.h"
 #include "servers/rendering/renderer_rd/framebuffer_cache_rd.h"
@@ -62,7 +61,6 @@ struct RenderDataRD {
 	const PagedArray<RID> *voxel_gi_instances = nullptr;
 	const PagedArray<RID> *decals = nullptr;
 	const PagedArray<RID> *lightmaps = nullptr;
-	const PagedArray<RID> *fog_volumes = nullptr;
 	RID environment;
 	RID camera_attributes;
 	RID shadow_atlas;
@@ -126,8 +124,6 @@ protected:
 
 	virtual void _render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) = 0;
 	virtual void _render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) = 0;
-	virtual void _render_sdfgi(Ref<RenderSceneBuffersRD> p_render_buffers, const Vector3i &p_from, const Vector3i &p_size, const AABB &p_bounds, const PagedArray<RenderGeometryInstance *> &p_instances, const RID &p_albedo_texture, const RID &p_emission_texture, const RID &p_emission_aniso_texture, const RID &p_geom_facing_texture, float p_exposure_normalization) = 0;
-	virtual void _render_particle_collider_heightfield(RID p_fb, const Transform3D &p_cam_transform, const Projection &p_cam_projection, const PagedArray<RenderGeometryInstance *> &p_instances) = 0;
 
 	void _debug_sdfgi_probes(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_framebuffer, uint32_t p_view_count, const Projection *p_camera_with_transforms, bool p_will_continue_color, bool p_will_continue_depth);
 
@@ -141,7 +137,6 @@ protected:
 	void _render_buffers_copy_screen_texture(const RenderDataRD *p_render_data);
 	void _render_buffers_copy_depth_texture(const RenderDataRD *p_render_data);
 	void _render_buffers_post_process_and_tonemap(const RenderDataRD *p_render_data);
-	void _post_process_subpass(RID p_source_texture, RID p_framebuffer, const RenderDataRD *p_render_data);
 	void _disable_clear_request(const RenderDataRD *p_render_data);
 
 	// needed for a single argument calls (material and uv2)
@@ -210,28 +205,7 @@ public:
 
 	RendererRD::SkyRD *get_sky() { return &sky; }
 
-	/* SKY API */
-
-	virtual RID sky_allocate() override;
-	virtual void sky_initialize(RID p_rid) override;
-
-	virtual void sky_set_radiance_size(RID p_sky, int p_radiance_size) override;
-	virtual void sky_set_mode(RID p_sky, RS::SkyMode p_mode) override;
-	virtual void sky_set_material(RID p_sky, RID p_material) override;
-	virtual Ref<Image> sky_bake_panorama(RID p_sky, float p_energy, bool p_bake_irradiance, const Size2i &p_size) override;
-
 	/* ENVIRONMENT API */
-
-	virtual void environment_glow_set_use_bicubic_upscale(bool p_enable) override;
-
-	virtual void environment_set_volumetric_fog_volume_size(int p_size, int p_depth) override;
-	virtual void environment_set_volumetric_fog_filter_active(bool p_enable) override;
-
-	virtual void environment_set_sdfgi_ray_count(RS::EnvironmentSDFGIRayCount p_ray_count) override;
-	virtual void environment_set_sdfgi_frames_to_converge(RS::EnvironmentSDFGIFramesToConverge p_frames) override;
-	virtual void environment_set_sdfgi_frames_to_update_light(RS::EnvironmentSDFGIFramesToUpdateLight p_update) override;
-
-	virtual Ref<Image> environment_bake_panorama(RID p_env, bool p_bake_irradiance, const Size2i &p_size) override;
 
 	_FORCE_INLINE_ bool is_using_physical_light_units() {
 		return use_physical_light_units;
@@ -240,18 +214,6 @@ public:
 	/* REFLECTION PROBE */
 
 	virtual RID reflection_probe_create_framebuffer(RID p_color, RID p_depth);
-
-	/* FOG VOLUMES */
-
-	uint32_t get_volumetric_fog_size() const { return volumetric_fog_size; }
-	uint32_t get_volumetric_fog_depth() const { return volumetric_fog_depth; }
-	bool get_volumetric_fog_filter_active() const { return volumetric_fog_filter_active; }
-
-	virtual RID fog_volume_instance_create(RID p_fog_volume) override;
-	virtual void fog_volume_instance_set_transform(RID p_fog_volume_instance, const Transform3D &p_transform) override;
-	virtual void fog_volume_instance_set_active(RID p_fog_volume_instance, bool p_active) override;
-	virtual RID fog_volume_instance_get_volume(RID p_fog_volume_instance) const override;
-	virtual Vector3 fog_volume_instance_get_position(RID p_fog_volume_instance) const override;
 
 	/* gi light probes */
 
@@ -275,8 +237,6 @@ public:
 	virtual void update_uniform_sets(){};
 
 	virtual void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-
-	virtual void render_particle_collider_heightfield(RID p_collider, const Transform3D &p_transform, const PagedArray<RenderGeometryInstance *> &p_instances) override;
 
 	virtual void set_scene_pass(uint64_t p_pass) override {
 		scene_pass = p_pass;

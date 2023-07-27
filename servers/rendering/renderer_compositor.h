@@ -31,7 +31,6 @@
 #ifndef RENDERER_COMPOSITOR_H
 #define RENDERER_COMPOSITOR_H
 
-#include "servers/rendering/environment/renderer_fog.h"
 #include "servers/rendering/environment/renderer_gi.h"
 #include "servers/rendering/renderer_canvas_render.h"
 #include "servers/rendering/rendering_method.h"
@@ -86,7 +85,6 @@ public:
 	virtual RendererParticlesStorage *get_particles_storage() = 0;
 	virtual RendererTextureStorage *get_texture_storage() = 0;
 	virtual RendererGI *get_gi() = 0;
-	virtual RendererFog *get_fog() = 0;
 	virtual RendererCanvasRender *get_canvas() = 0;
 	virtual RendererSceneRender *get_scene() = 0;
 

@@ -34,7 +34,6 @@
 #ifdef GLES3_ENABLED
 
 #include "effects/copy_effects.h"
-#include "environment/fog.h"
 #include "environment/gi.h"
 #include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
@@ -63,7 +62,6 @@ protected:
 	GLES3::ParticlesStorage *particles_storage = nullptr;
 	GLES3::LightStorage *light_storage = nullptr;
 	GLES3::GI *gi = nullptr;
-	GLES3::Fog *fog = nullptr;
 	GLES3::CopyEffects *copy_effects = nullptr;
 	RasterizerCanvasGLES3 *canvas = nullptr;
 	RasterizerSceneGLES3 *scene = nullptr;
@@ -79,7 +77,6 @@ public:
 	RendererParticlesStorage *get_particles_storage() { return particles_storage; }
 	RendererTextureStorage *get_texture_storage() { return texture_storage; }
 	RendererGI *get_gi() { return gi; }
-	RendererFog *get_fog() { return fog; }
 	RendererCanvasRender *get_canvas() { return canvas; }
 	RendererSceneRender *get_scene() { return scene; }
 
