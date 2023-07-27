@@ -54,18 +54,12 @@ public:
 		RID camera;
 		RID scenario;
 
-		RS::ViewportScaling3DMode scaling_3d_mode = RenderingServer::VIEWPORT_SCALING_3D_MODE_BILINEAR;
-		float scaling_3d_scale = 1.0;
-		float fsr_sharpness = 0.2f;
-		float texture_mipmap_bias = 0.0f;
-		bool fsr_enabled = false;
 		RS::ViewportUpdateMode update_mode = RenderingServer::VIEWPORT_UPDATE_WHEN_VISIBLE;
 		RID render_target;
 		RID render_target_texture;
 		Ref<RenderSceneBuffers> render_buffers;
 
 		RS::ViewportMSAA msaa_2d = RenderingServer::VIEWPORT_MSAA_DISABLED;
-		RS::ViewportMSAA msaa_3d = RenderingServer::VIEWPORT_MSAA_DISABLED;
 		RS::ViewportScreenSpaceAA screen_space_aa = RenderingServer::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
 		bool use_taa = false;
 		bool use_debanding = false;
@@ -73,15 +67,11 @@ public:
 		RendererSceneRender::CameraData prev_camera_data;
 		uint64_t prev_camera_data_frame = 0;
 
-		bool use_occlusion_culling = false;
-		bool occlusion_buffer_dirty = false;
-
 		DisplayServer::WindowID viewport_to_screen;
 		Rect2 viewport_to_screen_rect;
 		bool viewport_render_direct_to_screen;
 
 		bool disable_2d = false;
-		bool disable_3d = true;
 		bool measure_render_time = false;
 
 		bool snap_2d_transforms_to_pixel = false;
@@ -160,8 +150,6 @@ public:
 			debug_draw = RS::VIEWPORT_DEBUG_DRAW_DISABLED;
 			screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
 			use_debanding = false;
-			use_occlusion_culling = false;
-			occlusion_buffer_dirty = true;
 
 			snap_2d_transforms_to_pixel = false;
 			snap_2d_vertices_to_pixel = false;
@@ -193,13 +181,7 @@ public:
 private:
 	Vector<Viewport *> _sort_active_viewports();
 	void _viewport_set_size(Viewport *p_viewport, int p_width, int p_height, uint32_t p_view_count);
-	void _configure_3d_render_buffers(Viewport *p_viewport);
-	void _draw_3d(Viewport *p_viewport);
 	void _draw_viewport(Viewport *p_viewport);
-
-	int occlusion_rays_per_thread = 512;
-
-	void _resize_occlusion_culling_buffer(const Size2i &p_size);
 
 public:
 	RID viewport_allocate();
@@ -213,11 +195,6 @@ public:
 	void viewport_set_active(RID p_viewport, bool p_active);
 	void viewport_set_parent_viewport(RID p_viewport, RID p_parent_viewport);
 
-	void viewport_set_scaling_3d_mode(RID p_viewport, RS::ViewportScaling3DMode p_mode);
-	void viewport_set_scaling_3d_scale(RID p_viewport, float p_scaling_3d_scale);
-	void viewport_set_fsr_sharpness(RID p_viewport, float p_sharpness);
-	void viewport_set_texture_mipmap_bias(RID p_viewport, float p_mipmap_bias);
-
 	void viewport_set_update_mode(RID p_viewport, RS::ViewportUpdateMode p_mode);
 	void viewport_set_vflip(RID p_viewport, bool p_enable);
 
@@ -225,7 +202,6 @@ public:
 
 	RID viewport_get_render_target(RID p_viewport) const;
 	RID viewport_get_texture(RID p_viewport) const;
-	RID viewport_get_occluder_debug_texture(RID p_viewport) const;
 
 	void viewport_set_prev_camera_data(RID p_viewport, const RendererSceneRender::CameraData *p_camera_data);
 	const RendererSceneRender::CameraData *viewport_get_prev_camera_data(RID p_viewport);
@@ -233,7 +209,6 @@ public:
 	void viewport_set_disable_2d(RID p_viewport, bool p_disable);
 
 	void viewport_attach_camera(RID p_viewport, RID p_camera);
-	void viewport_set_scenario(RID p_viewport, RID p_scenario);
 	void viewport_attach_canvas(RID p_viewport, RID p_canvas);
 	void viewport_remove_canvas(RID p_viewport, RID p_canvas);
 	void viewport_set_canvas_transform(RID p_viewport, RID p_canvas, const Transform2D &p_offset);
@@ -248,13 +223,9 @@ public:
 	void viewport_set_positional_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv);
 
 	void viewport_set_msaa_2d(RID p_viewport, RS::ViewportMSAA p_msaa);
-	void viewport_set_msaa_3d(RID p_viewport, RS::ViewportMSAA p_msaa);
 	void viewport_set_screen_space_aa(RID p_viewport, RS::ViewportScreenSpaceAA p_mode);
 	void viewport_set_use_taa(RID p_viewport, bool p_use_taa);
 	void viewport_set_use_debanding(RID p_viewport, bool p_use_debanding);
-	void viewport_set_use_occlusion_culling(RID p_viewport, bool p_use_occlusion_culling);
-	void viewport_set_occlusion_rays_per_thread(int p_rays_per_thread);
-	void viewport_set_occlusion_culling_build_quality(RS::ViewportOcclusionCullingBuildQuality p_quality);
 	void viewport_set_mesh_lod_threshold(RID p_viewport, float p_pixels);
 
 	virtual int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfoType p_type, RS::ViewportRenderInfo p_info);

@@ -521,18 +521,10 @@ void Viewport::_notification(int p_what) {
 		case NOTIFICATION_EXIT_TREE: {
 			_gui_cancel_tooltip();
 
-			RenderingServer::get_singleton()->viewport_set_scenario(viewport, RID());
 			RenderingServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
 			if (contact_2d_debug.is_valid()) {
 				RenderingServer::get_singleton()->free(contact_2d_debug);
 				contact_2d_debug = RID();
-			}
-
-			if (contact_3d_debug_multimesh.is_valid()) {
-				RenderingServer::get_singleton()->free(contact_3d_debug_multimesh);
-				RenderingServer::get_singleton()->free(contact_3d_debug_instance);
-				contact_3d_debug_instance = RID();
-				contact_3d_debug_multimesh = RID();
 			}
 
 			remove_from_group("_viewports");
@@ -765,7 +757,6 @@ void Viewport::_process_picking() {
 				_cleanup_mouseover_colliders(false, false, frame);
 			}
 		}
-
 	}
 }
 
@@ -799,7 +790,6 @@ void Viewport::_set_size(const Size2i &p_size, const Size2i &p_size_2d_override,
 	size_allocated = p_allocated;
 	size_2d_override = p_size_2d_override;
 	stretch_transform = stretch_transform_new;
-
 
 	if (p_allocated) {
 		RS::get_singleton()->viewport_set_size(viewport, size.width, size.height);
@@ -2984,21 +2974,6 @@ Viewport::MSAA Viewport::get_msaa_2d() const {
 	return msaa_2d;
 }
 
-void Viewport::set_msaa_3d(MSAA p_msaa) {
-	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_INDEX(p_msaa, MSAA_MAX);
-	if (msaa_3d == p_msaa) {
-		return;
-	}
-	msaa_3d = p_msaa;
-	RS::get_singleton()->viewport_set_msaa_3d(viewport, RS::ViewportMSAA(p_msaa));
-}
-
-Viewport::MSAA Viewport::get_msaa_3d() const {
-	ERR_READ_THREAD_GUARD_V(MSAA_DISABLED);
-	return msaa_3d;
-}
-
 void Viewport::set_screen_space_aa(ScreenSpaceAA p_screen_space_aa) {
 	ERR_MAIN_THREAD_GUARD;
 	ERR_FAIL_INDEX(p_screen_space_aa, SCREEN_SPACE_AA_MAX);
@@ -3051,23 +3026,6 @@ void Viewport::set_mesh_lod_threshold(float p_pixels) {
 float Viewport::get_mesh_lod_threshold() const {
 	ERR_READ_THREAD_GUARD_V(0);
 	return mesh_lod_threshold;
-}
-
-void Viewport::set_use_occlusion_culling(bool p_use_occlusion_culling) {
-	ERR_MAIN_THREAD_GUARD;
-	if (use_occlusion_culling == p_use_occlusion_culling) {
-		return;
-	}
-
-	use_occlusion_culling = p_use_occlusion_culling;
-	RS::get_singleton()->viewport_set_use_occlusion_culling(viewport, p_use_occlusion_culling);
-
-	notify_property_list_changed();
-}
-
-bool Viewport::is_using_occlusion_culling() const {
-	ERR_READ_THREAD_GUARD_V(false);
-	return use_occlusion_culling;
 }
 
 void Viewport::set_debug_draw(DebugDraw p_debug_draw) {
@@ -3393,9 +3351,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_msaa_2d", "msaa"), &Viewport::set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("get_msaa_2d"), &Viewport::get_msaa_2d);
 
-	ClassDB::bind_method(D_METHOD("set_msaa_3d", "msaa"), &Viewport::set_msaa_3d);
-	ClassDB::bind_method(D_METHOD("get_msaa_3d"), &Viewport::get_msaa_3d);
-
 	ClassDB::bind_method(D_METHOD("set_screen_space_aa", "screen_space_aa"), &Viewport::set_screen_space_aa);
 	ClassDB::bind_method(D_METHOD("get_screen_space_aa"), &Viewport::get_screen_space_aa);
 
@@ -3404,9 +3359,6 @@ void Viewport::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_use_debanding", "enable"), &Viewport::set_use_debanding);
 	ClassDB::bind_method(D_METHOD("is_using_debanding"), &Viewport::is_using_debanding);
-
-	ClassDB::bind_method(D_METHOD("set_use_occlusion_culling", "enable"), &Viewport::set_use_occlusion_culling);
-	ClassDB::bind_method(D_METHOD("is_using_occlusion_culling"), &Viewport::is_using_occlusion_culling);
 
 	ClassDB::bind_method(D_METHOD("set_debug_draw", "debug_draw"), &Viewport::set_debug_draw);
 	ClassDB::bind_method(D_METHOD("get_debug_draw"), &Viewport::get_debug_draw);
@@ -3505,11 +3457,9 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "snap_2d_vertices_to_pixel"), "set_snap_2d_vertices_to_pixel", "is_snap_2d_vertices_to_pixel_enabled");
 	ADD_GROUP("Rendering", "");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "msaa_2d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), "set_msaa_2d", "get_msaa_2d");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "msaa_3d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), "set_msaa_3d", "get_msaa_3d");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "screen_space_aa", PROPERTY_HINT_ENUM, "Disabled (Fastest),FXAA (Fast)"), "set_screen_space_aa", "get_screen_space_aa");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_taa"), "set_use_taa", "is_using_taa");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_debanding"), "set_use_debanding", "is_using_debanding");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_occlusion_culling"), "set_use_occlusion_culling", "is_using_occlusion_culling");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mesh_lod_threshold", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_mesh_lod_threshold", "get_mesh_lod_threshold");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
 
@@ -3551,10 +3501,6 @@ void Viewport::_bind_methods() {
 	BIND_ENUM_CONSTANT(SHADOW_ATLAS_QUADRANT_SUBDIV_256);
 	BIND_ENUM_CONSTANT(SHADOW_ATLAS_QUADRANT_SUBDIV_1024);
 	BIND_ENUM_CONSTANT(SHADOW_ATLAS_QUADRANT_SUBDIV_MAX);
-
-	BIND_ENUM_CONSTANT(SCALING_3D_MODE_BILINEAR);
-	BIND_ENUM_CONSTANT(SCALING_3D_MODE_FSR);
-	BIND_ENUM_CONSTANT(SCALING_3D_MODE_MAX);
 
 	BIND_ENUM_CONSTANT(MSAA_DISABLED);
 	BIND_ENUM_CONSTANT(MSAA_2X);

@@ -70,11 +70,8 @@ private:
 
 	// The internal size of the textures we render 3D to in case we render at a lower resolution and upscale
 	Size2i internal_size = Size2i(0, 0);
-	RS::ViewportScaling3DMode scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_OFF;
-	float fsr_sharpness = 0.2f;
 
 	// Aliassing settings
-	RS::ViewportMSAA msaa_3d = RS::VIEWPORT_MSAA_DISABLED;
 	RS::ViewportScreenSpaceAA screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
 	bool use_taa = false;
 	bool use_debanding = false;
@@ -162,10 +159,8 @@ public:
 	RD::DataFormat get_base_data_format() const { return base_data_format; }
 
 	void cleanup();
-	virtual void configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa_3d, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) override;
+	// virtual void configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa_3d, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) override;
 	void configure_for_reflections(const Size2i p_reflection_size);
-	virtual void set_fsr_sharpness(float p_fsr_sharpness) override;
-	virtual void set_texture_mipmap_bias(float p_texture_mipmap_bias) override;
 	virtual void set_use_debanding(bool p_use_debanding) override;
 
 	// Named Textures
@@ -195,9 +190,6 @@ public:
 	_FORCE_INLINE_ uint32_t get_view_count() const { return view_count; }
 	_FORCE_INLINE_ Size2i get_internal_size() const { return internal_size; }
 	_FORCE_INLINE_ Size2i get_target_size() const { return target_size; }
-	_FORCE_INLINE_ RS::ViewportScaling3DMode get_scaling_3d_mode() const { return scaling_3d_mode; }
-	_FORCE_INLINE_ float get_fsr_sharpness() const { return fsr_sharpness; }
-	_FORCE_INLINE_ RS::ViewportMSAA get_msaa_3d() const { return msaa_3d; }
 	_FORCE_INLINE_ RS::ViewportScreenSpaceAA get_screen_space_aa() const { return screen_space_aa; }
 	_FORCE_INLINE_ bool get_use_taa() const { return use_taa; }
 	_FORCE_INLINE_ bool get_use_debanding() const { return use_debanding; }

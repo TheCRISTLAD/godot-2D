@@ -1507,7 +1507,6 @@ void SceneTree::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_debug_paths_hint", "enable"), &SceneTree::set_debug_paths_hint);
 	ClassDB::bind_method(D_METHOD("is_debugging_paths_hint"), &SceneTree::is_debugging_paths_hint);
 
-
 	ClassDB::bind_method(D_METHOD("set_edited_scene_root", "scene"), &SceneTree::set_edited_scene_root);
 	ClassDB::bind_method(D_METHOD("get_edited_scene_root"), &SceneTree::get_edited_scene_root);
 
@@ -1677,9 +1676,6 @@ SceneTree::SceneTree() {
 	const int msaa_mode_2d = GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "rendering/anti_aliasing/quality/msaa_2d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), 0);
 	root->set_msaa_2d(Viewport::MSAA(msaa_mode_2d));
 
-	const int msaa_mode_3d = GLOBAL_DEF_BASIC(PropertyInfo(Variant::INT, "rendering/anti_aliasing/quality/msaa_3d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), 0);
-	root->set_msaa_3d(Viewport::MSAA(msaa_mode_3d));
-
 	const bool transparent_background = GLOBAL_DEF("rendering/viewport/transparent_background", false);
 	root->set_transparent_background(transparent_background);
 
@@ -1691,9 +1687,6 @@ SceneTree::SceneTree() {
 
 	const bool use_debanding = GLOBAL_DEF("rendering/anti_aliasing/quality/use_debanding", false);
 	root->set_use_debanding(use_debanding);
-
-	const bool use_occlusion_culling = GLOBAL_DEF("rendering/occlusion_culling/use_occlusion_culling", false);
-	root->set_use_occlusion_culling(use_occlusion_culling);
 
 	float mesh_lod_threshold = GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/mesh_lod/lod_change/threshold_pixels", PROPERTY_HINT_RANGE, "0,1024,0.1"), 1.0);
 	root->set_mesh_lod_threshold(mesh_lod_threshold);

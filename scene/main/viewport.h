@@ -86,12 +86,6 @@ class Viewport : public Node {
 	GDCLASS(Viewport, Node);
 
 public:
-	enum Scaling3DMode {
-		SCALING_3D_MODE_BILINEAR,
-		SCALING_3D_MODE_FSR,
-		SCALING_3D_MODE_MAX
-	};
-
 	enum PositionalShadowAtlasQuadrantSubdiv {
 		SHADOW_ATLAS_QUADRANT_SUBDIV_DISABLED,
 		SHADOW_ATLAS_QUADRANT_SUBDIV_1,
@@ -194,7 +188,6 @@ public:
 		SUBWINDOW_CANVAS_LAYER = 1024
 	};
 
-
 private:
 	friend class ViewportTexture;
 
@@ -224,8 +217,6 @@ private:
 	bool size_allocated = false;
 
 	RID contact_2d_debug;
-	RID contact_3d_debug_multimesh;
-	RID contact_3d_debug_instance;
 
 	Rect2 last_vp_rect;
 
@@ -239,11 +230,6 @@ private:
 	bool physics_object_picking = false;
 	bool physics_object_picking_sort = false;
 	List<Ref<InputEvent>> physics_picking_events;
-	ObjectID physics_object_capture;
-	ObjectID physics_object_over;
-	Transform3D physics_last_object_transform;
-	Transform3D physics_last_camera_transform;
-	ObjectID physics_last_id;
 
 	bool handle_input_locally = true;
 	bool local_input_handled = false;
@@ -265,8 +251,6 @@ private:
 
 	void _update_audio_listener_2d();
 
-	bool disable_3d = false;
-
 	void _propagate_viewport_notification(Node *p_node, int p_what);
 
 	void _update_global_transform();
@@ -280,17 +264,11 @@ private:
 	PositionalShadowAtlasQuadrantSubdiv positional_shadow_atlas_quadrant_subdiv[4];
 
 	MSAA msaa_2d = MSAA_DISABLED;
-	MSAA msaa_3d = MSAA_DISABLED;
 	ScreenSpaceAA screen_space_aa = SCREEN_SPACE_AA_DISABLED;
 	bool use_taa = false;
 
-	Scaling3DMode scaling_3d_mode = SCALING_3D_MODE_BILINEAR;
-	float scaling_3d_scale = 1.0;
-	float fsr_sharpness = 0.2f;
-	float texture_mipmap_bias = 0.0f;
 	bool use_debanding = false;
 	float mesh_lod_threshold = 1.0;
-	bool use_occlusion_culling = false;
 
 	Ref<ViewportTexture> default_texture;
 	HashSet<ViewportTexture *> viewport_textures;
@@ -517,35 +495,17 @@ public:
 	void set_msaa_2d(MSAA p_msaa);
 	MSAA get_msaa_2d() const;
 
-	void set_msaa_3d(MSAA p_msaa);
-	MSAA get_msaa_3d() const;
-
 	void set_screen_space_aa(ScreenSpaceAA p_screen_space_aa);
 	ScreenSpaceAA get_screen_space_aa() const;
 
 	void set_use_taa(bool p_use_taa);
 	bool is_using_taa() const;
 
-	void set_scaling_3d_mode(Scaling3DMode p_scaling_3d_mode);
-	Scaling3DMode get_scaling_3d_mode() const;
-
-	void set_scaling_3d_scale(float p_scaling_3d_scale);
-	float get_scaling_3d_scale() const;
-
-	void set_fsr_sharpness(float p_fsr_sharpness);
-	float get_fsr_sharpness() const;
-
-	void set_texture_mipmap_bias(float p_texture_mipmap_bias);
-	float get_texture_mipmap_bias() const;
-
 	void set_use_debanding(bool p_use_debanding);
 	bool is_using_debanding() const;
 
 	void set_mesh_lod_threshold(float p_pixels);
 	float get_mesh_lod_threshold() const;
-
-	void set_use_occlusion_culling(bool p_us_occlusion_culling);
-	bool is_using_occlusion_culling() const;
 
 	Vector2 get_camera_coords(const Vector2 &p_viewport_coords) const;
 	Vector2 get_camera_rect_size() const;
@@ -700,7 +660,7 @@ public:
 	SubViewport();
 	~SubViewport();
 };
-VARIANT_ENUM_CAST(Viewport::Scaling3DMode);
+
 VARIANT_ENUM_CAST(SubViewport::UpdateMode);
 VARIANT_ENUM_CAST(Viewport::PositionalShadowAtlasQuadrantSubdiv);
 VARIANT_ENUM_CAST(Viewport::MSAA);

@@ -37,7 +37,6 @@
 #include "servers/rendering/renderer_rd/cluster_builder_rd.h"
 #include "servers/rendering/renderer_rd/effects/bokeh_dof.h"
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
-#include "servers/rendering/renderer_rd/effects/fsr.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
 #include "servers/rendering/renderer_rd/environment/fog.h"
@@ -107,7 +106,6 @@ protected:
 	RendererRD::CopyEffects *copy_effects = nullptr;
 	RendererRD::Luminance *luminance = nullptr;
 	RendererRD::ToneMapper *tone_mapper = nullptr;
-	RendererRD::FSR *fsr = nullptr;
 	double time = 0.0;
 	double time_step = 0.0;
 

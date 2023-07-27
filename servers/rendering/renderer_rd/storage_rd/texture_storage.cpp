@@ -3403,4 +3403,3 @@ void TextureStorage::render_target_set_backbuffer_uniform_set(RID p_render_targe
 	ERR_FAIL_COND(!rt);
 	rt->backbuffer_uniform_set = p_uniform_set;
 }
-

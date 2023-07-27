@@ -550,32 +550,13 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		tonemap.view_count = rb->get_view_count();
 
 		RID dest_fb;
-		if (fsr && can_use_effects && rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_FSR) {
-			// If we use FSR to upscale we need to write our result into an intermediate buffer.
-			// Note that this is cached so we only create the texture the first time.
-			RID dest_texture = rb->create_texture(SNAME("Tonemapper"), SNAME("destination"), _render_buffers_get_color_format(), RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT);
-			dest_fb = FramebufferCacheRD::get_singleton()->get_cache(dest_texture);
-		} else {
-			// If we do a bilinear upscale we just render into our render target and our shader will upscale automatically.
-			// Target size in this case is lying as we never get our real target size communicated.
-			// Bit nasty but...
-			dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
-		}
+
+		// If we do a bilinear upscale we just render into our render target and our shader will upscale automatically.
+		// Target size in this case is lying as we never get our real target size communicated.
+		// Bit nasty but...
+		dest_fb = texture_storage->render_target_get_rd_framebuffer(render_target);
 
 		tone_mapper->tonemapper(internal_texture, dest_fb, tonemap);
-
-		RD::get_singleton()->draw_command_end_label();
-	}
-
-	if (fsr && can_use_effects && rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_FSR) {
-		RD::get_singleton()->draw_command_begin_label("FSR 1.0 Upscale");
-
-		for (uint32_t v = 0; v < rb->get_view_count(); v++) {
-			RID source_texture = rb->get_texture_slice(SNAME("Tonemapper"), SNAME("destination"), v, 0);
-			RID dest_texture = texture_storage->render_target_get_rd_texture_slice(render_target, v);
-
-			fsr->fsr_upscale(rb, source_texture, dest_texture);
-		}
 
 		RD::get_singleton()->draw_command_end_label();
 	}
@@ -1250,9 +1231,6 @@ void RendererSceneRenderRD::init() {
 	copy_effects = memnew(RendererRD::CopyEffects(!can_use_storage));
 	luminance = memnew(RendererRD::Luminance(!can_use_storage));
 	tone_mapper = memnew(RendererRD::ToneMapper);
-	if (can_use_storage) {
-		fsr = memnew(RendererRD::FSR);
-	}
 }
 
 RendererSceneRenderRD::~RendererSceneRenderRD() {
@@ -1271,9 +1249,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 	}
 	if (tone_mapper) {
 		memdelete(tone_mapper);
-	}
-	if (fsr) {
-		memdelete(fsr);
 	}
 
 	if (sky.sky_scene_state.uniform_set.is_valid() && RD::get_singleton()->uniform_set_is_valid(sky.sky_scene_state.uniform_set)) {

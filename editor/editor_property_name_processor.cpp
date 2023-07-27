@@ -167,7 +167,6 @@ EditorPropertyNameProcessor::EditorPropertyNameProcessor() {
 	capitalize_string_remaps["fov"] = "FOV";
 	capitalize_string_remaps["fps"] = "FPS";
 	capitalize_string_remaps["fs"] = "FS";
-	capitalize_string_remaps["fsr"] = "FSR";
 	capitalize_string_remaps["fxaa"] = "FXAA";
 	capitalize_string_remaps["gdscript"] = "GDScript";
 	capitalize_string_remaps["ggx"] = "GGX";

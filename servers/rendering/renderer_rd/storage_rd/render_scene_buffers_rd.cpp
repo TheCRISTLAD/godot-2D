@@ -90,82 +90,81 @@ void RenderSceneBuffersRD::cleanup() {
 	named_textures.clear();
 }
 
-void RenderSceneBuffersRD::configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa_3d, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) {
-	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
+// void RenderSceneBuffersRD::configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa_3d, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) {
+// 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
+// 	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
 
-	ERR_FAIL_COND_MSG(p_view_count == 0, "Must have at least 1 view");
+// 	ERR_FAIL_COND_MSG(p_view_count == 0, "Must have at least 1 view");
 
-	target_size = p_target_size;
-	internal_size = p_internal_size;
-	scaling_3d_mode = p_scaling_3d_mode;
+// 	target_size = p_target_size;
+// 	internal_size = p_internal_size;
 
-	if (p_use_taa) {
-		// Use negative mipmap LOD bias when TAA is enabled to compensate for loss of sharpness.
-		// This restores sharpness in still images to be roughly at the same level as without TAA,
-		// but moving scenes will still be blurrier.
-		p_texture_mipmap_bias -= 0.5;
-	}
+// 	if (p_use_taa) {
+// 		// Use negative mipmap LOD bias when TAA is enabled to compensate for loss of sharpness.
+// 		// This restores sharpness in still images to be roughly at the same level as without TAA,
+// 		// but moving scenes will still be blurrier.
+// 		p_texture_mipmap_bias -= 0.5;
+// 	}
 
-	if (p_screen_space_aa == RS::VIEWPORT_SCREEN_SPACE_AA_FXAA) {
-		// Use negative mipmap LOD bias when FXAA is enabled to compensate for loss of sharpness.
-		// If both TAA and FXAA are enabled, combine their negative LOD biases together.
-		p_texture_mipmap_bias -= 0.25;
-	}
+// 	if (p_screen_space_aa == RS::VIEWPORT_SCREEN_SPACE_AA_FXAA) {
+// 		// Use negative mipmap LOD bias when FXAA is enabled to compensate for loss of sharpness.
+// 		// If both TAA and FXAA are enabled, combine their negative LOD biases together.
+// 		p_texture_mipmap_bias -= 0.25;
+// 	}
 
-	material_storage->sampler_rd_configure_custom(p_texture_mipmap_bias);
+// 	material_storage->sampler_rd_configure_custom(p_texture_mipmap_bias);
 
-	// need to check if we really need to do this here..
-	RendererSceneRenderRD::get_singleton()->update_uniform_sets();
+// 	// need to check if we really need to do this here..
+// 	RendererSceneRenderRD::get_singleton()->update_uniform_sets();
 
-	render_target = p_render_target;
-	fsr_sharpness = p_fsr_sharpness;
-	msaa_3d = p_msaa_3d;
-	screen_space_aa = p_screen_space_aa;
-	use_taa = p_use_taa;
-	use_debanding = p_use_debanding;
-	view_count = p_view_count;
+// 	render_target = p_render_target;
+// 	fsr_sharpness = p_fsr_sharpness;
+// 	msaa_3d = p_msaa_3d;
+// 	screen_space_aa = p_screen_space_aa;
+// 	use_taa = p_use_taa;
+// 	use_debanding = p_use_debanding;
+// 	view_count = p_view_count;
 
-	// cleanout any old buffers we had.
-	cleanup();
+// 	// cleanout any old buffers we had.
+// 	cleanup();
 
-	// create our 3D render buffers
-	{
-		// Create our color buffer(s)
-		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0) | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-		usage_bits |= RD::TEXTURE_USAGE_INPUT_ATTACHMENT_BIT; // only needed when using subpasses in the mobile renderer
+// 	// create our 3D render buffers
+// 	{
+// 		// Create our color buffer(s)
+// 		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0) | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+// 		usage_bits |= RD::TEXTURE_USAGE_INPUT_ATTACHMENT_BIT; // only needed when using subpasses in the mobile renderer
 
-		// our internal texture should have MSAA support if applicable
-		if (msaa_3d != RS::VIEWPORT_MSAA_DISABLED) {
-			usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT;
-		}
+// 		// our internal texture should have MSAA support if applicable
+// 		if (msaa_3d != RS::VIEWPORT_MSAA_DISABLED) {
+// 			usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT;
+// 		}
 
-		create_texture(RB_SCOPE_BUFFERS, RB_TEX_COLOR, base_data_format, usage_bits);
-	}
+// 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_COLOR, base_data_format, usage_bits);
+// 	}
 
-	// Create our depth buffer
-	{
-		// TODO Lazy create this in case we've got an external depth buffer
+// 	// Create our depth buffer
+// 	{
+// 		// TODO Lazy create this in case we've got an external depth buffer
 
-		RD::DataFormat format;
-		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT;
+// 		RD::DataFormat format;
+// 		uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT;
 
-		if (msaa_3d == RS::VIEWPORT_MSAA_DISABLED) {
-			usage_bits |= RD::TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-			format = RD::get_singleton()->texture_is_format_supported_for_usage(RD::DATA_FORMAT_D24_UNORM_S8_UINT, usage_bits) ? RD::DATA_FORMAT_D24_UNORM_S8_UINT : RD::DATA_FORMAT_D32_SFLOAT_S8_UINT;
-		} else {
-			format = RD::DATA_FORMAT_R32_SFLOAT;
-			usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0);
-		}
+// 		if (msaa_3d == RS::VIEWPORT_MSAA_DISABLED) {
+// 			usage_bits |= RD::TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+// 			format = RD::get_singleton()->texture_is_format_supported_for_usage(RD::DATA_FORMAT_D24_UNORM_S8_UINT, usage_bits) ? RD::DATA_FORMAT_D24_UNORM_S8_UINT : RD::DATA_FORMAT_D32_SFLOAT_S8_UINT;
+// 		} else {
+// 			format = RD::DATA_FORMAT_R32_SFLOAT;
+// 			usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT | (can_be_storage ? RD::TEXTURE_USAGE_STORAGE_BIT : 0);
+// 		}
 
-		create_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH, format, usage_bits);
-	}
+// 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH, format, usage_bits);
+// 	}
 
-	// (re-)configure any named buffers
-	for (KeyValue<StringName, Ref<RenderBufferCustomDataRD>> &E : data_buffers) {
-		E.value->configure(this);
-	}
-}
+// 	// (re-)configure any named buffers
+// 	for (KeyValue<StringName, Ref<RenderBufferCustomDataRD>> &E : data_buffers) {
+// 		E.value->configure(this);
+// 	}
+// }
 
 void RenderSceneBuffersRD::configure_for_reflections(const Size2i p_reflection_size) {
 	// For now our render buffers for reflections are only used for effects/environment (Sky/Fog/Etc)
@@ -174,9 +173,6 @@ void RenderSceneBuffersRD::configure_for_reflections(const Size2i p_reflection_s
 	target_size = p_reflection_size;
 	internal_size = p_reflection_size;
 	render_target = RID();
-	scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_OFF;
-	fsr_sharpness = 0.0;
-	msaa_3d = RS::VIEWPORT_MSAA_DISABLED;
 	screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
 	use_taa = false;
 	use_debanding = false;
@@ -189,15 +185,6 @@ void RenderSceneBuffersRD::configure_for_reflections(const Size2i p_reflection_s
 	for (KeyValue<StringName, Ref<RenderBufferCustomDataRD>> &E : data_buffers) {
 		E.value->configure(this);
 	}
-}
-
-void RenderSceneBuffersRD::set_fsr_sharpness(float p_fsr_sharpness) {
-	fsr_sharpness = p_fsr_sharpness;
-}
-
-void RenderSceneBuffersRD::set_texture_mipmap_bias(float p_texture_mipmap_bias) {
-	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
-	material_storage->sampler_rd_configure_custom(p_texture_mipmap_bias);
 }
 
 void RenderSceneBuffersRD::set_use_debanding(bool p_use_debanding) {
@@ -522,22 +509,6 @@ RID RenderSceneBuffersRD::get_depth_texture(const uint32_t p_layer) {
 void RenderSceneBuffersRD::ensure_velocity() {
 	if (!has_texture(RB_SCOPE_BUFFERS, RB_TEX_VELOCITY)) {
 		uint32_t usage_bits = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT;
-
-		if (msaa_3d != RS::VIEWPORT_MSAA_DISABLED) {
-			uint32_t msaa_usage_bits = usage_bits | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
-			usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT;
-
-			const RD::TextureSamples ts[RS::VIEWPORT_MSAA_MAX] = {
-				RD::TEXTURE_SAMPLES_1,
-				RD::TEXTURE_SAMPLES_2,
-				RD::TEXTURE_SAMPLES_4,
-				RD::TEXTURE_SAMPLES_8,
-			};
-
-			RD::TextureSamples texture_samples = ts[msaa_3d];
-
-			create_texture(RB_SCOPE_BUFFERS, RB_TEX_VELOCITY_MSAA, RD::DATA_FORMAT_R16G16_SFLOAT, msaa_usage_bits, texture_samples);
-		}
 
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_VELOCITY, RD::DATA_FORMAT_R16G16_SFLOAT, usage_bits);
 	}

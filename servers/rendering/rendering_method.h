@@ -53,18 +53,6 @@ public:
 	virtual void occluder_initialize(RID p_occluder) = 0;
 	virtual void occluder_set_mesh(RID p_occluder, const PackedVector3Array &p_vertices, const PackedInt32Array &p_indices) = 0;
 
-	virtual RID scenario_allocate() = 0;
-	virtual void scenario_initialize(RID p_rid) = 0;
-
-	virtual void scenario_set_environment(RID p_scenario, RID p_environment) = 0;
-	virtual void scenario_set_camera_attributes(RID p_scenario, RID p_attributes) = 0;
-	virtual void scenario_set_fallback_environment(RID p_scenario, RID p_environment) = 0;
-	virtual void scenario_set_reflection_atlas_size(RID p_scenario, int p_reflection_size, int p_reflection_count) = 0;
-	virtual bool is_scenario(RID p_scenario) const = 0;
-	virtual RID scenario_get_environment(RID p_scenario) = 0;
-	virtual void scenario_add_viewport_visibility_mask(RID p_scenario, RID p_viewport) = 0;
-	virtual void scenario_remove_viewport_visibility_mask(RID p_scenario, RID p_viewport) = 0;
-
 	virtual RID instance_allocate() = 0;
 	virtual void instance_initialize(RID p_rid) = 0;
 

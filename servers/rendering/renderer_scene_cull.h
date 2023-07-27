@@ -350,18 +350,6 @@ public:
 
 	void _instance_update_mesh_instance(Instance *p_instance);
 
-	virtual RID scenario_allocate();
-	virtual void scenario_initialize(RID p_rid);
-
-	virtual void scenario_set_environment(RID p_scenario, RID p_environment);
-	virtual void scenario_set_camera_attributes(RID p_scenario, RID p_attributes);
-	virtual void scenario_set_fallback_environment(RID p_scenario, RID p_environment);
-	virtual void scenario_set_reflection_atlas_size(RID p_scenario, int p_reflection_size, int p_reflection_count);
-	virtual bool is_scenario(RID p_scenario) const;
-	virtual RID scenario_get_environment(RID p_scenario);
-	virtual void scenario_add_viewport_visibility_mask(RID p_scenario, RID p_viewport);
-	virtual void scenario_remove_viewport_visibility_mask(RID p_scenario, RID p_viewport);
-
 	/* INSTANCING API */
 
 	struct InstancePair {

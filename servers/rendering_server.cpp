@@ -2090,17 +2090,12 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("viewport_set_render_direct_to_screen", "viewport", "enabled"), &RenderingServer::viewport_set_render_direct_to_screen);
 	ClassDB::bind_method(D_METHOD("viewport_set_canvas_cull_mask", "viewport", "canvas_cull_mask"), &RenderingServer::viewport_set_canvas_cull_mask);
 
-	ClassDB::bind_method(D_METHOD("viewport_set_scaling_3d_mode", "viewport", "scaling_3d_mode"), &RenderingServer::viewport_set_scaling_3d_mode);
-	ClassDB::bind_method(D_METHOD("viewport_set_scaling_3d_scale", "viewport", "scale"), &RenderingServer::viewport_set_scaling_3d_scale);
-	ClassDB::bind_method(D_METHOD("viewport_set_fsr_sharpness", "viewport", "sharpness"), &RenderingServer::viewport_set_fsr_sharpness);
-	ClassDB::bind_method(D_METHOD("viewport_set_texture_mipmap_bias", "viewport", "mipmap_bias"), &RenderingServer::viewport_set_texture_mipmap_bias);
 	ClassDB::bind_method(D_METHOD("viewport_set_update_mode", "viewport", "update_mode"), &RenderingServer::viewport_set_update_mode);
 	ClassDB::bind_method(D_METHOD("viewport_set_clear_mode", "viewport", "clear_mode"), &RenderingServer::viewport_set_clear_mode);
 	ClassDB::bind_method(D_METHOD("viewport_get_render_target", "viewport"), &RenderingServer::viewport_get_render_target);
 	ClassDB::bind_method(D_METHOD("viewport_get_texture", "viewport"), &RenderingServer::viewport_get_texture);
 	ClassDB::bind_method(D_METHOD("viewport_set_disable_2d", "viewport", "disable"), &RenderingServer::viewport_set_disable_2d);
 	ClassDB::bind_method(D_METHOD("viewport_attach_camera", "viewport", "camera"), &RenderingServer::viewport_attach_camera);
-	ClassDB::bind_method(D_METHOD("viewport_set_scenario", "viewport", "scenario"), &RenderingServer::viewport_set_scenario);
 	ClassDB::bind_method(D_METHOD("viewport_attach_canvas", "viewport", "canvas"), &RenderingServer::viewport_attach_canvas);
 	ClassDB::bind_method(D_METHOD("viewport_remove_canvas", "viewport", "canvas"), &RenderingServer::viewport_remove_canvas);
 	ClassDB::bind_method(D_METHOD("viewport_set_snap_2d_transforms_to_pixel", "viewport", "enabled"), &RenderingServer::viewport_set_snap_2d_transforms_to_pixel);
@@ -2119,14 +2114,10 @@ void RenderingServer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_size", "viewport", "size", "use_16_bits"), &RenderingServer::viewport_set_positional_shadow_atlas_size, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_quadrant_subdivision", "viewport", "quadrant", "subdivision"), &RenderingServer::viewport_set_positional_shadow_atlas_quadrant_subdivision);
-	ClassDB::bind_method(D_METHOD("viewport_set_msaa_3d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_3d);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_2d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("viewport_set_screen_space_aa", "viewport", "mode"), &RenderingServer::viewport_set_screen_space_aa);
 	ClassDB::bind_method(D_METHOD("viewport_set_use_taa", "viewport", "enable"), &RenderingServer::viewport_set_use_taa);
 	ClassDB::bind_method(D_METHOD("viewport_set_use_debanding", "viewport", "enable"), &RenderingServer::viewport_set_use_debanding);
-	ClassDB::bind_method(D_METHOD("viewport_set_use_occlusion_culling", "viewport", "enable"), &RenderingServer::viewport_set_use_occlusion_culling);
-	ClassDB::bind_method(D_METHOD("viewport_set_occlusion_rays_per_thread", "rays_per_thread"), &RenderingServer::viewport_set_occlusion_rays_per_thread);
-	ClassDB::bind_method(D_METHOD("viewport_set_occlusion_culling_build_quality", "quality"), &RenderingServer::viewport_set_occlusion_culling_build_quality);
 
 	ClassDB::bind_method(D_METHOD("viewport_get_render_info", "viewport", "type", "info"), &RenderingServer::viewport_get_render_info);
 	ClassDB::bind_method(D_METHOD("viewport_set_debug_draw", "viewport", "draw"), &RenderingServer::viewport_set_debug_draw);
@@ -2135,10 +2126,6 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("viewport_get_measured_render_time_cpu", "viewport"), &RenderingServer::viewport_get_measured_render_time_cpu);
 
 	ClassDB::bind_method(D_METHOD("viewport_get_measured_render_time_gpu", "viewport"), &RenderingServer::viewport_get_measured_render_time_gpu);
-
-	BIND_ENUM_CONSTANT(VIEWPORT_SCALING_3D_MODE_BILINEAR);
-	BIND_ENUM_CONSTANT(VIEWPORT_SCALING_3D_MODE_FSR);
-	BIND_ENUM_CONSTANT(VIEWPORT_SCALING_3D_MODE_MAX);
 
 	BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_DISABLED);
 	BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_ONCE); // Then goes to disabled); must be manually updated.
@@ -2357,13 +2344,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(DOF_BLUR_QUALITY_LOW);
 	BIND_ENUM_CONSTANT(DOF_BLUR_QUALITY_MEDIUM);
 	BIND_ENUM_CONSTANT(DOF_BLUR_QUALITY_HIGH);
-
-	/* SCENARIO */
-
-	ClassDB::bind_method(D_METHOD("scenario_create"), &RenderingServer::scenario_create);
-	ClassDB::bind_method(D_METHOD("scenario_set_environment", "scenario", "environment"), &RenderingServer::scenario_set_environment);
-	ClassDB::bind_method(D_METHOD("scenario_set_fallback_environment", "scenario", "environment"), &RenderingServer::scenario_set_fallback_environment);
-	ClassDB::bind_method(D_METHOD("scenario_set_camera_attributes", "scenario", "effects"), &RenderingServer::scenario_set_camera_attributes);
 
 	/* INSTANCE */
 
@@ -2819,15 +2799,8 @@ void RenderingServer::init() {
 	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/anti_aliasing/screen_space_roughness_limiter/amount", PROPERTY_HINT_RANGE, "0.01,4.0,0.01"), 0.25);
 	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/anti_aliasing/screen_space_roughness_limiter/limit", PROPERTY_HINT_RANGE, "0.01,1.0,0.01"), 0.18);
 
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/scaling_3d/mode", PROPERTY_HINT_ENUM, "Bilinear (Fastest),FSR 1.0 (Fast)"), 0);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/scaling_3d/scale", PROPERTY_HINT_RANGE, "0.25,2.0,0.01"), 1.0);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/scaling_3d/fsr_sharpness", PROPERTY_HINT_RANGE, "0,2,0.1"), 0.2f);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/textures/default_filters/texture_mipmap_bias", PROPERTY_HINT_RANGE, "-2,2,0.001"), 0.0f);
-
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/textures/decals/filter", PROPERTY_HINT_ENUM, "Nearest (Fast),Linear (Fast),Nearest Mipmap (Fast),Linear Mipmap (Fast),Nearest Mipmap Anisotropic (Average),Linear Mipmap Anisotropic (Average)"), DECAL_FILTER_LINEAR_MIPMAPS);
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/textures/light_projectors/filter", PROPERTY_HINT_ENUM, "Nearest (Fast),Linear (Fast),Nearest Mipmap (Fast),Linear Mipmap (Fast),Nearest Mipmap Anisotropic (Average),Linear Mipmap Anisotropic (Average)"), LIGHT_PROJECTOR_FILTER_LINEAR_MIPMAPS);
-
-	GLOBAL_DEF_RST("rendering/occlusion_culling/occlusion_rays_per_thread", 512);
 
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/environment/glow/upscale_mode", PROPERTY_HINT_ENUM, "Linear (Fast),Bicubic (Slow)"), 1);
 	GLOBAL_DEF("rendering/environment/glow/upscale_mode.mobile", 0);

@@ -800,13 +800,6 @@ public:
 
 	virtual RID viewport_create() = 0;
 
-	enum ViewportScaling3DMode {
-		VIEWPORT_SCALING_3D_MODE_BILINEAR,
-		VIEWPORT_SCALING_3D_MODE_FSR,
-		VIEWPORT_SCALING_3D_MODE_MAX,
-		VIEWPORT_SCALING_3D_MODE_OFF = 255, // for internal use only
-	};
-
 	virtual void viewport_set_size(RID p_viewport, int p_width, int p_height) = 0;
 	virtual void viewport_set_active(RID p_viewport, bool p_active) = 0;
 	virtual void viewport_set_parent_viewport(RID p_viewport, RID p_parent_viewport) = 0;
@@ -814,11 +807,6 @@ public:
 
 	virtual void viewport_attach_to_screen(RID p_viewport, const Rect2 &p_rect = Rect2(), DisplayServer::WindowID p_screen = DisplayServer::MAIN_WINDOW_ID) = 0;
 	virtual void viewport_set_render_direct_to_screen(RID p_viewport, bool p_enable) = 0;
-
-	virtual void viewport_set_scaling_3d_mode(RID p_viewport, ViewportScaling3DMode p_scaling_3d_mode) = 0;
-	virtual void viewport_set_scaling_3d_scale(RID p_viewport, float p_scaling_3d_scale) = 0;
-	virtual void viewport_set_fsr_sharpness(RID p_viewport, float p_fsr_sharpness) = 0;
-	virtual void viewport_set_texture_mipmap_bias(RID p_viewport, float p_texture_mipmap_bias) = 0;
 
 	enum ViewportUpdateMode {
 		VIEWPORT_UPDATE_DISABLED,
@@ -844,7 +832,6 @@ public:
 	virtual void viewport_set_disable_2d(RID p_viewport, bool p_disable) = 0;
 
 	virtual void viewport_attach_camera(RID p_viewport, RID p_camera) = 0;
-	virtual void viewport_set_scenario(RID p_viewport, RID p_scenario) = 0;
 	virtual void viewport_attach_canvas(RID p_viewport, RID p_canvas) = 0;
 	virtual void viewport_remove_canvas(RID p_viewport, RID p_canvas) = 0;
 	virtual void viewport_set_canvas_transform(RID p_viewport, RID p_canvas, const Transform2D &p_offset) = 0;
@@ -886,7 +873,6 @@ public:
 		VIEWPORT_MSAA_MAX,
 	};
 
-	virtual void viewport_set_msaa_3d(RID p_viewport, ViewportMSAA p_msaa) = 0;
 	virtual void viewport_set_msaa_2d(RID p_viewport, ViewportMSAA p_msaa) = 0;
 
 	enum ViewportScreenSpaceAA {
@@ -903,16 +889,11 @@ public:
 
 	virtual void viewport_set_mesh_lod_threshold(RID p_viewport, float p_pixels) = 0;
 
-	virtual void viewport_set_use_occlusion_culling(RID p_viewport, bool p_use_occlusion_culling) = 0;
-	virtual void viewport_set_occlusion_rays_per_thread(int p_rays_per_thread) = 0;
-
 	enum ViewportOcclusionCullingBuildQuality {
 		VIEWPORT_OCCLUSION_BUILD_QUALITY_LOW = 0,
 		VIEWPORT_OCCLUSION_BUILD_QUALITY_MEDIUM = 1,
 		VIEWPORT_OCCLUSION_BUILD_QUALITY_HIGH = 2,
 	};
-
-	virtual void viewport_set_occlusion_culling_build_quality(ViewportOcclusionCullingBuildQuality p_quality) = 0;
 
 	enum ViewportRenderInfo {
 		VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME,
@@ -1162,14 +1143,6 @@ public:
 	virtual void camera_attributes_set_dof_blur(RID p_camera_attributes, bool p_far_enable, float p_far_distance, float p_far_transition, bool p_near_enable, float p_near_distance, float p_near_transition, float p_amount) = 0;
 	virtual void camera_attributes_set_exposure(RID p_camera_attributes, float p_multiplier, float p_exposure_normalization) = 0;
 	virtual void camera_attributes_set_auto_exposure(RID p_camera_attributes, bool p_enable, float p_min_sensitivity, float p_max_sensitivity, float p_speed, float p_scale) = 0;
-
-	/* SCENARIO API */
-
-	virtual RID scenario_create() = 0;
-
-	virtual void scenario_set_environment(RID p_scenario, RID p_environment) = 0;
-	virtual void scenario_set_fallback_environment(RID p_scenario, RID p_environment) = 0;
-	virtual void scenario_set_camera_attributes(RID p_scenario, RID p_camera_attributes) = 0;
 
 	/* INSTANCING API */
 
@@ -1614,7 +1587,6 @@ VARIANT_ENUM_CAST(RenderingServer::ParticlesEmitFlags);
 VARIANT_ENUM_CAST(RenderingServer::ParticlesCollisionType);
 VARIANT_ENUM_CAST(RenderingServer::ParticlesCollisionHeightfieldResolution);
 VARIANT_ENUM_CAST(RenderingServer::FogVolumeShape);
-VARIANT_ENUM_CAST(RenderingServer::ViewportScaling3DMode);
 VARIANT_ENUM_CAST(RenderingServer::ViewportUpdateMode);
 VARIANT_ENUM_CAST(RenderingServer::ViewportClearMode);
 VARIANT_ENUM_CAST(RenderingServer::ViewportMSAA);

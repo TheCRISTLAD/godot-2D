@@ -1777,10 +1777,6 @@
 			Sets the number of MSAA samples to use for 2D/Canvas rendering (as a power of two). MSAA is used to reduce aliasing around the edges of polygons. A higher MSAA value results in smoother edges but can be significantly slower on some hardware, especially integrated graphics due to their limited memory bandwidth. This has no effect on shader-induced aliasing or texture aliasing.
 			[b]Note:[/b] MSAA is only supported in the Forward+ and Mobile rendering methods, not Compatibility.
 		</member>
-		<member name="rendering/anti_aliasing/quality/msaa_3d" type="int" setter="" getter="" default="0">
-			Sets the number of MSAA samples to use for 3D rendering (as a power of two). MSAA is used to reduce aliasing around the edges of polygons. A higher MSAA value results in smoother edges but can be significantly slower on some hardware, especially integrated graphics due to their limited memory bandwidth. See also [member rendering/scaling_3d/mode] for supersampling, which provides higher quality but is much more expensive. This has no effect on shader-induced aliasing or texture aliasing.
-			[b]Note:[/b] MSAA is only supported in the Forward+ and Mobile rendering methods, not Compatibility.
-		</member>
 		<member name="rendering/anti_aliasing/quality/screen_space_aa" type="int" setter="" getter="" default="0">
 			Sets the screen-space antialiasing mode for the default screen [Viewport]. Screen-space antialiasing works by selectively blurring edges in a post-process shader. It differs from MSAA which takes multiple coverage samples while rendering objects. Screen-space AA methods are typically faster than MSAA and will smooth out specular aliasing, but tend to make scenes appear blurry. The blurriness is partially counteracted by automatically using a negative mipmap LOD bias (see [member rendering/textures/default_filters/texture_mipmap_bias]).
 			Another way to combat specular aliasing is to enable [member rendering/anti_aliasing/screen_space_roughness_limiter/enabled].
@@ -2068,18 +2064,6 @@
 			[b]Note:[/b] [member rendering/mesh_lod/lod_change/threshold_pixels] does not affect GeometryInstance3D visibility ranges (also known as "manual" LOD or hierarchical LOD).
 			[b]Note:[/b] This property is only read when the project starts. To adjust the automatic LOD threshold at runtime, set [member Viewport.mesh_lod_threshold] on the root [Viewport].
 		</member>
-		<member name="rendering/occlusion_culling/bvh_build_quality" type="int" setter="" getter="" default="2">
-			The [url=https://en.wikipedia.org/wiki/Bounding_volume_hierarchy]Bounding Volume Hierarchy[/url] quality to use when rendering the occlusion culling buffer. Higher values will result in more accurate occlusion culling, at the cost of higher CPU usage. See also [member rendering/occlusion_culling/occlusion_rays_per_thread].
-			[b]Note:[/b] This property is only read when the project starts. To adjust the BVH build quality at runtime, use [method RenderingServer.viewport_set_occlusion_culling_build_quality].
-		</member>
-		<member name="rendering/occlusion_culling/occlusion_rays_per_thread" type="int" setter="" getter="" default="512">
-			The number of occlusion rays traced per CPU thread. Higher values will result in more accurate occlusion culling, at the cost of higher CPU usage. The occlusion culling buffer's pixel count is roughly equal to [code]occlusion_rays_per_thread * number_of_logical_cpu_cores[/code], so it will depend on the system's CPU. Therefore, CPUs with fewer cores will use a lower resolution to attempt keeping performance costs even across devices. See also [member rendering/occlusion_culling/bvh_build_quality].
-			[b]Note:[/b] This property is only read when the project starts. To adjust the number of occlusion rays traced per thread at runtime, use [method RenderingServer.viewport_set_occlusion_rays_per_thread].
-		</member>
-		<member name="rendering/occlusion_culling/use_occlusion_culling" type="bool" setter="" getter="" default="false">
-			If [code]true[/code], [OccluderInstance3D] nodes will be usable for occlusion culling in 3D in the root viewport. In custom viewports, [member Viewport.use_occlusion_culling] must be set to [code]true[/code] instead.
-			[b]Note:[/b] Enabling occlusion culling has a cost on the CPU. Only enable occlusion culling if you actually plan to use it. Large open scenes with few or no objects blocking the view will generally not benefit much from occlusion culling. Large open scenes generally benefit more from mesh LOD and visibility ranges ([member GeometryInstance3D.visibility_range_begin] and [member GeometryInstance3D.visibility_range_end]) compared to occlusion culling.
-		</member>
 		<member name="rendering/reflections/reflection_atlas/reflection_count" type="int" setter="" getter="" default="64">
 			Number of cubemaps to store in the reflection atlas. The number of [ReflectionProbe]s in a scene will be limited by this amount. A higher number requires more VRAM.
 		</member>
@@ -2148,16 +2132,6 @@
 		</member>
 		<member name="rendering/rendering_device/vulkan/max_descriptors_per_pool" type="int" setter="" getter="" default="64">
 		</member>
-		<member name="rendering/scaling_3d/fsr_sharpness" type="float" setter="" getter="" default="0.2">
-			Determines how sharp the upscaled image will be when using the FSR upscaling mode. Sharpness halves with every whole number. Values go from 0.0 (sharpest) to 2.0. Values above 2.0 won't make a visible difference.
-		</member>
-		<member name="rendering/scaling_3d/mode" type="int" setter="" getter="" default="0">
-			Sets the scaling 3D mode. Bilinear scaling renders at different resolution to either undersample or supersample the viewport. FidelityFX Super Resolution 1.0, abbreviated to FSR, is an upscaling technology that produces high quality images at fast framerates by using a spatially-aware upscaling algorithm. FSR is slightly more expensive than bilinear, but it produces significantly higher image quality. On particularly low-end GPUs, the added cost of FSR may not be worth it (compared to using bilinear scaling with a slightly higher resolution scale to match performance).
-			[b]Note:[/b] FSR is only effective when using the Forward+ rendering method, not Mobile or Compatibility. If using an incompatible rendering method, FSR will fall back to bilinear scaling.
-		</member>
-		<member name="rendering/scaling_3d/scale" type="float" setter="" getter="" default="1.0">
-			Scales the 3D render buffer based on the viewport size uses an image filter specified in [member rendering/scaling_3d/mode] to scale the output image to the full viewport size. Values lower than [code]1.0[/code] can be used to speed up 3D rendering at the cost of quality (undersampling). Values greater than [code]1.0[/code] are only valid for bilinear mode and can be used to improve 3D rendering quality at a high performance cost (supersampling). See also [member rendering/anti_aliasing/quality/msaa_3d] for multi-sample antialiasing, which is significantly cheaper but only smooths the edges of polygons.
-		</member>
 		<member name="rendering/shader_compiler/shader_cache/compress" type="bool" setter="" getter="" default="true">
 		</member>
 		<member name="rendering/shader_compiler/shader_cache/enabled" type="bool" setter="" getter="" default="true">
@@ -2197,12 +2171,6 @@
 			The anisotropic filtering level also affects decals and light projectors if they are configured to use anisotropic filtering. See [member rendering/textures/decals/filter] and [member rendering/textures/light_projectors/filter].
 			[b]Note:[/b] For performance reasons, anisotropic filtering [i]is not enabled by default[/i] on 2D and 3D materials. For this setting to have an effect in 3D, set [member BaseMaterial3D.texture_filter] to [constant BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC] or [constant BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC] on materials. For this setting to have an effect in 2D, set [member CanvasItem.texture_filter] to [constant CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC] or [constant CanvasItem.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC] on the [CanvasItem] node displaying the texture (or in [CanvasTexture]). However, anisotropic filtering is rarely useful in 2D, so only enable it for textures in 2D if it makes a meaningful visual difference.
 			[b]Note:[/b] This property is only read when the project starts. There is currently no way to change this setting at run-time.
-		</member>
-		<member name="rendering/textures/default_filters/texture_mipmap_bias" type="float" setter="" getter="" default="0.0">
-			Affects the final texture sharpness by reading from a lower or higher mipmap (also called "texture LOD bias"). Negative values make mipmapped textures sharper but grainier when viewed at a distance, while positive values make mipmapped textures blurrier (even when up close).
-			Enabling temporal antialiasing ([member rendering/anti_aliasing/quality/use_taa]) will automatically apply a [code]-0.5[/code] offset to this value, while enabling FXAA ([member rendering/anti_aliasing/quality/screen_space_aa]) will automatically apply a [code]-0.25[/code] offset to this value. If both TAA and FXAA are enbled at the same time, an offset of [code]-0.75[/code] is applied to this value.
-			[b]Note:[/b] If [member rendering/scaling_3d/scale] is lower than [code]1.0[/code] (exclusive), [member rendering/textures/default_filters/texture_mipmap_bias] is used to adjust the automatic mipmap bias which is calculated internally based on the scale factor. The formula for this is [code]log2(scaling_3d_scale) + mipmap_bias[/code].
-			[b]Note:[/b] This property is only read when the project starts. To change the mipmap LOD bias at run-time, set [member Viewport.texture_mipmap_bias] instead.
 		</member>
 		<member name="rendering/textures/default_filters/use_nearest_mipmap_filter" type="bool" setter="" getter="" default="false">
 			If [code]true[/code], uses nearest-neighbor mipmap filtering when using mipmaps (also called "bilinear filtering"), which will result in visible seams appearing between mipmap stages. This may increase performance in mobile as less memory bandwidth is used. If [code]false[/code], linear mipmap filtering (also called "trilinear filtering") is used.

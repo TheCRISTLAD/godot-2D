@@ -598,11 +598,6 @@ public:
 	FUNC3(viewport_attach_to_screen, RID, const Rect2 &, int)
 	FUNC2(viewport_set_render_direct_to_screen, RID, bool)
 
-	FUNC2(viewport_set_scaling_3d_mode, RID, ViewportScaling3DMode)
-	FUNC2(viewport_set_scaling_3d_scale, RID, float)
-	FUNC2(viewport_set_fsr_sharpness, RID, float)
-	FUNC2(viewport_set_texture_mipmap_bias, RID, float)
-
 	FUNC2(viewport_set_update_mode, RID, ViewportUpdateMode)
 
 	FUNC1RC(RID, viewport_get_render_target, RID)
@@ -613,7 +608,6 @@ public:
 	FUNC2(viewport_set_canvas_cull_mask, RID, uint32_t)
 
 	FUNC2(viewport_attach_camera, RID, RID)
-	FUNC2(viewport_set_scenario, RID, RID)
 	FUNC2(viewport_attach_canvas, RID, RID)
 
 	FUNC2(viewport_remove_canvas, RID, RID)
@@ -631,13 +625,9 @@ public:
 	FUNC3(viewport_set_sdf_oversize_and_scale, RID, ViewportSDFOversize, ViewportSDFScale)
 	FUNC3(viewport_set_positional_shadow_atlas_quadrant_subdivision, RID, int, int)
 	FUNC2(viewport_set_msaa_2d, RID, ViewportMSAA)
-	FUNC2(viewport_set_msaa_3d, RID, ViewportMSAA)
 	FUNC2(viewport_set_screen_space_aa, RID, ViewportScreenSpaceAA)
 	FUNC2(viewport_set_use_taa, RID, bool)
 	FUNC2(viewport_set_use_debanding, RID, bool)
-	FUNC2(viewport_set_use_occlusion_culling, RID, bool)
-	FUNC1(viewport_set_occlusion_rays_per_thread, int)
-	FUNC1(viewport_set_occlusion_culling_build_quality, ViewportOcclusionCullingBuildQuality)
 	FUNC2(viewport_set_mesh_lod_threshold, RID, float)
 
 	FUNC3R(int, viewport_get_render_info, RID, ViewportRenderInfoType, ViewportRenderInfo)
@@ -745,12 +735,6 @@ public:
 
 #define ServerName RenderingMethod
 #define server_name RSG::scene
-
-	FUNCRIDSPLIT(scenario)
-
-	FUNC2(scenario_set_environment, RID, RID)
-	FUNC2(scenario_set_camera_attributes, RID, RID)
-	FUNC2(scenario_set_fallback_environment, RID, RID)
 
 	/* INSTANCING API */
 	FUNCRIDSPLIT(instance)

@@ -52,7 +52,6 @@ public:
 	int internal_height = 0;
 	int width = 0;
 	int height = 0;
-	//float fsr_sharpness = 0.2f;
 	RS::ViewportMSAA msaa = RS::VIEWPORT_MSAA_DISABLED;
 	//RS::ViewportScreenSpaceAA screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
 	//bool use_debanding = false;
@@ -81,10 +80,8 @@ public:
 private:
 public:
 	virtual ~RenderSceneBuffersGLES3();
-	virtual void configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) override;
+	// virtual void configure(RID p_render_target, const Size2i p_internal_size, const Size2i p_target_size, RS::ViewportScaling3DMode p_scaling_3d_mode, float p_fsr_sharpness, float p_texture_mipmap_bias, RS::ViewportMSAA p_msaa, RenderingServer::ViewportScreenSpaceAA p_screen_space_aa, bool p_use_taa, bool p_use_debanding, uint32_t p_view_count) override;
 
-	virtual void set_fsr_sharpness(float p_fsr_sharpness) override{};
-	virtual void set_texture_mipmap_bias(float p_texture_mipmap_bias) override{};
 	virtual void set_use_debanding(bool p_use_debanding) override{};
 
 	void free_render_buffer_data();
