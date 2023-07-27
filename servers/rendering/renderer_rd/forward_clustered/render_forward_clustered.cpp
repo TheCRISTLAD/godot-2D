@@ -533,87 +533,6 @@ void RenderForwardClustered::_render_list_with_threads(RenderListParameters *p_p
 	}
 }
 
-void RenderForwardClustered::_setup_environment(const RenderDataRD *p_render_data, bool p_no_fog, const Size2i &p_screen_size, bool p_flip_y, const Color &p_default_bg_color, bool p_opaque_render_buffers, bool p_pancake_shadows, int p_index) {
-	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
-
-	Ref<RenderSceneBuffersRD> rd = p_render_data->render_buffers;
-	RID env = is_environment(p_render_data->environment) ? p_render_data->environment : RID();
-	RID reflection_probe_instance = p_render_data->reflection_probe.is_valid() ? light_storage->reflection_probe_instance_get_probe(p_render_data->reflection_probe) : RID();
-
-	// May do this earlier in RenderSceneRenderRD::render_scene
-	if (p_index >= (int)scene_state.uniform_buffers.size()) {
-		uint32_t from = scene_state.uniform_buffers.size();
-		scene_state.uniform_buffers.resize(p_index + 1);
-		for (uint32_t i = from; i < scene_state.uniform_buffers.size(); i++) {
-			scene_state.uniform_buffers[i] = p_render_data->scene_data->create_uniform_buffer();
-		}
-	}
-
-	p_render_data->scene_data->update_ubo(scene_state.uniform_buffers[p_index], get_debug_draw_mode(), env, reflection_probe_instance, p_render_data->camera_attributes, p_flip_y, p_pancake_shadows, p_screen_size, p_default_bg_color, _render_buffers_get_luminance_multiplier(), p_opaque_render_buffers);
-
-	// now do implementation UBO
-
-	scene_state.ubo.cluster_shift = get_shift_from_power_of_2(p_render_data->cluster_size);
-	scene_state.ubo.max_cluster_element_count_div_32 = p_render_data->cluster_max_elements / 32;
-	{
-		uint32_t cluster_screen_width = (p_screen_size.width - 1) / p_render_data->cluster_size + 1;
-		uint32_t cluster_screen_height = (p_screen_size.height - 1) / p_render_data->cluster_size + 1;
-		scene_state.ubo.cluster_type_size = cluster_screen_width * cluster_screen_height * (scene_state.ubo.max_cluster_element_count_div_32 + 32);
-		scene_state.ubo.cluster_width = cluster_screen_width;
-	}
-
-	scene_state.ubo.gi_upscale_for_msaa = false;
-	scene_state.ubo.volumetric_fog_enabled = false;
-
-	if (rd.is_valid()) {
-		scene_state.ubo.gi_upscale_for_msaa = true;
-
-		if (rd->has_custom_data(RB_SCOPE_FOG)) {
-			Ref<RendererRD::Fog::VolumetricFog> fog = rd->get_custom_data(RB_SCOPE_FOG);
-
-			scene_state.ubo.volumetric_fog_enabled = true;
-			float fog_end = fog->length;
-			if (fog_end > 0.0) {
-				scene_state.ubo.volumetric_fog_inv_length = 1.0 / fog_end;
-			} else {
-				scene_state.ubo.volumetric_fog_inv_length = 1.0;
-			}
-
-			float fog_detail_spread = fog->spread; //reverse lookup
-			if (fog_detail_spread > 0.0) {
-				scene_state.ubo.volumetric_fog_detail_spread = 1.0 / fog_detail_spread;
-			} else {
-				scene_state.ubo.volumetric_fog_detail_spread = 1.0;
-			}
-		}
-	}
-
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_UNSHADED) {
-		scene_state.ubo.ss_effects_flags = 0;
-	} else if (p_render_data->reflection_probe.is_null() && is_environment(p_render_data->environment)) {
-		scene_state.ubo.ssao_ao_affect = environment_get_ssao_ao_channel_affect(p_render_data->environment);
-		scene_state.ubo.ssao_light_affect = environment_get_ssao_direct_light_affect(p_render_data->environment);
-		uint32_t ss_flags = 0;
-		if (p_opaque_render_buffers) {
-			ss_flags |= environment_get_ssao_enabled(p_render_data->environment) ? 1 : 0;
-			ss_flags |= environment_get_ssil_enabled(p_render_data->environment) ? 2 : 0;
-		}
-		scene_state.ubo.ss_effects_flags = ss_flags;
-	} else {
-		scene_state.ubo.ss_effects_flags = 0;
-	}
-
-	if (p_index >= (int)scene_state.implementation_uniform_buffers.size()) {
-		uint32_t from = scene_state.implementation_uniform_buffers.size();
-		scene_state.implementation_uniform_buffers.resize(p_index + 1);
-		for (uint32_t i = from; i < scene_state.implementation_uniform_buffers.size(); i++) {
-			scene_state.implementation_uniform_buffers[i] = RD::get_singleton()->uniform_buffer_create(sizeof(SceneState::UBO));
-		}
-	}
-
-	RD::get_singleton()->buffer_update(scene_state.implementation_uniform_buffers[p_index], 0, sizeof(SceneState::UBO), &scene_state.ubo, RD::BARRIER_MASK_RASTER);
-}
-
 void RenderForwardClustered::_update_instance_data_buffer(RenderListType p_render_list) {
 	if (scene_state.instance_data[p_render_list].size() > 0) {
 		if (scene_state.instance_buffer[p_render_list] == RID() || scene_state.instance_buffer_size[p_render_list] < scene_state.instance_data[p_render_list].size()) {
@@ -948,44 +867,6 @@ void RenderForwardClustered::_fill_render_list(RenderListType p_render_list, con
 
 	if (p_render_list == RENDER_LIST_OPAQUE && lightmap_captures_used) {
 		RD::get_singleton()->buffer_update(scene_state.lightmap_capture_buffer, 0, sizeof(LightmapCaptureData) * lightmap_captures_used, scene_state.lightmap_captures, RD::BARRIER_MASK_RASTER);
-	}
-}
-
-void RenderForwardClustered::_setup_voxelgis(const PagedArray<RID> &p_voxelgis) {
-	scene_state.voxelgis_used = MIN(p_voxelgis.size(), uint32_t(MAX_VOXEL_GI_INSTANCESS));
-	for (uint32_t i = 0; i < scene_state.voxelgis_used; i++) {
-		scene_state.voxelgi_ids[i] = p_voxelgis[i];
-	}
-}
-
-void RenderForwardClustered::_setup_lightmaps(const RenderDataRD *p_render_data, const PagedArray<RID> &p_lightmaps, const Transform3D &p_cam_transform) {
-	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
-
-	scene_state.lightmaps_used = 0;
-	for (int i = 0; i < (int)p_lightmaps.size(); i++) {
-		if (i >= (int)scene_state.max_lightmaps) {
-			break;
-		}
-
-		RID lightmap = light_storage->lightmap_instance_get_lightmap(p_lightmaps[i]);
-
-		Basis to_lm = light_storage->lightmap_instance_get_transform(p_lightmaps[i]).basis.inverse() * p_cam_transform.basis;
-		to_lm = to_lm.inverse().transposed(); //will transform normals
-		RendererRD::MaterialStorage::store_transform_3x3(to_lm, scene_state.lightmaps[i].normal_xform);
-		scene_state.lightmaps[i].exposure_normalization = 1.0;
-		if (p_render_data->camera_attributes.is_valid()) {
-			float baked_exposure = light_storage->lightmap_get_baked_exposure_normalization(lightmap);
-			float enf = RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_render_data->camera_attributes);
-			scene_state.lightmaps[i].exposure_normalization = enf / baked_exposure;
-		}
-
-		scene_state.lightmap_ids[i] = p_lightmaps[i];
-		scene_state.lightmap_has_sh[i] = light_storage->lightmap_uses_spherical_harmonics(lightmap);
-
-		scene_state.lightmaps_used++;
-	}
-	if (scene_state.lightmaps_used > 0) {
-		RD::get_singleton()->buffer_update(scene_state.lightmap_buffer, 0, sizeof(LightmapData) * scene_state.lightmaps_used, scene_state.lightmaps, RD::BARRIER_MASK_RASTER);
 	}
 }
 
@@ -2257,8 +2138,6 @@ void RenderForwardClustered::_render_shadow_append(RID p_framebuffer, const Page
 	render_data.instances = &p_instances;
 	render_data.render_info = p_render_info;
 
-	_setup_environment(&render_data, true, Vector2(1, 1), !p_flip_y, Color(), false, p_use_pancake, shadow_pass_index);
-
 	// if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_DISABLE_LOD) {
 	// 	scene_data.screen_mesh_lod_threshold = 0.0;
 	// } else {
@@ -2353,8 +2232,6 @@ void RenderForwardClustered::_render_particle_collider_heightfield(RID p_fb, con
 
 	_update_render_base_uniform_set();
 
-	_setup_environment(&render_data, true, Vector2(1, 1), true, Color(), false, false);
-
 	PassMode pass_mode = PASS_MODE_SHADOW;
 
 	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode);
@@ -2396,8 +2273,6 @@ void RenderForwardClustered::_render_material(const Transform3D &p_cam_transform
 	render_data.instances = &p_instances;
 
 	_update_render_base_uniform_set();
-
-	_setup_environment(&render_data, true, Vector2(1, 1), false, Color());
 
 	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
 	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode);
@@ -2445,8 +2320,6 @@ void RenderForwardClustered::_render_uv2(const PagedArray<RenderGeometryInstance
 	render_data.instances = &p_instances;
 
 	_update_render_base_uniform_set();
-
-	_setup_environment(&render_data, true, Vector2(1, 1), false, Color());
 
 	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
 	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode);
@@ -2569,7 +2442,6 @@ void RenderForwardClustered::_render_sdfgi(Ref<RenderSceneBuffersRD> p_render_bu
 		RendererRD::MaterialStorage::store_transform(to_bounds.affine_inverse() * scene_data.cam_transform, scene_state.ubo.sdf_to_bounds);
 
 		scene_data.emissive_exposure_normalization = p_exposure_normalization;
-		_setup_environment(&render_data, true, Vector2(1, 1), false, Color());
 
 		RID rp_uniform_set = _setup_sdfgi_render_pass_uniform_set(p_albedo_texture, p_emission_texture, p_emission_aniso_texture, p_geom_facing_texture);
 
