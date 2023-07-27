@@ -106,10 +106,6 @@ public:
 	RendererMeshStorage *get_mesh_storage() { return mesh_storage; }
 	RendererParticlesStorage *get_particles_storage() { return particles_storage; }
 	RendererTextureStorage *get_texture_storage() { return texture_storage; }
-	RendererGI *get_gi() {
-		ERR_FAIL_NULL_V(scene, nullptr);
-		return scene->get_gi();
-	}
 	RendererCanvasRender *get_canvas() { return canvas; }
 	RendererSceneRender *get_scene() { return scene; }
 

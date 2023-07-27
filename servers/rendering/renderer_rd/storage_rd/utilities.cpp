@@ -29,7 +29,6 @@
 /**************************************************************************/
 
 #include "utilities.h"
-#include "../environment/gi.h"
 #include "light_storage.h"
 #include "mesh_storage.h"
 #include "particles_storage.h"
@@ -62,9 +61,6 @@ RS::InstanceType Utilities::get_base_type(RID p_rid) const {
 	if (RendererRD::TextureStorage::get_singleton()->owns_decal(p_rid)) {
 		return RS::INSTANCE_DECAL;
 	}
-	if (RendererRD::GI::get_singleton()->owns_voxel_gi(p_rid)) {
-		return RS::INSTANCE_VOXEL_GI;
-	}
 	if (RendererRD::LightStorage::get_singleton()->owns_light(p_rid)) {
 		return RS::INSTANCE_LIGHT;
 	}
@@ -95,9 +91,6 @@ bool Utilities::free(RID p_rid) {
 		return true;
 	} else if (RendererRD::TextureStorage::get_singleton()->free(p_rid)) {
 		return true;
-	} else if (RendererRD::GI::get_singleton()->owns_voxel_gi(p_rid)) {
-		RendererRD::GI::get_singleton()->voxel_gi_free(p_rid);
-		return true;
 	} else if (owns_visibility_notifier(p_rid)) {
 		visibility_notifier_free(p_rid);
 		return true;
@@ -125,9 +118,6 @@ void Utilities::base_update_dependency(RID p_base, DependencyTracker *p_instance
 		p_instance->update_dependency(dependency);
 	} else if (TextureStorage::get_singleton()->owns_decal(p_base)) {
 		Dependency *dependency = TextureStorage::get_singleton()->decal_get_dependency(p_base);
-		p_instance->update_dependency(dependency);
-	} else if (GI::get_singleton()->owns_voxel_gi(p_base)) {
-		Dependency *dependency = GI::get_singleton()->voxel_gi_get_dependency(p_base);
 		p_instance->update_dependency(dependency);
 	} else if (LightStorage::get_singleton()->owns_lightmap(p_base)) {
 		Dependency *dependency = LightStorage::get_singleton()->lightmap_get_dependency(p_base);

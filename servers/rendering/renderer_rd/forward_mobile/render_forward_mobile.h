@@ -118,13 +118,6 @@ private:
 			FB_CONFIG_MAX
 		};
 
-		RID get_color_msaa() const { return render_buffers->get_texture(RB_SCOPE_MOBILE, RB_TEX_COLOR_MSAA); }
-		RID get_color_msaa(uint32_t p_layer) { return render_buffers->get_texture_slice(RB_SCOPE_MOBILE, RB_TEX_COLOR_MSAA, p_layer, 0); }
-
-		RID get_depth_msaa() const { return render_buffers->get_texture(RB_SCOPE_MOBILE, RB_TEX_DEPTH_MSAA); }
-		RID get_depth_msaa(uint32_t p_layer) { return render_buffers->get_texture_slice(RB_SCOPE_MOBILE, RB_TEX_DEPTH_MSAA, p_layer, 0); }
-
-		RID get_color_fbs(FramebufferConfigType p_config_type);
 		virtual void free_data() override;
 		virtual void configure(RenderSceneBuffersRD *p_render_buffers) override;
 
@@ -202,7 +195,6 @@ private:
 
 	void _update_render_base_uniform_set();
 
-	void _fill_render_list(RenderListType p_render_list, const RenderDataRD *p_render_data, PassMode p_pass_mode, bool p_append = false);
 	void _fill_element_info(RenderListType p_render_list, uint32_t p_offset = 0, int32_t p_max_elements = -1);
 	// void _update_instance_data_buffer(RenderListType p_render_list);
 
@@ -496,7 +488,6 @@ protected:
 		virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) override;
 		virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) override;
 		virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) override;
-		virtual void pair_voxel_gi_instances(const RID *p_voxel_gi_instances, uint32_t p_voxel_gi_instance_count) override {}
 
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override;
 	};
@@ -566,8 +557,6 @@ public:
 
 	virtual void base_uniforms_changed() override;
 
-	virtual bool is_dynamic_gi_supported() const override;
-	virtual bool is_volumetric_supported() const override;
 	virtual uint32_t get_max_elements() const override;
 
 	RenderForwardMobile();

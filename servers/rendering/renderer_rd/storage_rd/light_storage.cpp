@@ -295,16 +295,6 @@ void LightStorage::light_set_bake_mode(RID p_light, RS::LightBakeMode p_bake_mod
 	light->dependency.changed_notify(Dependency::DEPENDENCY_CHANGED_LIGHT);
 }
 
-void LightStorage::light_set_max_sdfgi_cascade(RID p_light, uint32_t p_cascade) {
-	Light *light = light_owner.get_or_null(p_light);
-	ERR_FAIL_COND(!light);
-
-	light->max_sdfgi_cascade = p_cascade;
-
-	light->version++;
-	light->dependency.changed_notify(Dependency::DEPENDENCY_CHANGED_LIGHT);
-}
-
 void LightStorage::light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) {
 	Light *light = light_owner.get_or_null(p_light);
 	ERR_FAIL_COND(!light);
@@ -366,13 +356,6 @@ RS::LightDirectionalShadowMode LightStorage::light_directional_get_shadow_mode(R
 	ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL);
 
 	return light->directional_shadow_mode;
-}
-
-uint32_t LightStorage::light_get_max_sdfgi_cascade(RID p_light) {
-	const Light *light = light_owner.get_or_null(p_light);
-	ERR_FAIL_COND_V(!light, 0);
-
-	return light->max_sdfgi_cascade;
 }
 
 RS::LightBakeMode LightStorage::light_get_bake_mode(RID p_light) {

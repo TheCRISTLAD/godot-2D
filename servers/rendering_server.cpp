@@ -1788,7 +1788,6 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("light_set_distance_fade", "decal", "enabled", "begin", "shadow", "length"), &RenderingServer::light_set_distance_fade);
 	ClassDB::bind_method(D_METHOD("light_set_reverse_cull_face_mode", "light", "enabled"), &RenderingServer::light_set_reverse_cull_face_mode);
 	ClassDB::bind_method(D_METHOD("light_set_bake_mode", "light", "bake_mode"), &RenderingServer::light_set_bake_mode);
-	ClassDB::bind_method(D_METHOD("light_set_max_sdfgi_cascade", "light", "cascade"), &RenderingServer::light_set_max_sdfgi_cascade);
 
 	ClassDB::bind_method(D_METHOD("light_omni_set_shadow_mode", "light", "mode"), &RenderingServer::light_omni_set_shadow_mode);
 
@@ -1913,29 +1912,7 @@ void RenderingServer::_bind_methods() {
 
 	/* GI API (affects VoxelGI and SDFGI) */
 
-	ClassDB::bind_method(D_METHOD("gi_set_use_half_resolution", "half_resolution"), &RenderingServer::gi_set_use_half_resolution);
-
 	/* VOXEL GI API */
-
-	ClassDB::bind_method(D_METHOD("voxel_gi_create"), &RenderingServer::voxel_gi_create);
-	ClassDB::bind_method(D_METHOD("voxel_gi_allocate_data", "voxel_gi", "to_cell_xform", "aabb", "octree_size", "octree_cells", "data_cells", "distance_field", "level_counts"), &RenderingServer::voxel_gi_allocate_data);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_octree_size", "voxel_gi"), &RenderingServer::voxel_gi_get_octree_size);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_octree_cells", "voxel_gi"), &RenderingServer::voxel_gi_get_octree_cells);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_data_cells", "voxel_gi"), &RenderingServer::voxel_gi_get_data_cells);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_distance_field", "voxel_gi"), &RenderingServer::voxel_gi_get_distance_field);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_level_counts", "voxel_gi"), &RenderingServer::voxel_gi_get_level_counts);
-	ClassDB::bind_method(D_METHOD("voxel_gi_get_to_cell_xform", "voxel_gi"), &RenderingServer::voxel_gi_get_to_cell_xform);
-
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_dynamic_range", "voxel_gi", "range"), &RenderingServer::voxel_gi_set_dynamic_range);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_propagation", "voxel_gi", "amount"), &RenderingServer::voxel_gi_set_propagation);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_energy", "voxel_gi", "energy"), &RenderingServer::voxel_gi_set_energy);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_baked_exposure_normalization", "voxel_gi", "baked_exposure"), &RenderingServer::voxel_gi_set_baked_exposure_normalization);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_bias", "voxel_gi", "bias"), &RenderingServer::voxel_gi_set_bias);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_normal_bias", "voxel_gi", "bias"), &RenderingServer::voxel_gi_set_normal_bias);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_interior", "voxel_gi", "enable"), &RenderingServer::voxel_gi_set_interior);
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_use_two_bounces", "voxel_gi", "enable"), &RenderingServer::voxel_gi_set_use_two_bounces);
-
-	ClassDB::bind_method(D_METHOD("voxel_gi_set_quality", "quality"), &RenderingServer::voxel_gi_set_quality);
 
 	BIND_ENUM_CONSTANT(VOXEL_GI_QUALITY_LOW);
 	BIND_ENUM_CONSTANT(VOXEL_GI_QUALITY_HIGH);
@@ -2360,8 +2337,6 @@ void RenderingServer::_bind_methods() {
 
 	/* Bake 3D Object */
 
-	ClassDB::bind_method(D_METHOD("bake_render_uv2", "base", "material_overrides", "image_size"), &RenderingServer::bake_render_uv2);
-
 	BIND_ENUM_CONSTANT(BAKE_CHANNEL_ALBEDO_ALPHA);
 	BIND_ENUM_CONSTANT(BAKE_CHANNEL_NORMAL);
 	BIND_ENUM_CONSTANT(BAKE_CHANNEL_ORM);
@@ -2709,10 +2684,6 @@ void RenderingServer::init() {
 	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_size", 256);
 	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_size.mobile", 128);
 	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_count", 64);
-
-	GLOBAL_DEF("rendering/global_illumination/gi/use_half_resolution", false);
-
-	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/global_illumination/voxel_gi/quality", PROPERTY_HINT_ENUM, "Low (4 Cones - Fast),High (6 Cones - Slow)"), 0);
 
 	GLOBAL_DEF("rendering/shading/overrides/force_vertex_shading", false);
 	GLOBAL_DEF("rendering/shading/overrides/force_vertex_shading.mobile", true);

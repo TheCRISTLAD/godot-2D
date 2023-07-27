@@ -461,7 +461,6 @@ public:
 	};
 
 	virtual void light_set_bake_mode(RID p_light, LightBakeMode p_bake_mode) = 0;
-	virtual void light_set_max_sdfgi_cascade(RID p_light, uint32_t p_cascade) = 0;
 
 	// Omni light
 	enum LightOmniShadowMode {
@@ -584,33 +583,10 @@ public:
 
 	/* VOXEL GI API */
 
-	virtual RID voxel_gi_create() = 0;
-
-	virtual void voxel_gi_allocate_data(RID p_voxel_gi, const Transform3D &p_to_cell_xform, const AABB &p_aabb, const Vector3i &p_octree_size, const Vector<uint8_t> &p_octree_cells, const Vector<uint8_t> &p_data_cells, const Vector<uint8_t> &p_distance_field, const Vector<int> &p_level_counts) = 0;
-
-	virtual AABB voxel_gi_get_bounds(RID p_voxel_gi) const = 0;
-	virtual Vector3i voxel_gi_get_octree_size(RID p_voxel_gi) const = 0;
-	virtual Vector<uint8_t> voxel_gi_get_octree_cells(RID p_voxel_gi) const = 0;
-	virtual Vector<uint8_t> voxel_gi_get_data_cells(RID p_voxel_gi) const = 0;
-	virtual Vector<uint8_t> voxel_gi_get_distance_field(RID p_voxel_gi) const = 0;
-	virtual Vector<int> voxel_gi_get_level_counts(RID p_voxel_gi) const = 0;
-	virtual Transform3D voxel_gi_get_to_cell_xform(RID p_voxel_gi) const = 0;
-
-	virtual void voxel_gi_set_dynamic_range(RID p_voxel_gi, float p_range) = 0;
-	virtual void voxel_gi_set_propagation(RID p_voxel_gi, float p_range) = 0;
-	virtual void voxel_gi_set_energy(RID p_voxel_gi, float p_energy) = 0;
-	virtual void voxel_gi_set_baked_exposure_normalization(RID p_voxel_gi, float p_baked_exposure) = 0;
-	virtual void voxel_gi_set_bias(RID p_voxel_gi, float p_bias) = 0;
-	virtual void voxel_gi_set_normal_bias(RID p_voxel_gi, float p_range) = 0;
-	virtual void voxel_gi_set_interior(RID p_voxel_gi, bool p_enable) = 0;
-	virtual void voxel_gi_set_use_two_bounces(RID p_voxel_gi, bool p_enable) = 0;
-
 	enum VoxelGIQuality {
 		VOXEL_GI_QUALITY_LOW,
 		VOXEL_GI_QUALITY_HIGH,
 	};
-
-	virtual void voxel_gi_set_quality(VoxelGIQuality) = 0;
 
 	/* LIGHTMAP */
 
@@ -1172,8 +1148,6 @@ public:
 		BAKE_CHANNEL_EMISSION
 	};
 
-	virtual TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) = 0;
-
 	/* CANVAS (2D) */
 
 	virtual RID canvas_create() = 0;
@@ -1437,14 +1411,10 @@ public:
 
 	virtual double get_frame_setup_time_cpu() const = 0;
 
-	virtual void gi_set_use_half_resolution(bool p_enable) = 0;
-
 	/* TESTING */
 
 	virtual RID get_test_texture();
 	virtual RID get_white_texture();
-
-	virtual void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) = 0;
 
 	virtual RID make_sphere_mesh(int p_lats, int p_lons, real_t p_radius);
 

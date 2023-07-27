@@ -186,7 +186,6 @@ void RasterizerGLES3::initialize() {
 void RasterizerGLES3::finalize() {
 	memdelete(scene);
 	memdelete(canvas);
-	memdelete(gi);
 	memdelete(copy_effects);
 	memdelete(light_storage);
 	memdelete(particles_storage);
@@ -295,7 +294,6 @@ RasterizerGLES3::RasterizerGLES3() {
 	particles_storage = memnew(GLES3::ParticlesStorage);
 	light_storage = memnew(GLES3::LightStorage);
 	copy_effects = memnew(GLES3::CopyEffects);
-	gi = memnew(GLES3::GI);
 	canvas = memnew(RasterizerCanvasGLES3());
 	scene = memnew(RasterizerSceneGLES3());
 }

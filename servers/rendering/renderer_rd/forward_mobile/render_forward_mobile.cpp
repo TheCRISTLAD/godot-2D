@@ -138,109 +138,6 @@ void RenderForwardMobile::RenderBufferDataForwardMobile::configure(RenderSceneBu
 	ERR_FAIL_NULL(render_buffers); // Huh? really?
 }
 
-RID RenderForwardMobile::RenderBufferDataForwardMobile::get_color_fbs(FramebufferConfigType p_config_type) {
-	ERR_FAIL_NULL_V(render_buffers, RID());
-
-	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-	ERR_FAIL_NULL_V(texture_storage, RID());
-
-	// We use our framebuffer cache here instead of building these in RenderBufferDataForwardMobile::configure
-	// This approach ensures we only build the framebuffers we actually need for this viewport.
-	// In the (near) future this means that if we cycle through a texture chain for our render target, we'll also support
-	// this.
-
-	uint32_t view_count = render_buffers->get_view_count();
-
-	Vector<RID> textures;
-	int color_buffer_id = 0;
-	textures.push_back(render_buffers->get_internal_texture()); // 0 - color buffer
-	textures.push_back(render_buffers->get_depth_texture()); // 1 - depth buffer
-
-	// Now define our subpasses
-	Vector<RD::FramebufferPass> passes;
-
-	// Define our base pass, we'll be re-using this
-	RD::FramebufferPass pass;
-	pass.color_attachments.push_back(0);
-	pass.depth_attachment = 1;
-
-	switch (p_config_type) {
-		case FB_CONFIG_ONE_PASS: {
-			// just one pass
-
-			passes.push_back(pass);
-
-			return FramebufferCacheRD::get_singleton()->get_cache_multipass(textures, passes, view_count);
-		} break;
-		case FB_CONFIG_TWO_SUBPASSES: {
-			// - opaque pass
-			passes.push_back(pass);
-
-			// - add sky pass
-
-			passes.push_back(pass);
-
-			return FramebufferCacheRD::get_singleton()->get_cache_multipass(textures, passes, view_count);
-		} break;
-		case FB_CONFIG_THREE_SUBPASSES: {
-			// - opaque pass
-			passes.push_back(pass);
-
-			// - add sky pass
-			passes.push_back(pass);
-
-			// - add alpha pass
-
-			passes.push_back(pass);
-
-			return FramebufferCacheRD::get_singleton()->get_cache_multipass(textures, passes, view_count);
-		} break;
-		case FB_CONFIG_FOUR_SUBPASSES: {
-			Size2i target_size = render_buffers->get_target_size();
-			Size2i internal_size = render_buffers->get_internal_size();
-
-			// can't do our blit pass if resolutions don't match, this should already have been checked.
-			ERR_FAIL_COND_V(target_size != internal_size, RID());
-
-			// - opaque pass
-			passes.push_back(pass);
-
-			// - add sky pass
-			passes.push_back(pass);
-
-			// - add alpha pass
-
-			passes.push_back(pass);
-
-			// - add blit to 2D pass
-			RID render_target = render_buffers->get_render_target();
-			ERR_FAIL_COND_V(render_target.is_null(), RID());
-			RID target_buffer;
-			if (texture_storage->render_target_get_msaa(render_target) == RS::VIEWPORT_MSAA_DISABLED) {
-				target_buffer = texture_storage->render_target_get_rd_texture(render_target);
-			} else {
-				target_buffer = texture_storage->render_target_get_rd_texture_msaa(render_target);
-			}
-			ERR_FAIL_COND_V(target_buffer.is_null(), RID());
-
-			int target_buffer_id = textures.size();
-			textures.push_back(target_buffer); // target buffer
-
-			RD::FramebufferPass blit_pass;
-			blit_pass.input_attachments.push_back(color_buffer_id); // Read from our (resolved) color buffer
-			blit_pass.color_attachments.push_back(target_buffer_id); // Write into our target buffer
-			// this doesn't need VRS
-			passes.push_back(blit_pass);
-
-			return FramebufferCacheRD::get_singleton()->get_cache_multipass(textures, passes, view_count);
-		} break;
-		default:
-			break;
-	};
-
-	return RID();
-}
-
 RID RenderForwardMobile::reflection_probe_create_framebuffer(RID p_color, RID p_depth) {
 	// Our attachments
 	Vector<RID> fb;
@@ -948,7 +845,6 @@ void RenderForwardMobile::_render_shadow_append(RID p_framebuffer, const PagedAr
 	PassMode pass_mode = p_use_dp ? PASS_MODE_SHADOW_DP : PASS_MODE_SHADOW;
 
 	uint32_t render_list_from = render_list[RENDER_LIST_SECONDARY].elements.size();
-	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode, true);
 	uint32_t render_list_size = render_list[RENDER_LIST_SECONDARY].elements.size() - render_list_from;
 	render_list[RENDER_LIST_SECONDARY].sort_by_key_range(render_list_from, render_list_size);
 	_fill_element_info(RENDER_LIST_SECONDARY, render_list_from, render_list_size);
@@ -1029,7 +925,6 @@ void RenderForwardMobile::_render_material(const Transform3D &p_cam_transform, c
 	render_data.instances = &p_instances;
 
 	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
-	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode);
 	render_list[RENDER_LIST_SECONDARY].sort_by_key();
 	_fill_element_info(RENDER_LIST_SECONDARY);
 
@@ -1072,7 +967,6 @@ void RenderForwardMobile::_render_uv2(const PagedArray<RenderGeometryInstance *>
 	render_data.instances = &p_instances;
 
 	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
-	_fill_render_list(RENDER_LIST_SECONDARY, &render_data, pass_mode);
 	render_list[RENDER_LIST_SECONDARY].sort_by_key();
 	_fill_element_info(RENDER_LIST_SECONDARY);
 
@@ -1326,168 +1220,6 @@ _FORCE_INLINE_ static uint32_t _indices_to_primitives(RS::PrimitiveType p_primit
 	static const uint32_t divisor[RS::PRIMITIVE_MAX] = { 1, 2, 1, 3, 1 };
 	static const uint32_t subtractor[RS::PRIMITIVE_MAX] = { 0, 0, 1, 0, 1 };
 	return (p_indices - subtractor[p_primitive]) / divisor[p_primitive];
-}
-
-void RenderForwardMobile::_fill_render_list(RenderListType p_render_list, const RenderDataRD *p_render_data, PassMode p_pass_mode, bool p_append) {
-	RendererRD::MeshStorage *mesh_storage = RendererRD::MeshStorage::get_singleton();
-
-	if (p_render_list == RENDER_LIST_OPAQUE) {
-		scene_state.used_sss = false;
-		scene_state.used_screen_texture = false;
-		scene_state.used_normal_texture = false;
-		scene_state.used_depth_texture = false;
-	}
-	uint32_t lightmap_captures_used = 0;
-
-	Plane near_plane(-p_render_data->scene_data->cam_transform.basis.get_column(Vector3::AXIS_Z), p_render_data->scene_data->cam_transform.origin);
-	near_plane.d += p_render_data->scene_data->cam_projection.get_z_near();
-	float z_max = p_render_data->scene_data->cam_projection.get_z_far() - p_render_data->scene_data->cam_projection.get_z_near();
-
-	RenderList *rl = &render_list[p_render_list];
-
-	// Parse any updates on our geometry, updates surface caches and such
-	_update_dirty_geometry_instances();
-
-	if (!p_append) {
-		rl->clear();
-		if (p_render_list == RENDER_LIST_OPAQUE) {
-			render_list[RENDER_LIST_ALPHA].clear(); //opaque fills alpha too
-		}
-	}
-
-	//fill list
-
-	for (int i = 0; i < (int)p_render_data->instances->size(); i++) {
-		GeometryInstanceForwardMobile *inst = static_cast<GeometryInstanceForwardMobile *>((*p_render_data->instances)[i]);
-
-		Vector3 center = inst->transform.origin;
-		if (p_render_data->scene_data->cam_orthogonal) {
-			if (inst->use_aabb_center) {
-				center = inst->transformed_aabb.get_support(-near_plane.normal);
-			}
-			inst->depth = near_plane.distance_to(center) - inst->sorting_offset;
-		} else {
-			if (inst->use_aabb_center) {
-				center = inst->transformed_aabb.position + (inst->transformed_aabb.size * 0.5);
-			}
-			inst->depth = p_render_data->scene_data->cam_transform.origin.distance_to(center) - inst->sorting_offset;
-		}
-		uint32_t depth_layer = CLAMP(int(inst->depth * 16 / z_max), 0, 15);
-
-		uint32_t flags = inst->base_flags; //fill flags if appropriate
-
-		if (inst->non_uniform_scale) {
-			flags |= INSTANCE_DATA_FLAGS_NON_UNIFORM_SCALE;
-		}
-
-		bool uses_lightmap = false;
-		// bool uses_gi = false;
-
-		if (p_render_list == RENDER_LIST_OPAQUE) {
-			if (inst->lightmap_instance.is_valid()) {
-				int32_t lightmap_cull_index = -1;
-				for (uint32_t j = 0; j < scene_state.lightmaps_used; j++) {
-					if (scene_state.lightmap_ids[j] == inst->lightmap_instance) {
-						lightmap_cull_index = j;
-						break;
-					}
-				}
-				if (lightmap_cull_index >= 0) {
-					inst->gi_offset_cache = inst->lightmap_slice_index << 16;
-					inst->gi_offset_cache |= lightmap_cull_index;
-					flags |= INSTANCE_DATA_FLAG_USE_LIGHTMAP;
-					if (scene_state.lightmap_has_sh[lightmap_cull_index]) {
-						flags |= INSTANCE_DATA_FLAG_USE_SH_LIGHTMAP;
-					}
-					uses_lightmap = true;
-				} else {
-					inst->gi_offset_cache = 0xFFFFFFFF;
-				}
-
-			} else if (inst->lightmap_sh) {
-				if (lightmap_captures_used < scene_state.max_lightmap_captures) {
-					const Color *src_capture = inst->lightmap_sh->sh;
-					LightmapCaptureData &lcd = scene_state.lightmap_captures[lightmap_captures_used];
-					for (int j = 0; j < 9; j++) {
-						lcd.sh[j * 4 + 0] = src_capture[j].r;
-						lcd.sh[j * 4 + 1] = src_capture[j].g;
-						lcd.sh[j * 4 + 2] = src_capture[j].b;
-						lcd.sh[j * 4 + 3] = src_capture[j].a;
-					}
-					flags |= INSTANCE_DATA_FLAG_USE_LIGHTMAP_CAPTURE;
-					inst->gi_offset_cache = lightmap_captures_used;
-					lightmap_captures_used++;
-					uses_lightmap = true;
-				}
-			}
-		}
-		inst->flags_cache = flags;
-
-		GeometryInstanceSurfaceDataCache *surf = inst->surface_caches;
-
-		while (surf) {
-			surf->sort.uses_lightmap = 0;
-
-			// LOD
-
-			surf->lod_index = 0;
-			if (p_render_data->render_info) {
-				uint32_t to_draw = mesh_storage->mesh_surface_get_vertices_drawn_count(surf->surface);
-				to_draw = _indices_to_primitives(surf->primitive, to_draw);
-				to_draw *= inst->instance_count;
-				if (p_render_list == RENDER_LIST_OPAQUE) { //opaque
-					p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_VISIBLE][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
-				} else if (p_render_list == RENDER_LIST_SECONDARY) { //shadow
-					p_render_data->render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_SHADOW][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += to_draw;
-				}
-			}
-
-			// ADD Element
-			if (p_pass_mode == PASS_MODE_COLOR || p_pass_mode == PASS_MODE_COLOR_TRANSPARENT) {
-#ifdef DEBUG_ENABLED
-				bool force_alpha = unlikely(get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_OVERDRAW);
-#else
-				bool force_alpha = false;
-#endif
-				if (!force_alpha && (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_PASS_OPAQUE)) {
-					rl->add_element(surf);
-				}
-				if (force_alpha || (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_PASS_ALPHA)) {
-					render_list[RENDER_LIST_ALPHA].add_element(surf);
-				}
-
-				if (uses_lightmap) {
-					surf->sort.uses_lightmap = 1; // This needs to become our lightmap index but we'll do that in a separate PR.
-				}
-
-				if (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_USES_SUBSURFACE_SCATTERING) {
-					scene_state.used_sss = true;
-				}
-				if (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_USES_SCREEN_TEXTURE) {
-					scene_state.used_screen_texture = true;
-				}
-				if (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_USES_NORMAL_TEXTURE) {
-					scene_state.used_normal_texture = true;
-				}
-				if (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_USES_DEPTH_TEXTURE) {
-					scene_state.used_depth_texture = true;
-				}
-
-			} else if (p_pass_mode == PASS_MODE_SHADOW || p_pass_mode == PASS_MODE_SHADOW_DP) {
-				if (surf->flags & GeometryInstanceSurfaceDataCache::FLAG_PASS_SHADOW) {
-					rl->add_element(surf);
-				}
-			} else {
-				if (surf->flags & (GeometryInstanceSurfaceDataCache::FLAG_PASS_DEPTH | GeometryInstanceSurfaceDataCache::FLAG_PASS_OPAQUE)) {
-					rl->add_element(surf);
-				}
-			}
-
-			surf->sort.depth_layer = depth_layer;
-
-			surf = surf->next;
-		}
-	}
 }
 
 void RenderForwardMobile::_fill_element_info(RenderListType p_render_list, uint32_t p_offset, int32_t p_max_elements) {
@@ -2250,14 +1982,6 @@ void RenderForwardMobile::_geometry_instance_dependency_deleted(const RID &p_dep
 }
 
 /* misc */
-
-bool RenderForwardMobile::is_dynamic_gi_supported() const {
-	return false;
-}
-
-bool RenderForwardMobile::is_volumetric_supported() const {
-	return false;
-}
 
 uint32_t RenderForwardMobile::get_max_elements() const {
 	return 256;

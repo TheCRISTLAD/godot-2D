@@ -39,7 +39,6 @@
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
-#include "servers/rendering/renderer_rd/environment/gi.h"
 #include "servers/rendering/renderer_rd/environment/sky.h"
 #include "servers/rendering/renderer_rd/framebuffer_cache_rd.h"
 #include "servers/rendering/renderer_rd/storage_rd/light_storage.h"
@@ -58,7 +57,6 @@ struct RenderDataRD {
 	const PagedArray<RenderGeometryInstance *> *instances = nullptr;
 	const PagedArray<RID> *lights = nullptr;
 	const PagedArray<RID> *reflection_probes = nullptr;
-	const PagedArray<RID> *voxel_gi_instances = nullptr;
 	const PagedArray<RID> *decals = nullptr;
 	const PagedArray<RID> *lightmaps = nullptr;
 	RID environment;
@@ -96,7 +94,6 @@ struct RenderDataRD {
 
 class RendererSceneRenderRD : public RendererSceneRender {
 	friend RendererRD::SkyRD;
-	friend RendererRD::GI;
 
 protected:
 	RendererRD::ForwardIDStorage *forward_id_storage = nullptr;
@@ -125,8 +122,6 @@ protected:
 	virtual void _render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) = 0;
 	virtual void _render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) = 0;
 
-	void _debug_sdfgi_probes(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_framebuffer, uint32_t p_view_count, const Projection *p_camera_with_transforms, bool p_will_continue_color, bool p_will_continue_depth);
-
 	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 
@@ -144,7 +139,6 @@ protected:
 	PagedArray<RenderGeometryInstance *> cull_argument; //need this to exist
 
 	RendererRD::SkyRD sky;
-	RendererRD::GI gi;
 
 	virtual void _update_shader_quality_settings() {}
 
@@ -197,10 +191,6 @@ public:
 	virtual void setup_added_light(const RS::LightType p_type, const Transform3D &p_transform, float p_radius, float p_spot_aperture){};
 	virtual void setup_added_decal(const Transform3D &p_transform, const Vector3 &p_half_size){};
 
-	/* GI */
-
-	RendererRD::GI *get_gi() { return &gi; }
-
 	/* SKY */
 
 	RendererRD::SkyRD *get_sky() { return &sky; }
@@ -215,23 +205,12 @@ public:
 
 	virtual RID reflection_probe_create_framebuffer(RID p_color, RID p_depth);
 
-	/* gi light probes */
-
-	virtual RID voxel_gi_instance_create(RID p_base) override;
-	virtual void voxel_gi_instance_set_transform_to_data(RID p_probe, const Transform3D &p_xform) override;
-	virtual bool voxel_gi_needs_update(RID p_probe) const override;
-	virtual void voxel_gi_update(RID p_probe, bool p_update_light_instances, const Vector<RID> &p_light_instances, const PagedArray<RenderGeometryInstance *> &p_dynamic_objects) override;
-	virtual void voxel_gi_set_quality(RS::VoxelGIQuality p_quality) override { gi.voxel_gi_quality = p_quality; }
-
 	/* render buffers */
 
 	virtual float _render_buffers_get_luminance_multiplier();
 	virtual RD::DataFormat _render_buffers_get_color_format();
 	virtual bool _render_buffers_can_be_storage();
 	virtual Ref<RenderSceneBuffers> render_buffers_create() override;
-	virtual void gi_set_use_half_resolution(bool p_enable) override;
-
-	RID render_buffers_get_default_voxel_gi_buffer();
 
 	virtual void base_uniforms_changed() = 0;
 	virtual void update_uniform_sets(){};
@@ -305,8 +284,6 @@ public:
 	int get_roughness_layers() const;
 	bool is_using_radiance_cubemap_array() const;
 
-	virtual TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) override;
-
 	virtual bool free(RID p_rid) override;
 
 	virtual void update() override;
@@ -318,10 +295,6 @@ public:
 
 	virtual void set_time(double p_time, double p_step) override;
 
-	virtual void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) override;
-
-	virtual bool is_dynamic_gi_supported() const;
-	virtual bool is_volumetric_supported() const;
 	virtual uint32_t get_max_elements() const;
 
 	void init();

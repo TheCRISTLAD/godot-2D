@@ -104,14 +104,7 @@ public:
 
 	virtual Ref<RenderSceneBuffers> render_buffers_create() = 0;
 
-	virtual void gi_set_use_half_resolution(bool p_enable) = 0;
-
 	virtual void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) = 0;
-
-	virtual TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) = 0;
-	virtual void voxel_gi_set_quality(RS::VoxelGIQuality) = 0;
-
-	virtual void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) = 0;
 
 	struct RenderInfo {
 		int info[RS::VIEWPORT_RENDER_INFO_TYPE_MAX][RS::VIEWPORT_RENDER_INFO_MAX] = {};

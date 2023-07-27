@@ -598,7 +598,6 @@ public:
 
 		HashSet<Instance *> decals;
 		HashSet<Instance *> reflection_probes;
-		HashSet<Instance *> voxel_gi_instances;
 		HashSet<Instance *> lightmap_captures;
 
 		InstanceGeometryData() {
@@ -670,7 +669,6 @@ public:
 		Instance *baked_light = nullptr;
 
 		RS::LightBakeMode bake_mode;
-		uint32_t max_sdfgi_cascade = 2;
 
 		InstanceLightData() {
 			bake_mode = RS::LIGHT_BAKE_DISABLED;
@@ -808,7 +806,6 @@ public:
 		PagedArray<RID> lightmaps;
 		PagedArray<RID> reflections;
 		PagedArray<RID> decals;
-		PagedArray<RID> voxel_gi_instances;
 		PagedArray<RID> mesh_instances;
 
 		struct DirectionalShadow {
@@ -825,7 +822,6 @@ public:
 			lightmaps.clear();
 			reflections.clear();
 			decals.clear();
-			voxel_gi_instances.clear();
 			mesh_instances.clear();
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
@@ -849,7 +845,6 @@ public:
 			lightmaps.reset();
 			reflections.reset();
 			decals.reset();
-			voxel_gi_instances.reset();
 			mesh_instances.reset();
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
@@ -873,7 +868,6 @@ public:
 			lightmaps.merge_unordered(p_cull_result.lightmaps);
 			reflections.merge_unordered(p_cull_result.reflections);
 			decals.merge_unordered(p_cull_result.decals);
-			voxel_gi_instances.merge_unordered(p_cull_result.voxel_gi_instances);
 			mesh_instances.merge_unordered(p_cull_result.mesh_instances);
 
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
@@ -898,7 +892,6 @@ public:
 			lightmaps.set_page_pool(p_rid_pool);
 			reflections.set_page_pool(p_rid_pool);
 			decals.set_page_pool(p_rid_pool);
-			voxel_gi_instances.set_page_pool(p_rid_pool);
 			mesh_instances.set_page_pool(p_rid_pool);
 			for (int i = 0; i < RendererSceneRender::MAX_DIRECTIONAL_LIGHTS; i++) {
 				for (int j = 0; j < RendererSceneRender::MAX_DIRECTIONAL_LIGHT_CASCADES; j++) {
@@ -1051,15 +1044,11 @@ public:
 		uint64_t visibility_viewport_mask;
 	};
 
-	void _scene_cull_threaded(uint32_t p_thread, CullData *cull_data);
-	void _scene_cull(CullData &cull_data, InstanceCullResult &cull_result, uint64_t p_from, uint64_t p_to);
 	_FORCE_INLINE_ bool _visibility_parent_check(const CullData &p_cull_data, const InstanceData &p_instance_data);
 
 	bool _render_reflection_probe_step(Instance *p_instance, int p_step);
 
 	void update_dirty_instances();
-
-	TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size);
 
 	//pass to scene render
 
@@ -1071,10 +1060,6 @@ public:
 
 #define PASSBASE scene_render
 
-	PASS1(voxel_gi_set_quality, RS::VoxelGIQuality)
-
-	/* SKY API */
-
 	// Adjustment
 
 	PASS3(screen_space_roughness_limiter_set_active, bool, float, float)
@@ -1084,12 +1069,9 @@ public:
 	PASS1(positional_soft_shadow_filter_set_quality, RS::ShadowQuality)
 	PASS1(directional_soft_shadow_filter_set_quality, RS::ShadowQuality)
 
-	PASS2(sdfgi_set_debug_probe_select, const Vector3 &, const Vector3 &)
-
 	/* Render Buffers */
 
 	PASS0R(Ref<RenderSceneBuffers>, render_buffers_create)
-	PASS1(gi_set_use_half_resolution, bool)
 
 	/* Misc */
 	PASS1(set_debug_draw_mode, RS::ViewportDebugDraw)

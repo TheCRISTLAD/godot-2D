@@ -265,7 +265,6 @@ private:
 		virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) override;
 		virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) override {}
 		virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) override {}
-		virtual void pair_voxel_gi_instances(const RID *p_voxel_gi_instances, uint32_t p_voxel_gi_instance_count) override {}
 
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override {}
 	};
@@ -461,9 +460,6 @@ private:
 
 	RenderList render_list[RENDER_LIST_MAX];
 
-	void _setup_lights(const RenderDataGLES3 *p_render_data, bool p_using_shadows, uint32_t &r_directional_light_count, uint32_t &r_omni_light_count, uint32_t &r_spot_light_count);
-	void _fill_render_list(RenderListType p_render_list, const RenderDataGLES3 *p_render_data, PassMode p_pass_mode, bool p_append = false);
-
 	template <PassMode p_pass_mode>
 	_FORCE_INLINE_ void _render_list_template(RenderListParameters *p_params, const RenderDataGLES3 *p_render_data, uint32_t p_from_element, uint32_t p_to_element, bool p_alpha_pass = false);
 
@@ -584,13 +580,6 @@ public:
 	void positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
 	void directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
 
-	RID voxel_gi_instance_create(RID p_voxel_gi) override;
-	void voxel_gi_instance_set_transform_to_data(RID p_probe, const Transform3D &p_xform) override;
-	bool voxel_gi_needs_update(RID p_probe) const override;
-	void voxel_gi_update(RID p_probe, bool p_update_light_instances, const Vector<RID> &p_light_instances, const PagedArray<RenderGeometryInstance *> &p_dynamic_objects) override;
-
-	void voxel_gi_set_quality(RS::VoxelGIQuality) override;
-
 	void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
 
 	void set_scene_pass(uint64_t p_pass) override {
@@ -608,7 +597,6 @@ public:
 	}
 
 	Ref<RenderSceneBuffers> render_buffers_create() override;
-	void gi_set_use_half_resolution(bool p_enable) override;
 
 	void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_curve) override;
 	bool screen_space_roughness_limiter_is_active() const override;
@@ -616,11 +604,8 @@ public:
 	void sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) override;
 	void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) override;
 
-	TypedArray<Image> bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) override;
-
 	bool free(RID p_rid) override;
 	void update() override;
-	void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) override;
 
 	void decals_set_filter(RS::DecalFilter p_filter) override;
 	void light_projectors_set_filter(RS::LightProjectorFilter p_filter) override;

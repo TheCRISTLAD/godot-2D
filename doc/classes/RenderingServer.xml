@@ -16,15 +16,6 @@
 		<link title="Optimization using Servers">$DOCS_URL/tutorials/performance/using_servers.html</link>
 	</tutorials>
 	<methods>
-		<method name="bake_render_uv2">
-			<return type="Image[]" />
-			<param index="0" name="base" type="RID" />
-			<param index="1" name="material_overrides" type="RID[]" />
-			<param index="2" name="image_size" type="Vector2i" />
-			<description>
-				Bakes the material data of the Mesh passed in the [param base] parameter with optional [param material_overrides] to a set of [Image]s of size [param image_size]. Returns an array of [Image]s containing material properties as specified in [enum BakeChannels].
-			</description>
-		</method>
 		<method name="camera_attributes_create">
 			<return type="RID" />
 			<description>
@@ -1179,13 +1170,6 @@
 				[/codeblock]
 			</description>
 		</method>
-		<method name="gi_set_use_half_resolution">
-			<return type="void" />
-			<param index="0" name="half_resolution" type="bool" />
-			<description>
-				If [param half_resolution] is [code]true[/code], renders [VoxelGI] and SDFGI ([member Environment.sdfgi_enabled]) buffers at halved resolution on each axis (e.g. 960×540 when the viewport size is 1920×1080). This improves performance significantly when VoxelGI or SDFGI is enabled, at the cost of artifacts that may be visible on polygon edges. The loss in quality becomes less noticeable as the viewport resolution increases. [LightmapGI] rendering is not affected by this setting. Equivalent to [member ProjectSettings.rendering/global_illumination/gi/use_half_resolution].
-			</description>
-		</method>
 		<method name="global_shader_parameter_add">
 			<return type="void" />
 			<param index="0" name="name" type="StringName" />
@@ -1562,14 +1546,6 @@
 			<param index="4" name="length" type="float" />
 			<description>
 				Sets the distance fade for this 3D light. This acts as a form of level of detail (LOD) and can be used to improve performance. Equivalent to [member Light3D.distance_fade_enabled], [member Light3D.distance_fade_begin], [member Light3D.distance_fade_shadow], and [member Light3D.distance_fade_length].
-			</description>
-		</method>
-		<method name="light_set_max_sdfgi_cascade">
-			<return type="void" />
-			<param index="0" name="light" type="RID" />
-			<param index="1" name="cascade" type="int" />
-			<description>
-				Sets the maximum SDFGI cascade in which the 3D light's indirect lighting is rendered. Higher values allow the light to be rendered in SDFGI further away from the camera.
 			</description>
 		</method>
 		<method name="light_set_negative">

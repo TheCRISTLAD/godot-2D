@@ -370,7 +370,6 @@ public:
 	FUNC5(light_set_distance_fade, RID, bool, float, float, float)
 	FUNC2(light_set_reverse_cull_face_mode, RID, bool)
 	FUNC2(light_set_bake_mode, RID, LightBakeMode)
-	FUNC2(light_set_max_sdfgi_cascade, RID, uint32_t)
 
 	FUNC2(light_omni_set_shadow_mode, RID, LightOmniShadowMode)
 
@@ -437,36 +436,6 @@ public:
 	FUNC4(decal_set_distance_fade, RID, bool, float, float)
 	FUNC3(decal_set_fade, RID, float, float)
 	FUNC2(decal_set_normal_fade, RID, float)
-
-	/* BAKED LIGHT API */
-
-//from now on, calls forwarded to this singleton
-#undef ServerName
-#undef server_name
-
-#define ServerName RendererGI
-#define server_name RSG::gi
-
-	FUNCRIDSPLIT(voxel_gi)
-
-	FUNC8(voxel_gi_allocate_data, RID, const Transform3D &, const AABB &, const Vector3i &, const Vector<uint8_t> &, const Vector<uint8_t> &, const Vector<uint8_t> &, const Vector<int> &)
-
-	FUNC1RC(AABB, voxel_gi_get_bounds, RID)
-	FUNC1RC(Vector3i, voxel_gi_get_octree_size, RID)
-	FUNC1RC(Vector<uint8_t>, voxel_gi_get_octree_cells, RID)
-	FUNC1RC(Vector<uint8_t>, voxel_gi_get_data_cells, RID)
-	FUNC1RC(Vector<uint8_t>, voxel_gi_get_distance_field, RID)
-	FUNC1RC(Vector<int>, voxel_gi_get_level_counts, RID)
-	FUNC1RC(Transform3D, voxel_gi_get_to_cell_xform, RID)
-
-	FUNC2(voxel_gi_set_dynamic_range, RID, float)
-	FUNC2(voxel_gi_set_propagation, RID, float)
-	FUNC2(voxel_gi_set_energy, RID, float)
-	FUNC2(voxel_gi_set_baked_exposure_normalization, RID, float)
-	FUNC2(voxel_gi_set_bias, RID, float)
-	FUNC2(voxel_gi_set_normal_bias, RID, float)
-	FUNC2(voxel_gi_set_interior, RID, bool)
-	FUNC2(voxel_gi_set_use_two_bounces, RID, bool)
 
 	/* PARTICLES */
 
@@ -632,8 +601,6 @@ public:
 #define ServerName RenderingMethod
 #define server_name RSG::scene
 
-	FUNC1(voxel_gi_set_quality, VoxelGIQuality)
-
 	FUNC3(screen_space_roughness_limiter_set_active, bool, float, float)
 	FUNC1(sub_surface_scattering_set_quality, SubSurfaceScatteringQuality)
 	FUNC2(sub_surface_scattering_set_scale, float, float)
@@ -703,10 +670,6 @@ public:
 	FUNC3(instance_geometry_set_shader_parameter, RID, const StringName &, const Variant &)
 	FUNC2RC(Variant, instance_geometry_get_shader_parameter, RID, const StringName &)
 	FUNC2RC(Variant, instance_geometry_get_shader_parameter_default_value, RID, const StringName &)
-
-	FUNC3R(TypedArray<Image>, bake_render_uv2, RID, const TypedArray<RID> &, const Size2i &)
-
-	FUNC1(gi_set_use_half_resolution, bool)
 
 #undef server_name
 #undef ServerName
@@ -900,8 +863,6 @@ public:
 	virtual void set_debug_generate_wireframes(bool p_generate) override;
 
 	virtual bool is_low_end() const override;
-
-	virtual void sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) override;
 
 	virtual void set_print_gpu_profile(bool p_enable) override;
 

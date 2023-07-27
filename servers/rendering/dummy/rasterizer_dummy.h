@@ -34,7 +34,6 @@
 #include "core/templates/rid_owner.h"
 #include "core/templates/self_list.h"
 #include "scene/resources/mesh.h"
-#include "servers/rendering/dummy/environment/gi.h"
 #include "servers/rendering/dummy/rasterizer_canvas_dummy.h"
 #include "servers/rendering/dummy/rasterizer_scene_dummy.h"
 #include "servers/rendering/dummy/storage/light_storage.h"
@@ -60,7 +59,6 @@ protected:
 	RendererDummy::MeshStorage mesh_storage;
 	RendererDummy::ParticlesStorage particles_storage;
 	RendererDummy::TextureStorage texture_storage;
-	RendererDummy::GI gi;
 	RasterizerSceneDummy scene;
 
 public:
@@ -70,7 +68,6 @@ public:
 	RendererMeshStorage *get_mesh_storage() override { return &mesh_storage; };
 	RendererParticlesStorage *get_particles_storage() override { return &particles_storage; };
 	RendererTextureStorage *get_texture_storage() override { return &texture_storage; };
-	RendererGI *get_gi() override { return &gi; };
 	RendererCanvasRender *get_canvas() override { return &canvas; }
 	RendererSceneRender *get_scene() override { return &scene; }
 

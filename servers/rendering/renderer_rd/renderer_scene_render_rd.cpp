@@ -59,48 +59,6 @@ RID RendererSceneRenderRD::reflection_probe_create_framebuffer(RID p_color, RID 
 	return RD::get_singleton()->framebuffer_create(fb);
 }
 
-/* VOXEL GI */
-
-RID RendererSceneRenderRD::voxel_gi_instance_create(RID p_base) {
-	return gi.voxel_gi_instance_create(p_base);
-}
-
-void RendererSceneRenderRD::voxel_gi_instance_set_transform_to_data(RID p_probe, const Transform3D &p_xform) {
-	if (!is_dynamic_gi_supported()) {
-		return;
-	}
-
-	gi.voxel_gi_instance_set_transform_to_data(p_probe, p_xform);
-}
-
-bool RendererSceneRenderRD::voxel_gi_needs_update(RID p_probe) const {
-	if (!is_dynamic_gi_supported()) {
-		return false;
-	}
-
-	return gi.voxel_gi_needs_update(p_probe);
-}
-
-void RendererSceneRenderRD::voxel_gi_update(RID p_probe, bool p_update_light_instances, const Vector<RID> &p_light_instances, const PagedArray<RenderGeometryInstance *> &p_dynamic_objects) {
-	if (!is_dynamic_gi_supported()) {
-		return;
-	}
-
-	gi.voxel_gi_update(p_probe, p_update_light_instances, p_light_instances, p_dynamic_objects);
-}
-
-void RendererSceneRenderRD::_debug_sdfgi_probes(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_framebuffer, const uint32_t p_view_count, const Projection *p_camera_with_transforms, bool p_will_continue_color, bool p_will_continue_depth) {
-	ERR_FAIL_COND(p_render_buffers.is_null());
-
-	if (!p_render_buffers->has_custom_data(RB_SCOPE_SDFGI)) {
-		return; //nothing to debug
-	}
-
-	Ref<RendererRD::GI::SDFGI> sdfgi = p_render_buffers->get_custom_data(RB_SCOPE_SDFGI);
-
-	sdfgi->debug_probes(p_framebuffer, p_view_count, p_camera_with_transforms, p_will_continue_color, p_will_continue_depth);
-}
-
 ////////////////////////////////
 Ref<RenderSceneBuffers> RendererSceneRenderRD::render_buffers_create() {
 	Ref<RenderSceneBuffersRD> rb;
@@ -413,10 +371,6 @@ void RendererSceneRenderRD::_render_buffers_debug_draw(Ref<RenderSceneBuffersRD>
 	}
 }
 
-RID RendererSceneRenderRD::render_buffers_get_default_voxel_gi_buffer() {
-	return gi.default_voxel_gi_buffer;
-}
-
 float RendererSceneRenderRD::_render_buffers_get_luminance_multiplier() {
 	return 1.0;
 }
@@ -427,10 +381,6 @@ RD::DataFormat RendererSceneRenderRD::_render_buffers_get_color_format() {
 
 bool RendererSceneRenderRD::_render_buffers_can_be_storage() {
 	return true;
-}
-
-void RendererSceneRenderRD::gi_set_use_half_resolution(bool p_enable) {
-	gi.half_resolution = p_enable;
 }
 
 void RendererSceneRenderRD::positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) {
@@ -551,23 +501,10 @@ bool RendererSceneRenderRD::is_using_radiance_cubemap_array() const {
 }
 
 bool RendererSceneRenderRD::_needs_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi) {
-	if (p_render_data->render_buffers.is_valid()) {
-		if (p_render_data->render_buffers->has_custom_data(RB_SCOPE_SDFGI)) {
-			return true;
-		}
-	}
 	return false;
 }
 
 void RendererSceneRenderRD::_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi) {
-	if (p_render_data->render_buffers.is_valid() && p_use_gi) {
-		if (!p_render_data->render_buffers->has_custom_data(RB_SCOPE_SDFGI)) {
-			return;
-		}
-
-		// Ref<RendererRD::GI::SDFGI> sdfgi = p_render_data->render_buffers->get_custom_data(RB_SCOPE_SDFGI);
-		// sdfgi->update_probes(p_render_data->environment, sky.sky_owner.get_or_null(environment_get_sky(p_render_data->environment)));
-	}
 }
 
 void RendererSceneRenderRD::_pre_resolve_render(RenderDataRD *p_render_data, bool p_use_gi) {
@@ -699,8 +636,6 @@ void RendererSceneRenderRD::render_material(const Transform3D &p_cam_transform, 
 bool RendererSceneRenderRD::free(RID p_rid) {
 	if (RSG::camera_attributes->owns_camera_attributes(p_rid)) {
 		RSG::camera_attributes->camera_attributes_free(p_rid);
-	} else if (gi.voxel_gi_instance_owns(p_rid)) {
-		gi.voxel_gi_instance_free(p_rid);
 	} else if (sky.sky_owner.owns(p_rid)) {
 		sky.update_dirty_skys();
 		sky.free_sky(p_rid);
@@ -742,116 +677,7 @@ float RendererSceneRenderRD::screen_space_roughness_limiter_get_limit() const {
 	return screen_space_roughness_limiter_limit;
 }
 
-TypedArray<Image> RendererSceneRenderRD::bake_render_uv2(RID p_base, const TypedArray<RID> &p_material_overrides, const Size2i &p_image_size) {
-	ERR_FAIL_COND_V_MSG(p_image_size.width <= 0, TypedArray<Image>(), "Image width must be greater than 0.");
-	ERR_FAIL_COND_V_MSG(p_image_size.height <= 0, TypedArray<Image>(), "Image height must be greater than 0.");
-	RD::TextureFormat tf;
-	tf.format = RD::DATA_FORMAT_R8G8B8A8_UNORM;
-	tf.width = p_image_size.width; // Always 64x64
-	tf.height = p_image_size.height;
-	tf.usage_bits = RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
-
-	RID albedo_alpha_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-	RID normal_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-	RID orm_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-
-	tf.format = RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
-	RID emission_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-
-	tf.format = RD::DATA_FORMAT_R32_SFLOAT;
-	RID depth_write_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-
-	tf.usage_bits = RD::TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT;
-	tf.format = RD::get_singleton()->texture_is_format_supported_for_usage(RD::DATA_FORMAT_D32_SFLOAT, RD::TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ? RD::DATA_FORMAT_D32_SFLOAT : RD::DATA_FORMAT_X8_D24_UNORM_PACK32;
-	RID depth_tex = RD::get_singleton()->texture_create(tf, RD::TextureView());
-
-	Vector<RID> fb_tex;
-	fb_tex.push_back(albedo_alpha_tex);
-	fb_tex.push_back(normal_tex);
-	fb_tex.push_back(orm_tex);
-	fb_tex.push_back(emission_tex);
-	fb_tex.push_back(depth_write_tex);
-	fb_tex.push_back(depth_tex);
-
-	RID fb = RD::get_singleton()->framebuffer_create(fb_tex);
-
-	//RID sampled_light;
-
-	RenderGeometryInstance *gi_inst = geometry_instance_create(p_base);
-	ERR_FAIL_NULL_V(gi_inst, TypedArray<Image>());
-
-	uint32_t sc = RSG::mesh_storage->mesh_get_surface_count(p_base);
-	Vector<RID> materials;
-	materials.resize(sc);
-
-	for (uint32_t i = 0; i < sc; i++) {
-		if (i < (uint32_t)p_material_overrides.size()) {
-			materials.write[i] = p_material_overrides[i];
-		}
-	}
-
-	gi_inst->set_surface_materials(materials);
-
-	if (cull_argument.size() == 0) {
-		cull_argument.push_back(nullptr);
-	}
-	cull_argument[0] = gi_inst;
-	_render_uv2(cull_argument, fb, Rect2i(0, 0, p_image_size.width, p_image_size.height));
-
-	geometry_instance_free(gi_inst);
-
-	TypedArray<Image> ret;
-
-	{
-		PackedByteArray data = RD::get_singleton()->texture_get_data(albedo_alpha_tex, 0);
-		Ref<Image> img = Image::create_from_data(p_image_size.width, p_image_size.height, false, Image::FORMAT_RGBA8, data);
-		RD::get_singleton()->free(albedo_alpha_tex);
-		ret.push_back(img);
-	}
-
-	{
-		PackedByteArray data = RD::get_singleton()->texture_get_data(normal_tex, 0);
-		Ref<Image> img = Image::create_from_data(p_image_size.width, p_image_size.height, false, Image::FORMAT_RGBA8, data);
-		RD::get_singleton()->free(normal_tex);
-		ret.push_back(img);
-	}
-
-	{
-		PackedByteArray data = RD::get_singleton()->texture_get_data(orm_tex, 0);
-		Ref<Image> img = Image::create_from_data(p_image_size.width, p_image_size.height, false, Image::FORMAT_RGBA8, data);
-		RD::get_singleton()->free(orm_tex);
-		ret.push_back(img);
-	}
-
-	{
-		PackedByteArray data = RD::get_singleton()->texture_get_data(emission_tex, 0);
-		Ref<Image> img = Image::create_from_data(p_image_size.width, p_image_size.height, false, Image::FORMAT_RGBAH, data);
-		RD::get_singleton()->free(emission_tex);
-		ret.push_back(img);
-	}
-
-	RD::get_singleton()->free(depth_write_tex);
-	RD::get_singleton()->free(depth_tex);
-
-	return ret;
-}
-
-void RendererSceneRenderRD::sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) {
-	gi.sdfgi_debug_probe_pos = p_position;
-	gi.sdfgi_debug_probe_dir = p_dir;
-}
-
 RendererSceneRenderRD *RendererSceneRenderRD::singleton = nullptr;
-
-bool RendererSceneRenderRD::is_dynamic_gi_supported() const {
-	// usable by default (unless low end = true)
-	return true;
-}
-
-bool RendererSceneRenderRD::is_volumetric_supported() const {
-	// usable by default (unless low end = true)
-	return true;
-}
 
 uint32_t RendererSceneRenderRD::get_max_elements() const {
 	return GLOBAL_GET("rendering/limits/cluster_builder/max_clustered_elements");
@@ -873,10 +699,6 @@ void RendererSceneRenderRD::init() {
 	sky.init();
 
 	/* GI */
-
-	if (is_dynamic_gi_supported()) {
-		gi.init(&sky);
-	}
 
 	{ //decals
 		RendererRD::TextureStorage::get_singleton()->set_max_decals(max_cluster_elements);
@@ -933,10 +755,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 
 	if (sky.sky_scene_state.uniform_set.is_valid() && RD::get_singleton()->uniform_set_is_valid(sky.sky_scene_state.uniform_set)) {
 		RD::get_singleton()->free(sky.sky_scene_state.uniform_set);
-	}
-
-	if (is_dynamic_gi_supported()) {
-		gi.free();
 	}
 
 	memdelete_arr(directional_penumbra_shadow_kernel);

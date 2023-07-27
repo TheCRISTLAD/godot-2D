@@ -293,10 +293,6 @@ bool RenderingServerDefault::has_feature(Features p_feature) const {
 	return false;
 }
 
-void RenderingServerDefault::sdfgi_set_debug_probe_select(const Vector3 &p_position, const Vector3 &p_dir) {
-	RSG::scene->sdfgi_set_debug_probe_select(p_position, p_dir);
-}
-
 void RenderingServerDefault::set_print_gpu_profile(bool p_enable) {
 	RSG::utilities->capturing_timestamps = p_enable;
 	print_gpu_profile = p_enable;
@@ -404,7 +400,6 @@ RenderingServerDefault::RenderingServerDefault(bool p_create_thread) :
 	RSG::mesh_storage = RSG::rasterizer->get_mesh_storage();
 	RSG::particles_storage = RSG::rasterizer->get_particles_storage();
 	RSG::texture_storage = RSG::rasterizer->get_texture_storage();
-	RSG::gi = RSG::rasterizer->get_gi();
 	RSG::canvas_render = RSG::rasterizer->get_canvas();
 	sr->set_scene_render(RSG::rasterizer->get_scene());
 
