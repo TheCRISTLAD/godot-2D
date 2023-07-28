@@ -82,7 +82,7 @@ jobs:
         with:
           name: ${{ matrix.cache-name }}
 
-      - name: Upload release
-        uses: ./.github/actions/upload-release
-        with:
-          name: ${{ matrix.cache-name }}
+      # - name: Upload release
+      #   uses: ./.github/actions/upload-release
+      #   with:
+      #     name: ${{ matrix.cache-name }}
