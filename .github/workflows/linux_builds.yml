@@ -30,13 +30,13 @@ jobs:
             # bin: "./bin/godot.linuxbsd.editor.x86_64"
 
           - name: Release Template
-            cache-name: linux-template
+            cache-name: linux-release-template
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace
 
           - name: Debug Template
-            cache-name: linux-template
+            cache-name: linux-debug-template
             target: template_debug
             tests: false
             sconsflags: optimize=speed_trace
