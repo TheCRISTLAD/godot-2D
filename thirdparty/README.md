@@ -5,19 +5,7 @@ respective folder names. Use two empty lines to separate categories for
 readability.
 
 
-## amd-fsr
-
-- Upstream: https://github.com/GPUOpen-Effects/FidelityFX-FSR
-- Version: 1.0.2 (a21ffb8f6c13233ba336352bdff293894c706575, 2021)
-- License: MIT
-
-Files extracted from upstream source:
-
-- `ffx_a.h` and `ffx_fsr1.h` from `ffx-fsr`
-- `license.txt`
-
-
-## astcenc
+## astcenc Image Compression ASTC
 
 - Upstream: https://github.com/ARM-software/astc-encoder
 - Version: 4.4.0 (5a5b5a1ef60dd47c27c28c66c118d22c40e3197e, 2023)

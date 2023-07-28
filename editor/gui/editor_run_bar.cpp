@@ -400,7 +400,7 @@ EditorRunBar::EditorRunBar() {
 
 	run_native = memnew(EditorRunNative);
 	main_hbox->add_child(run_native);
-	run_native->hide();
+	// run_native->hide();
 	run_native->connect("native_run", callable_mp(this, &EditorRunBar::_run_native));
 
 	play_scene_button = memnew(Button);
@@ -417,7 +417,7 @@ EditorRunBar::EditorRunBar() {
 
 	play_custom_scene_button = memnew(Button);
 	main_hbox->add_child(play_custom_scene_button);
-	play_custom_scene_button->hide();
+	// play_custom_scene_button->hide();
 	play_custom_scene_button->set_flat(true);
 	play_custom_scene_button->set_toggle_mode(true);
 	play_custom_scene_button->set_focus_mode(Control::FOCUS_NONE);
@@ -430,8 +430,8 @@ EditorRunBar::EditorRunBar() {
 
 	write_movie_panel = memnew(PanelContainer);
 	main_hbox->add_child(write_movie_panel);
-	write_movie_panel->hide();
-	
+	// write_movie_panel->hide();
+
 	write_movie_button = memnew(Button);
 	write_movie_panel->add_child(write_movie_button);
 	write_movie_button->set_flat(true);

@@ -7335,7 +7335,7 @@ EditorNode::EditorNode() {
 			renderer->add_item(TTR("Mobile"));
 		}
 		if (rendering_method == "gl_compatibility") {
-			renderer->add_item(TTR("old"));
+			renderer->add_item(TTR("GLES3"));
 		}
 		renderer->set_item_metadata(i, rendering_method);
 

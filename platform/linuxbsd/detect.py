@@ -282,9 +282,9 @@ def configure(env: "Environment"):
     if not env["builtin_pcre2"]:
         env.ParseConfig("pkg-config libpcre2-32 --cflags --libs")
 
-    if not env["builtin_embree"] and env["arch"] in ["x86_64", "arm64"]:
-        # No pkgconfig file so far, hardcode expected lib name.
-        env.Append(LIBS=["embree3"])
+    # if not env["builtin_embree"] and env["arch"] in ["x86_64", "arm64"]:
+    #     # No pkgconfig file so far, hardcode expected lib name.
+    #     env.Append(LIBS=["embree3"])
 
     if env["fontconfig"]:
         if not env["use_sowrap"]:
