@@ -102,27 +102,6 @@ struct LightInstance {
 	LightInstance() {}
 };
 
-/* REFLECTION PROBE */
-
-struct ReflectionProbe {
-	RS::ReflectionProbeUpdateMode update_mode = RS::REFLECTION_PROBE_UPDATE_ONCE;
-	int resolution = 256;
-	float intensity = 1.0;
-	RS::ReflectionProbeAmbientMode ambient_mode = RS::REFLECTION_PROBE_AMBIENT_ENVIRONMENT;
-	Color ambient_color;
-	float ambient_color_energy = 1.0;
-	float max_distance = 0;
-	Vector3 size = Vector3(20, 20, 20);
-	Vector3 origin_offset;
-	bool interior = false;
-	bool box_projection = false;
-	bool enable_shadows = false;
-	uint32_t cull_mask = (1 << 20) - 1;
-	float baked_exposure = 1.0;
-
-	Dependency dependency;
-};
-
 /* LIGHTMAP */
 
 struct Lightmap {
@@ -155,9 +134,6 @@ private:
 
 	/* Light instance */
 	mutable RID_Owner<LightInstance> light_instance_owner;
-
-	/* REFLECTION PROBE */
-	mutable RID_Owner<ReflectionProbe, true> reflection_probe_owner;
 
 	/* LIGHTMAP */
 
@@ -202,8 +178,6 @@ public:
 	virtual void light_directional_set_shadow_mode(RID p_light, RS::LightDirectionalShadowMode p_mode) override;
 	virtual void light_directional_set_blend_splits(RID p_light, bool p_enable) override;
 	virtual bool light_directional_get_blend_splits(RID p_light) const override;
-	virtual void light_directional_set_sky_mode(RID p_light, RS::LightDirectionalSkyMode p_mode) override;
-	virtual RS::LightDirectionalSkyMode light_directional_get_sky_mode(RID p_light) const override;
 
 	virtual RS::LightDirectionalShadowMode light_directional_get_shadow_mode(RID p_light) override;
 	virtual RS::LightOmniShadowMode light_omni_get_shadow_mode(RID p_light) override;
@@ -316,53 +290,6 @@ public:
 		LightInstance *li = light_instance_owner.get_or_null(p_light_instance);
 		return li->gl_id;
 	}
-
-	/* PROBE API */
-
-	virtual RID reflection_probe_allocate() override;
-	virtual void reflection_probe_initialize(RID p_rid) override;
-	virtual void reflection_probe_free(RID p_rid) override;
-
-	virtual void reflection_probe_set_update_mode(RID p_probe, RS::ReflectionProbeUpdateMode p_mode) override;
-	virtual void reflection_probe_set_intensity(RID p_probe, float p_intensity) override;
-	virtual void reflection_probe_set_ambient_mode(RID p_probe, RS::ReflectionProbeAmbientMode p_mode) override;
-	virtual void reflection_probe_set_ambient_color(RID p_probe, const Color &p_color) override;
-	virtual void reflection_probe_set_ambient_energy(RID p_probe, float p_energy) override;
-	virtual void reflection_probe_set_max_distance(RID p_probe, float p_distance) override;
-	virtual void reflection_probe_set_size(RID p_probe, const Vector3 &p_size) override;
-	virtual void reflection_probe_set_origin_offset(RID p_probe, const Vector3 &p_offset) override;
-	virtual void reflection_probe_set_as_interior(RID p_probe, bool p_enable) override;
-	virtual void reflection_probe_set_enable_box_projection(RID p_probe, bool p_enable) override;
-	virtual void reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) override;
-	virtual void reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) override;
-	virtual void reflection_probe_set_resolution(RID p_probe, int p_resolution) override;
-
-	virtual AABB reflection_probe_get_aabb(RID p_probe) const override;
-	virtual RS::ReflectionProbeUpdateMode reflection_probe_get_update_mode(RID p_probe) const override;
-	virtual uint32_t reflection_probe_get_cull_mask(RID p_probe) const override;
-	virtual Vector3 reflection_probe_get_size(RID p_probe) const override;
-	virtual Vector3 reflection_probe_get_origin_offset(RID p_probe) const override;
-	virtual float reflection_probe_get_origin_max_distance(RID p_probe) const override;
-	virtual bool reflection_probe_renders_shadows(RID p_probe) const override;
-
-	/* REFLECTION ATLAS */
-
-	virtual RID reflection_atlas_create() override;
-	virtual void reflection_atlas_free(RID p_ref_atlas) override;
-	virtual int reflection_atlas_get_size(RID p_ref_atlas) const override;
-	virtual void reflection_atlas_set_size(RID p_ref_atlas, int p_reflection_size, int p_reflection_count) override;
-
-	/* REFLECTION PROBE INSTANCE */
-
-	virtual RID reflection_probe_instance_create(RID p_probe) override;
-	virtual void reflection_probe_instance_free(RID p_instance) override;
-	virtual void reflection_probe_instance_set_transform(RID p_instance, const Transform3D &p_transform) override;
-	virtual void reflection_probe_release_atlas_index(RID p_instance) override;
-	virtual bool reflection_probe_instance_needs_redraw(RID p_instance) override;
-	virtual bool reflection_probe_instance_has_reflection(RID p_instance) override;
-	virtual bool reflection_probe_instance_begin_render(RID p_instance, RID p_reflection_atlas) override;
-	virtual Ref<RenderSceneBuffers> reflection_probe_atlas_get_render_buffers(RID p_reflection_atlas) override;
-	virtual bool reflection_probe_instance_postprocess_step(RID p_instance) override;
 
 	/* LIGHTMAP CAPTURE */
 

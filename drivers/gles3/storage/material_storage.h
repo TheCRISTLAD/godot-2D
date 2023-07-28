@@ -46,7 +46,6 @@
 #include "drivers/gles3/shaders/cubemap_filter.glsl.gen.h"
 #include "drivers/gles3/shaders/particles.glsl.gen.h"
 #include "drivers/gles3/shaders/scene.glsl.gen.h"
-#include "drivers/gles3/shaders/sky.glsl.gen.h"
 
 namespace GLES3 {
 
@@ -187,48 +186,6 @@ struct CanvasMaterialData : public MaterialData {
 };
 
 MaterialData *_create_canvas_material_func(ShaderData *p_shader);
-
-/* Sky Materials */
-
-struct SkyShaderData : public ShaderData {
-	bool valid;
-	RID version;
-
-	Vector<ShaderCompiler::GeneratedCode::Texture> texture_uniforms;
-
-	Vector<uint32_t> ubo_offsets;
-	uint32_t ubo_size;
-
-	String code;
-
-	bool uses_time;
-	bool uses_position;
-	bool uses_half_res;
-	bool uses_quarter_res;
-	bool uses_light;
-
-	virtual void set_code(const String &p_Code);
-	virtual bool is_animated() const;
-	virtual bool casts_shadows() const;
-	virtual RS::ShaderNativeSourceCode get_native_source_code() const;
-	SkyShaderData();
-	virtual ~SkyShaderData();
-};
-
-ShaderData *_create_sky_shader_func();
-
-struct SkyMaterialData : public MaterialData {
-	SkyShaderData *shader_data = nullptr;
-	bool uniform_set_updated = false;
-
-	virtual void set_render_priority(int p_priority) {}
-	virtual void set_next_pass(RID p_pass) {}
-	virtual void update_parameters(const HashMap<StringName, Variant> &p_parameters, bool p_uniform_dirty, bool p_textures_dirty);
-	virtual void bind_uniforms();
-	virtual ~SkyMaterialData();
-};
-
-MaterialData *_create_sky_material_func(ShaderData *p_shader);
 
 /* Scene Materials */
 
@@ -527,7 +484,6 @@ public:
 
 	struct Shaders {
 		CanvasShaderGLES3 canvas_shader;
-		SkyShaderGLES3 sky_shader;
 		SceneShaderGLES3 scene_shader;
 		CubemapFilterShaderGLES3 cubemap_filter_shader;
 		ParticlesShaderGLES3 particles_process_shader;
@@ -535,7 +491,6 @@ public:
 		ShaderCompiler compiler_canvas;
 		ShaderCompiler compiler_scene;
 		ShaderCompiler compiler_particles;
-		ShaderCompiler compiler_sky;
 	} shaders;
 
 	/* GLOBAL SHADER UNIFORM API */

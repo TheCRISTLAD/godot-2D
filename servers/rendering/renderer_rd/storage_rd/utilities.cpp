@@ -55,9 +55,6 @@ RS::InstanceType Utilities::get_base_type(RID p_rid) const {
 	if (RendererRD::MeshStorage::get_singleton()->owns_multimesh(p_rid)) {
 		return RS::INSTANCE_MULTIMESH;
 	}
-	if (RendererRD::LightStorage::get_singleton()->owns_reflection_probe(p_rid)) {
-		return RS::INSTANCE_REFLECTION_PROBE;
-	}
 	if (RendererRD::TextureStorage::get_singleton()->owns_decal(p_rid)) {
 		return RS::INSTANCE_DECAL;
 	}
@@ -113,9 +110,6 @@ void Utilities::base_update_dependency(RID p_base, DependencyTracker *p_instance
 		if (mesh.is_valid()) {
 			base_update_dependency(mesh, p_instance);
 		}
-	} else if (LightStorage::get_singleton()->owns_reflection_probe(p_base)) {
-		Dependency *dependency = LightStorage::get_singleton()->reflection_probe_get_dependency(p_base);
-		p_instance->update_dependency(dependency);
 	} else if (TextureStorage::get_singleton()->owns_decal(p_base)) {
 		Dependency *dependency = TextureStorage::get_singleton()->decal_get_dependency(p_base);
 		p_instance->update_dependency(dependency);

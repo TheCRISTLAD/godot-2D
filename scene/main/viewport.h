@@ -149,7 +149,6 @@ public:
 		DEBUG_DRAW_CLUSTER_OMNI_LIGHTS,
 		DEBUG_DRAW_CLUSTER_SPOT_LIGHTS,
 		DEBUG_DRAW_CLUSTER_DECALS,
-		DEBUG_DRAW_CLUSTER_REFLECTION_PROBES,
 		DEBUG_DRAW_OCCLUDERS,
 		DEBUG_DRAW_MOTION_VECTORS,
 	};
@@ -493,15 +492,6 @@ public:
 
 	void set_msaa_2d(MSAA p_msaa);
 	MSAA get_msaa_2d() const;
-
-	void set_screen_space_aa(ScreenSpaceAA p_screen_space_aa);
-	ScreenSpaceAA get_screen_space_aa() const;
-
-	void set_use_taa(bool p_use_taa);
-	bool is_using_taa() const;
-
-	void set_use_debanding(bool p_use_debanding);
-	bool is_using_debanding() const;
 
 	Vector2 get_camera_coords(const Vector2 &p_viewport_coords) const;
 	Vector2 get_camera_rect_size() const;

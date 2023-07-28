@@ -671,22 +671,6 @@ RID RendererViewport::viewport_get_texture(RID p_viewport) const {
 	return RSG::texture_storage->render_target_get_texture(viewport->render_target);
 }
 
-void RendererViewport::viewport_set_prev_camera_data(RID p_viewport, const RendererSceneRender::CameraData *p_camera_data) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_COND(!viewport);
-	uint64_t frame = RSG::rasterizer->get_frame_number();
-	if (viewport->prev_camera_data_frame != frame) {
-		viewport->prev_camera_data = *p_camera_data;
-		viewport->prev_camera_data_frame = frame;
-	}
-}
-
-const RendererSceneRender::CameraData *RendererViewport::viewport_get_prev_camera_data(RID p_viewport) {
-	const Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_COND_V(!viewport, nullptr);
-	return &viewport->prev_camera_data;
-}
-
 void RendererViewport::viewport_set_disable_2d(RID p_viewport, bool p_disable) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_COND(!viewport);
@@ -785,42 +769,6 @@ void RendererViewport::viewport_set_msaa_2d(RID p_viewport, RS::ViewportMSAA p_m
 	}
 	viewport->msaa_2d = p_msaa;
 	RSG::texture_storage->render_target_set_msaa(viewport->render_target, p_msaa);
-}
-
-void RendererViewport::viewport_set_screen_space_aa(RID p_viewport, RS::ViewportScreenSpaceAA p_mode) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_COND(!viewport);
-
-	if (viewport->screen_space_aa == p_mode) {
-		return;
-	}
-	viewport->screen_space_aa = p_mode;
-	// _configure_3d_render_buffers(viewport);
-}
-
-void RendererViewport::viewport_set_use_taa(RID p_viewport, bool p_use_taa) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_COND(!viewport);
-	ERR_FAIL_COND_EDMSG(OS::get_singleton()->get_current_rendering_method() != "forward_plus", "TAA is only available when using the Forward+ renderer.");
-
-	if (viewport->use_taa == p_use_taa) {
-		return;
-	}
-	viewport->use_taa = p_use_taa;
-	// _configure_3d_render_buffers(viewport);
-}
-
-void RendererViewport::viewport_set_use_debanding(RID p_viewport, bool p_use_debanding) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_COND(!viewport);
-
-	if (viewport->use_debanding == p_use_debanding) {
-		return;
-	}
-	viewport->use_debanding = p_use_debanding;
-	if (viewport->render_buffers.is_valid()) {
-		viewport->render_buffers->set_use_debanding(p_use_debanding);
-	}
 }
 
 int RendererViewport::viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfoType p_type, RS::ViewportRenderInfo p_info) {

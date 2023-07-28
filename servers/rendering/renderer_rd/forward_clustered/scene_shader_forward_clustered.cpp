@@ -517,7 +517,6 @@ void SceneShaderForwardClustered::init(const String p_defines) {
 				shader.set_variant_enabled(i + SHADER_VERSION_COLOR_PASS, false);
 			}
 		}
-
 	}
 
 	valid_color_pass_pipelines.insert(0);

@@ -221,9 +221,6 @@ public:
 	void viewport_set_positional_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv);
 
 	void viewport_set_msaa_2d(RID p_viewport, RS::ViewportMSAA p_msaa);
-	void viewport_set_screen_space_aa(RID p_viewport, RS::ViewportScreenSpaceAA p_mode);
-	void viewport_set_use_taa(RID p_viewport, bool p_use_taa);
-	void viewport_set_use_debanding(RID p_viewport, bool p_use_debanding);
 
 	virtual int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfoType p_type, RS::ViewportRenderInfo p_info);
 	virtual void viewport_set_debug_draw(RID p_viewport, RS::ViewportDebugDraw p_draw);

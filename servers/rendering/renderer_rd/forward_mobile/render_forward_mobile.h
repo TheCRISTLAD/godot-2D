@@ -75,7 +75,6 @@ private:
 
 		SPEC_CONSTANT_DISABLE_OMNI_LIGHTS = 9,
 		SPEC_CONSTANT_DISABLE_SPOT_LIGHTS = 10,
-		SPEC_CONSTANT_DISABLE_REFLECTION_PROBES = 11,
 		SPEC_CONSTANT_DISABLE_DIRECTIONAL_LIGHTS = 12,
 
 		SPEC_CONSTANT_DISABLE_DECALS = 13,
@@ -343,9 +342,6 @@ protected:
 	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
 	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
 
-	virtual void sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) override{};
-	virtual void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) override{};
-
 	/* Geometry instance */
 
 	class GeometryInstanceForwardMobile;
@@ -439,7 +435,6 @@ protected:
 			uint32_t gi_offset; //GI information when using lightmapping (VCT or lightmap index)
 			uint32_t layer_mask = 1;
 			float lightmap_uv_scale[4]; // doubles as uv_offset when needed
-			uint32_t reflection_probes[2]; // packed reflection probes
 			uint32_t omni_lights[2]; // packed omni lights
 			uint32_t spot_lights[2]; // packed spot lights
 			uint32_t decals[2]; // packed spot lights
@@ -463,8 +458,6 @@ protected:
 		GeometryInstanceLightmapSH *lightmap_sh = nullptr;
 
 		// culled light info
-		uint32_t reflection_probe_count = 0;
-		RendererRD::ForwardID reflection_probes[MAX_RDL_CULL];
 		uint32_t omni_light_count = 0;
 		RendererRD::ForwardID omni_lights[MAX_RDL_CULL];
 		uint32_t spot_light_count = 0;
@@ -486,7 +479,6 @@ protected:
 		virtual void set_lightmap_capture(const Color *p_sh9) override;
 
 		virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) override;
-		virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) override;
 		virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) override;
 
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override;
@@ -528,8 +520,6 @@ protected:
 
 public:
 	static RenderForwardMobile *get_singleton() { return singleton; }
-
-	virtual RID reflection_probe_create_framebuffer(RID p_color, RID p_depth) override;
 
 	/* GEOMETRY INSTANCE */
 

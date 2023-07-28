@@ -1874,18 +1874,6 @@
 		<member name="rendering/environment/ssil/quality" type="int" setter="" getter="" default="2">
 			Sets the quality of the screen-space indirect lighting effect. Higher values take more samples and so will result in better quality, at the cost of performance. Setting to [code]Ultra[/code] will use the [member rendering/environment/ssil/adaptive_target] setting.
 		</member>
-		<member name="rendering/environment/subsurface_scattering/subsurface_scattering_depth_scale" type="float" setter="" getter="" default="0.01">
-			Scales the depth over which the subsurface scattering effect is applied. A high value may allow light to scatter into a part of the mesh or another mesh that is close in screen space but far in depth. See also [member rendering/environment/subsurface_scattering/subsurface_scattering_scale].
-			[b]Note:[/b] This property is only read when the project starts. To set the subsurface scattering depth scale at runtime, call [method RenderingServer.sub_surface_scattering_set_scale] instead.
-		</member>
-		<member name="rendering/environment/subsurface_scattering/subsurface_scattering_quality" type="int" setter="" getter="" default="1">
-			Sets the quality of the subsurface scattering effect. Higher values are slower but look nicer. This affects the rendering of materials that have [member BaseMaterial3D.subsurf_scatter_enabled] set to [code]true[/code], along with [ShaderMaterial]s that set [code]SSS_STRENGTH[/code].
-			[b]Note:[/b] This property is only read when the project starts. To set the subsurface scattering quality at runtime, call [method RenderingServer.sub_surface_scattering_set_quality] instead.
-		</member>
-		<member name="rendering/environment/subsurface_scattering/subsurface_scattering_scale" type="float" setter="" getter="" default="0.05">
-			Scales the distance over which samples are taken for subsurface scattering effect. Changing this does not impact performance, but higher values will result in significant artifacts as the samples will become obviously spread out. A lower value results in a smaller spread of scattered light. See also [member rendering/environment/subsurface_scattering/subsurface_scattering_depth_scale].
-			[b]Note:[/b] This property is only read when the project starts. To set the subsurface scattering scale at runtime, call [method RenderingServer.sub_surface_scattering_set_scale] instead.
-		</member>
 		<member name="rendering/environment/volumetric_fog/use_filter" type="int" setter="" getter="" default="1">
 			Enables filtering of the volumetric fog effect prior to integration. This substantially blurs the fog which reduces fine details but also smooths out harsh edges and aliasing artifacts. Disable when more detail is required.
 		</member>

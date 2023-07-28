@@ -166,8 +166,6 @@ public:
 		SHADER_SPATIAL,
 		SHADER_CANVAS_ITEM,
 		SHADER_PARTICLES,
-		SHADER_SKY,
-		SHADER_FOG,
 		SHADER_MAX
 	};
 
@@ -485,7 +483,6 @@ public:
 
 	virtual void light_directional_set_shadow_mode(RID p_light, LightDirectionalShadowMode p_mode) = 0;
 	virtual void light_directional_set_blend_splits(RID p_light, bool p_enable) = 0;
-	virtual void light_directional_set_sky_mode(RID p_light, LightDirectionalSkyMode p_mode) = 0;
 
 	// Shadow atlas
 
@@ -505,9 +502,6 @@ public:
 		SHADOW_QUALITY_MAX
 	};
 
-	virtual void positional_soft_shadow_filter_set_quality(ShadowQuality p_quality) = 0;
-	virtual void directional_soft_shadow_filter_set_quality(ShadowQuality p_quality) = 0;
-
 	enum LightProjectorFilter {
 		LIGHT_PROJECTOR_FILTER_NEAREST,
 		LIGHT_PROJECTOR_FILTER_LINEAR,
@@ -519,35 +513,16 @@ public:
 
 	virtual void light_projectors_set_filter(LightProjectorFilter p_filter) = 0;
 
-	/* PROBE API */
-
-	virtual RID reflection_probe_create() = 0;
-
 	enum ReflectionProbeUpdateMode {
 		REFLECTION_PROBE_UPDATE_ONCE,
 		REFLECTION_PROBE_UPDATE_ALWAYS,
 	};
-
-	virtual void reflection_probe_set_update_mode(RID p_probe, ReflectionProbeUpdateMode p_mode) = 0;
-	virtual void reflection_probe_set_intensity(RID p_probe, float p_intensity) = 0;
 
 	enum ReflectionProbeAmbientMode {
 		REFLECTION_PROBE_AMBIENT_DISABLED,
 		REFLECTION_PROBE_AMBIENT_ENVIRONMENT,
 		REFLECTION_PROBE_AMBIENT_COLOR,
 	};
-
-	virtual void reflection_probe_set_ambient_mode(RID p_probe, ReflectionProbeAmbientMode p_mode) = 0;
-	virtual void reflection_probe_set_ambient_color(RID p_probe, const Color &p_color) = 0;
-	virtual void reflection_probe_set_ambient_energy(RID p_probe, float p_energy) = 0;
-	virtual void reflection_probe_set_max_distance(RID p_probe, float p_distance) = 0;
-	virtual void reflection_probe_set_size(RID p_probe, const Vector3 &p_size) = 0;
-	virtual void reflection_probe_set_origin_offset(RID p_probe, const Vector3 &p_offset) = 0;
-	virtual void reflection_probe_set_as_interior(RID p_probe, bool p_enable) = 0;
-	virtual void reflection_probe_set_enable_box_projection(RID p_probe, bool p_enable) = 0;
-	virtual void reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) = 0;
-	virtual void reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) = 0;
-	virtual void reflection_probe_set_resolution(RID p_probe, int p_resolution) = 0;
 
 	/* DECAL API */
 
@@ -850,12 +825,6 @@ public:
 		VIEWPORT_SCREEN_SPACE_AA_MAX,
 	};
 
-	virtual void viewport_set_screen_space_aa(RID p_viewport, ViewportScreenSpaceAA p_mode) = 0;
-
-	virtual void viewport_set_use_taa(RID p_viewport, bool p_use_taa) = 0;
-
-	virtual void viewport_set_use_debanding(RID p_viewport, bool p_use_debanding) = 0;
-
 	enum ViewportOcclusionCullingBuildQuality {
 		VIEWPORT_OCCLUSION_BUILD_QUALITY_LOW = 0,
 		VIEWPORT_OCCLUSION_BUILD_QUALITY_MEDIUM = 1,
@@ -901,7 +870,6 @@ public:
 		VIEWPORT_DEBUG_DRAW_CLUSTER_OMNI_LIGHTS,
 		VIEWPORT_DEBUG_DRAW_CLUSTER_SPOT_LIGHTS,
 		VIEWPORT_DEBUG_DRAW_CLUSTER_DECALS,
-		VIEWPORT_DEBUG_DRAW_CLUSTER_REFLECTION_PROBES,
 		VIEWPORT_DEBUG_DRAW_OCCLUDERS,
 		VIEWPORT_DEBUG_DRAW_MOTION_VECTORS,
 	};
@@ -1022,17 +990,12 @@ public:
 		ENV_SDFGI_UPDATE_LIGHT_MAX,
 	};
 
-	virtual void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_limit) = 0;
-
 	enum SubSurfaceScatteringQuality {
 		SUB_SURFACE_SCATTERING_QUALITY_DISABLED,
 		SUB_SURFACE_SCATTERING_QUALITY_LOW,
 		SUB_SURFACE_SCATTERING_QUALITY_MEDIUM,
 		SUB_SURFACE_SCATTERING_QUALITY_HIGH,
 	};
-
-	virtual void sub_surface_scattering_set_quality(SubSurfaceScatteringQuality p_quality) = 0;
-	virtual void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) = 0;
 
 	/* CAMERA EFFECTS */
 
@@ -1068,7 +1031,6 @@ public:
 		INSTANCE_PARTICLES,
 		INSTANCE_PARTICLES_COLLISION,
 		INSTANCE_LIGHT,
-		INSTANCE_REFLECTION_PROBE,
 		INSTANCE_DECAL,
 		INSTANCE_VOXEL_GI,
 		INSTANCE_LIGHTMAP,
@@ -1483,8 +1445,6 @@ VARIANT_ENUM_CAST(RenderingServer::LightOmniShadowMode);
 VARIANT_ENUM_CAST(RenderingServer::LightDirectionalShadowMode);
 VARIANT_ENUM_CAST(RenderingServer::LightDirectionalSkyMode);
 VARIANT_ENUM_CAST(RenderingServer::LightProjectorFilter);
-VARIANT_ENUM_CAST(RenderingServer::ReflectionProbeUpdateMode);
-VARIANT_ENUM_CAST(RenderingServer::ReflectionProbeAmbientMode);
 VARIANT_ENUM_CAST(RenderingServer::VoxelGIQuality);
 VARIANT_ENUM_CAST(RenderingServer::DecalTexture);
 VARIANT_ENUM_CAST(RenderingServer::DecalFilter);

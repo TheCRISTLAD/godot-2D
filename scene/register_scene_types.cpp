@@ -169,8 +169,6 @@
 #include "scene/resources/skeleton_modification_2d_twoboneik.h"
 #include "scene/resources/skeleton_modification_stack_2d.h"
 #include "scene/resources/skeleton_profile.h"
-#include "scene/resources/sky.h"
-#include "scene/resources/sky_material.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/resources/syntax_highlighter.h"
@@ -617,7 +615,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(World2D);
 	GDREGISTER_VIRTUAL_CLASS(Texture);
 	GDREGISTER_VIRTUAL_CLASS(Texture2D);
-	GDREGISTER_CLASS(Sky);
 	GDREGISTER_CLASS(CompressedTexture2D);
 	GDREGISTER_CLASS(PortableCompressedTexture2D);
 	GDREGISTER_CLASS(ImageTexture);
@@ -749,13 +746,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("ConvexPolygonShape", "ConvexPolygonShape3D");
 	ClassDB::add_compatibility_class("CPUParticles", "CPUParticles3D");
 	ClassDB::add_compatibility_class("CubeMesh", "BoxMesh");
-	ClassDB::add_compatibility_class("CylinderShape", "CylinderShape3D");
-	ClassDB::add_compatibility_class("DirectionalLight", "DirectionalLight3D");
-	ClassDB::add_compatibility_class("EditorSpatialGizmo", "EditorNode3DGizmo");
-	ClassDB::add_compatibility_class("EditorSpatialGizmoPlugin", "EditorNode3DGizmoPlugin");
-	ClassDB::add_compatibility_class("Generic6DOFJoint", "Generic6DOFJoint3D");
-	ClassDB::add_compatibility_class("GIProbe", "VoxelGI");
-	ClassDB::add_compatibility_class("GIProbeData", "VoxelGIData");
 	ClassDB::add_compatibility_class("GradientTexture", "GradientTexture1D");
 	ClassDB::add_compatibility_class("HeightMapShape", "HeightMapShape3D");
 	ClassDB::add_compatibility_class("HingeJoint", "HingeJoint3D");
@@ -763,17 +753,13 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("KinematicBody", "CharacterBody3D");
 	ClassDB::add_compatibility_class("KinematicBody2D", "CharacterBody2D");
 	ClassDB::add_compatibility_class("KinematicCollision", "KinematicCollision3D");
-	ClassDB::add_compatibility_class("Light", "Light3D");
 	ClassDB::add_compatibility_class("Light2D", "PointLight2D");
 	ClassDB::add_compatibility_class("LineShape2D", "WorldBoundaryShape2D");
 	ClassDB::add_compatibility_class("MeshInstance", "MeshInstance3D");
 	ClassDB::add_compatibility_class("MultiMeshInstance", "MultiMeshInstance3D");
-	ClassDB::add_compatibility_class("OmniLight", "OmniLight3D");
-	ClassDB::add_compatibility_class("PanoramaSky", "Sky");
 	ClassDB::add_compatibility_class("Particles", "GPUParticles3D");
 	ClassDB::add_compatibility_class("Particles2D", "GPUParticles2D");
 	ClassDB::add_compatibility_class("ParticlesMaterial", "ParticleProcessMaterial");
-	ClassDB::add_compatibility_class("Path", "Path3D");
 	ClassDB::add_compatibility_class("PathFollow", "PathFollow3D");
 	ClassDB::add_compatibility_class("PhysicalBone", "PhysicalBone3D");
 	ClassDB::add_compatibility_class("Physics2DDirectBodyState", "PhysicsDirectBodyState2D");
@@ -790,7 +776,6 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("PlaneShape", "WorldBoundaryShape3D");
 	ClassDB::add_compatibility_class("Position2D", "Marker2D");
 	ClassDB::add_compatibility_class("Position3D", "Marker3D");
-	ClassDB::add_compatibility_class("ProceduralSky", "Sky");
 	ClassDB::add_compatibility_class("RayCast", "RayCast3D");
 	ClassDB::add_compatibility_class("RayShape", "SeparationRayShape3D");
 	ClassDB::add_compatibility_class("RayShape2D", "SeparationRayShape2D");
@@ -800,18 +785,10 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("RigidDynamicBody3D", "RigidBody3D");
 	ClassDB::add_compatibility_class("Shape", "Shape3D");
 	ClassDB::add_compatibility_class("ShortCut", "Shortcut");
-	ClassDB::add_compatibility_class("Skeleton", "Skeleton3D");
-	ClassDB::add_compatibility_class("SkeletonIK", "SkeletonIK3D");
-	ClassDB::add_compatibility_class("SliderJoint", "SliderJoint3D");
-	ClassDB::add_compatibility_class("SoftBody", "SoftBody3D");
-	ClassDB::add_compatibility_class("SoftDynamicBody3D", "SoftBody3D");
-	ClassDB::add_compatibility_class("SpatialGizmo", "Node3DGizmo");
-	ClassDB::add_compatibility_class("SpatialMaterial", "StandardMaterial3D");
 	ClassDB::add_compatibility_class("SphereShape", "SphereShape3D");
 	ClassDB::add_compatibility_class("SpotLight", "SpotLight3D");
 	ClassDB::add_compatibility_class("SpringArm", "SpringArm3D");
 	ClassDB::add_compatibility_class("Sprite", "Sprite2D");
-	ClassDB::add_compatibility_class("StaticBody", "StaticBody3D");
 	ClassDB::add_compatibility_class("StreamTexture", "CompressedTexture2D");
 	ClassDB::add_compatibility_class("TextureProgress", "TextureProgressBar");
 	ClassDB::add_compatibility_class("VehicleBody", "VehicleBody3D");

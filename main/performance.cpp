@@ -132,12 +132,6 @@ double Performance::get_monitor(Monitor p_monitor) const {
 			return _get_node_count();
 		case OBJECT_ORPHAN_NODE_COUNT:
 			return Node::orphan_node_count;
-		case RENDER_TOTAL_OBJECTS_IN_FRAME:
-			return RS::get_singleton()->get_rendering_info(RS::RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME);
-		case RENDER_TOTAL_PRIMITIVES_IN_FRAME:
-			return RS::get_singleton()->get_rendering_info(RS::RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME);
-		case RENDER_TOTAL_DRAW_CALLS_IN_FRAME:
-			return RS::get_singleton()->get_rendering_info(RS::RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME);
 		case RENDER_VIDEO_MEM_USED:
 			return RS::get_singleton()->get_rendering_info(RS::RENDERING_INFO_VIDEO_MEM_USED);
 		case RENDER_TEXTURE_MEM_USED:

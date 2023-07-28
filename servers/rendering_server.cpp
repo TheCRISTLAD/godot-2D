@@ -1623,8 +1623,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(SHADER_SPATIAL);
 	BIND_ENUM_CONSTANT(SHADER_CANVAS_ITEM);
 	BIND_ENUM_CONSTANT(SHADER_PARTICLES);
-	BIND_ENUM_CONSTANT(SHADER_SKY);
-	BIND_ENUM_CONSTANT(SHADER_FOG);
 	BIND_ENUM_CONSTANT(SHADER_MAX);
 
 	/* MATERIAL */
@@ -1793,9 +1791,6 @@ void RenderingServer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("light_directional_set_shadow_mode", "light", "mode"), &RenderingServer::light_directional_set_shadow_mode);
 	ClassDB::bind_method(D_METHOD("light_directional_set_blend_splits", "light", "enable"), &RenderingServer::light_directional_set_blend_splits);
-	ClassDB::bind_method(D_METHOD("light_directional_set_sky_mode", "light", "mode"), &RenderingServer::light_directional_set_sky_mode);
-
-	ClassDB::bind_method(D_METHOD("light_projectors_set_filter", "filter"), &RenderingServer::light_projectors_set_filter);
 
 	BIND_ENUM_CONSTANT(LIGHT_PROJECTOR_FILTER_NEAREST);
 	BIND_ENUM_CONSTANT(LIGHT_PROJECTOR_FILTER_LINEAR);
@@ -1846,8 +1841,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SKY_MODE_LIGHT_ONLY);
 	BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SKY_MODE_SKY_ONLY);
 
-	ClassDB::bind_method(D_METHOD("positional_soft_shadow_filter_set_quality", "quality"), &RenderingServer::positional_soft_shadow_filter_set_quality);
-	ClassDB::bind_method(D_METHOD("directional_soft_shadow_filter_set_quality", "quality"), &RenderingServer::directional_soft_shadow_filter_set_quality);
 	ClassDB::bind_method(D_METHOD("directional_shadow_atlas_set_size", "size", "is_16bits"), &RenderingServer::directional_shadow_atlas_set_size);
 
 	BIND_ENUM_CONSTANT(SHADOW_QUALITY_HARD);
@@ -1857,30 +1850,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(SHADOW_QUALITY_SOFT_HIGH);
 	BIND_ENUM_CONSTANT(SHADOW_QUALITY_SOFT_ULTRA);
 	BIND_ENUM_CONSTANT(SHADOW_QUALITY_MAX);
-
-	/* REFLECTION PROBE */
-
-	ClassDB::bind_method(D_METHOD("reflection_probe_create"), &RenderingServer::reflection_probe_create);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_update_mode", "probe", "mode"), &RenderingServer::reflection_probe_set_update_mode);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_intensity", "probe", "intensity"), &RenderingServer::reflection_probe_set_intensity);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_ambient_mode", "probe", "mode"), &RenderingServer::reflection_probe_set_ambient_mode);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_ambient_color", "probe", "color"), &RenderingServer::reflection_probe_set_ambient_color);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_ambient_energy", "probe", "energy"), &RenderingServer::reflection_probe_set_ambient_energy);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_max_distance", "probe", "distance"), &RenderingServer::reflection_probe_set_max_distance);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_size", "probe", "size"), &RenderingServer::reflection_probe_set_size);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_origin_offset", "probe", "offset"), &RenderingServer::reflection_probe_set_origin_offset);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_as_interior", "probe", "enable"), &RenderingServer::reflection_probe_set_as_interior);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_enable_box_projection", "probe", "enable"), &RenderingServer::reflection_probe_set_enable_box_projection);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_enable_shadows", "probe", "enable"), &RenderingServer::reflection_probe_set_enable_shadows);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_cull_mask", "probe", "layers"), &RenderingServer::reflection_probe_set_cull_mask);
-	ClassDB::bind_method(D_METHOD("reflection_probe_set_resolution", "probe", "resolution"), &RenderingServer::reflection_probe_set_resolution);
-
-	BIND_ENUM_CONSTANT(REFLECTION_PROBE_UPDATE_ONCE);
-	BIND_ENUM_CONSTANT(REFLECTION_PROBE_UPDATE_ALWAYS);
-
-	BIND_ENUM_CONSTANT(REFLECTION_PROBE_AMBIENT_DISABLED);
-	BIND_ENUM_CONSTANT(REFLECTION_PROBE_AMBIENT_ENVIRONMENT);
-	BIND_ENUM_CONSTANT(REFLECTION_PROBE_AMBIENT_COLOR);
 
 	/* DECAL */
 
@@ -2077,9 +2046,6 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_size", "viewport", "size", "use_16_bits"), &RenderingServer::viewport_set_positional_shadow_atlas_size, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_quadrant_subdivision", "viewport", "quadrant", "subdivision"), &RenderingServer::viewport_set_positional_shadow_atlas_quadrant_subdivision);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_2d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_2d);
-	ClassDB::bind_method(D_METHOD("viewport_set_screen_space_aa", "viewport", "mode"), &RenderingServer::viewport_set_screen_space_aa);
-	ClassDB::bind_method(D_METHOD("viewport_set_use_taa", "viewport", "enable"), &RenderingServer::viewport_set_use_taa);
-	ClassDB::bind_method(D_METHOD("viewport_set_use_debanding", "viewport", "enable"), &RenderingServer::viewport_set_use_debanding);
 
 	ClassDB::bind_method(D_METHOD("viewport_get_render_info", "viewport", "type", "info"), &RenderingServer::viewport_get_render_info);
 	ClassDB::bind_method(D_METHOD("viewport_set_debug_draw", "viewport", "draw"), &RenderingServer::viewport_set_debug_draw);
@@ -2156,7 +2122,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_CLUSTER_OMNI_LIGHTS);
 	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_CLUSTER_SPOT_LIGHTS);
 	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_CLUSTER_DECALS);
-	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_CLUSTER_REFLECTION_PROBES);
 	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_OCCLUDERS);
 	BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_MOTION_VECTORS);
 
@@ -2168,10 +2133,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(SKY_MODE_REALTIME);
 
 	/* ENVIRONMENT */
-
-	ClassDB::bind_method(D_METHOD("screen_space_roughness_limiter_set_active", "enable", "amount", "limit"), &RenderingServer::screen_space_roughness_limiter_set_active);
-	ClassDB::bind_method(D_METHOD("sub_surface_scattering_set_quality", "quality"), &RenderingServer::sub_surface_scattering_set_quality);
-	ClassDB::bind_method(D_METHOD("sub_surface_scattering_set_scale", "scale", "depth_scale"), &RenderingServer::sub_surface_scattering_set_scale);
 
 	BIND_ENUM_CONSTANT(ENV_BG_CLEAR_COLOR);
 	BIND_ENUM_CONSTANT(ENV_BG_COLOR);
@@ -2310,7 +2271,6 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(INSTANCE_PARTICLES);
 	BIND_ENUM_CONSTANT(INSTANCE_PARTICLES_COLLISION);
 	BIND_ENUM_CONSTANT(INSTANCE_LIGHT);
-	BIND_ENUM_CONSTANT(INSTANCE_REFLECTION_PROBE);
 	BIND_ENUM_CONSTANT(INSTANCE_DECAL);
 	BIND_ENUM_CONSTANT(INSTANCE_VOXEL_GI);
 	BIND_ENUM_CONSTANT(INSTANCE_LIGHTMAP);
@@ -2681,9 +2641,6 @@ void RenderingServer::init() {
 	GLOBAL_DEF_RST("rendering/reflections/sky_reflections/ggx_samples", 32);
 	GLOBAL_DEF("rendering/reflections/sky_reflections/ggx_samples.mobile", 16);
 	GLOBAL_DEF("rendering/reflections/sky_reflections/fast_filter_high_quality", false);
-	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_size", 256);
-	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_size.mobile", 128);
-	GLOBAL_DEF("rendering/reflections/reflection_atlas/reflection_count", 64);
 
 	GLOBAL_DEF("rendering/shading/overrides/force_vertex_shading", false);
 	GLOBAL_DEF("rendering/shading/overrides/force_vertex_shading.mobile", true);
@@ -2713,10 +2670,6 @@ void RenderingServer::init() {
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/environment/ssil/blur_passes", PROPERTY_HINT_RANGE, "0,6"), 4);
 	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/environment/ssil/fadeout_from", PROPERTY_HINT_RANGE, "0.0,512,0.1,or_greater"), 50.0);
 	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/environment/ssil/fadeout_to", PROPERTY_HINT_RANGE, "64,65536,0.1,or_greater"), 300.0);
-
-	GLOBAL_DEF("rendering/anti_aliasing/screen_space_roughness_limiter/enabled", true);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/anti_aliasing/screen_space_roughness_limiter/amount", PROPERTY_HINT_RANGE, "0.01,4.0,0.01"), 0.25);
-	GLOBAL_DEF(PropertyInfo(Variant::FLOAT, "rendering/anti_aliasing/screen_space_roughness_limiter/limit", PROPERTY_HINT_RANGE, "0.01,1.0,0.01"), 0.18);
 
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/textures/decals/filter", PROPERTY_HINT_ENUM, "Nearest (Fast),Linear (Fast),Nearest Mipmap (Fast),Linear Mipmap (Fast),Nearest Mipmap Anisotropic (Average),Linear Mipmap Anisotropic (Average)"), DECAL_FILTER_LINEAR_MIPMAPS);
 	GLOBAL_DEF(PropertyInfo(Variant::INT, "rendering/textures/light_projectors/filter", PROPERTY_HINT_ENUM, "Nearest (Fast),Linear (Fast),Nearest Mipmap (Fast),Linear Mipmap (Fast),Nearest Mipmap Anisotropic (Average),Linear Mipmap Anisotropic (Average)"), LIGHT_PROJECTOR_FILTER_LINEAR_MIPMAPS);

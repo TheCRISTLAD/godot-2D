@@ -236,13 +236,6 @@ void RenderingServerDefault::finish() {
 /* STATUS INFORMATION */
 
 uint64_t RenderingServerDefault::get_rendering_info(RenderingInfo p_info) {
-	if (p_info == RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME) {
-		return RSG::viewport->get_total_objects_drawn();
-	} else if (p_info == RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME) {
-		return RSG::viewport->get_total_primitives_drawn();
-	} else if (p_info == RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME) {
-		return RSG::viewport->get_total_draw_calls_used();
-	}
 	return RSG::utilities->get_rendering_info(p_info);
 }
 

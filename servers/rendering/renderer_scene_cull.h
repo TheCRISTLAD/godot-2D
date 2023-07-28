@@ -257,7 +257,6 @@ public:
 			FLAG_LIGHTMAP_CAPTURE = (1 << 15),
 			FLAG_USES_BAKED_LIGHT = (1 << 16),
 			FLAG_USES_MESH_INSTANCE = (1 << 17),
-			FLAG_REFLECTION_PROBE_DIRTY = (1 << 18),
 			FLAG_IGNORE_OCCLUSION_CULLING = (1 << 19),
 			FLAG_VISIBILITY_DEPENDENCY_NEEDS_CHECK = (3 << 20), // 2 bits, overlaps with the other vis. dependency flags
 			FLAG_VISIBILITY_DEPENDENCY_HIDDEN_CLOSE_RANGE = (1 << 20),
@@ -321,8 +320,6 @@ public:
 		RID environment;
 		RID fallback_environment;
 		RID camera_attributes;
-		RID reflection_probe_shadow_atlas;
-		RID reflection_atlas;
 		uint64_t used_viewport_visibility_bits;
 		HashMap<RID, uint64_t> viewport_visibility_masks;
 
@@ -481,8 +478,7 @@ public:
 				case Dependency::DEPENDENCY_CHANGED_PARTICLES:
 				case Dependency::DEPENDENCY_CHANGED_MULTIMESH:
 				case Dependency::DEPENDENCY_CHANGED_DECAL:
-				case Dependency::DEPENDENCY_CHANGED_LIGHT:
-				case Dependency::DEPENDENCY_CHANGED_REFLECTION_PROBE: {
+				case Dependency::DEPENDENCY_CHANGED_LIGHT: {
 					singleton->_instance_queue_update(instance, true, true);
 				} break;
 				case Dependency::DEPENDENCY_CHANGED_LIGHT_SOFT_SHADOW_AND_PROJECTOR: {
@@ -597,7 +593,6 @@ public:
 		uint32_t softshadow_count = 0;
 
 		HashSet<Instance *> decals;
-		HashSet<Instance *> reflection_probes;
 		HashSet<Instance *> lightmap_captures;
 
 		InstanceGeometryData() {
@@ -631,8 +626,6 @@ public:
 		InstanceDecalData() {
 		}
 	};
-
-	SelfList<InstanceReflectionProbeData>::List reflection_probe_render_list;
 
 	struct InstanceParticlesCollisionData : public InstanceBaseData {
 		RID instance;
@@ -1038,15 +1031,12 @@ public:
 		RID shadow_atlas;
 		Transform3D cam_transform;
 		uint32_t visible_layers;
-		Instance *render_reflection_probe = nullptr;
 		const RendererSceneOcclusionCull::HZBuffer *occlusion_buffer;
 		const Projection *camera_matrix;
 		uint64_t visibility_viewport_mask;
 	};
 
 	_FORCE_INLINE_ bool _visibility_parent_check(const CullData &p_cull_data, const InstanceData &p_instance_data);
-
-	bool _render_reflection_probe_step(Instance *p_instance, int p_step);
 
 	void update_dirty_instances();
 
@@ -1061,13 +1051,6 @@ public:
 #define PASSBASE scene_render
 
 	// Adjustment
-
-	PASS3(screen_space_roughness_limiter_set_active, bool, float, float)
-	PASS1(sub_surface_scattering_set_quality, RS::SubSurfaceScatteringQuality)
-	PASS2(sub_surface_scattering_set_scale, float, float)
-
-	PASS1(positional_soft_shadow_filter_set_quality, RS::ShadowQuality)
-	PASS1(directional_soft_shadow_filter_set_quality, RS::ShadowQuality)
 
 	/* Render Buffers */
 

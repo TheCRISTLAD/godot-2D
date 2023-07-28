@@ -434,7 +434,6 @@ void SceneShaderForwardMobile::init(const String p_defines) {
 		shader.set_variant_enabled(SHADER_VERSION_COLOR_PASS_MULTIVIEW, false);
 		shader.set_variant_enabled(SHADER_VERSION_LIGHTMAP_COLOR_PASS_MULTIVIEW, false);
 		shader.set_variant_enabled(SHADER_VERSION_SHADOW_PASS_MULTIVIEW, false);
-
 	}
 
 	material_storage->shader_set_data_request_function(RendererRD::MaterialStorage::SHADER_TYPE_3D, _create_shader_funcs);

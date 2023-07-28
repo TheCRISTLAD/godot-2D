@@ -2974,49 +2974,6 @@ Viewport::MSAA Viewport::get_msaa_2d() const {
 	return msaa_2d;
 }
 
-void Viewport::set_screen_space_aa(ScreenSpaceAA p_screen_space_aa) {
-	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_INDEX(p_screen_space_aa, SCREEN_SPACE_AA_MAX);
-	if (screen_space_aa == p_screen_space_aa) {
-		return;
-	}
-	screen_space_aa = p_screen_space_aa;
-	RS::get_singleton()->viewport_set_screen_space_aa(viewport, RS::ViewportScreenSpaceAA(p_screen_space_aa));
-}
-
-Viewport::ScreenSpaceAA Viewport::get_screen_space_aa() const {
-	ERR_READ_THREAD_GUARD_V(SCREEN_SPACE_AA_DISABLED);
-	return screen_space_aa;
-}
-
-void Viewport::set_use_taa(bool p_use_taa) {
-	ERR_MAIN_THREAD_GUARD;
-	if (use_taa == p_use_taa) {
-		return;
-	}
-	use_taa = p_use_taa;
-	RS::get_singleton()->viewport_set_use_taa(viewport, p_use_taa);
-}
-
-bool Viewport::is_using_taa() const {
-	ERR_READ_THREAD_GUARD_V(false);
-	return use_taa;
-}
-
-void Viewport::set_use_debanding(bool p_use_debanding) {
-	ERR_MAIN_THREAD_GUARD;
-	if (use_debanding == p_use_debanding) {
-		return;
-	}
-	use_debanding = p_use_debanding;
-	RS::get_singleton()->viewport_set_use_debanding(viewport, p_use_debanding);
-}
-
-bool Viewport::is_using_debanding() const {
-	ERR_READ_THREAD_GUARD_V(false);
-	return use_debanding;
-}
-
 void Viewport::set_debug_draw(DebugDraw p_debug_draw) {
 	ERR_MAIN_THREAD_GUARD;
 	debug_draw = p_debug_draw;
@@ -3340,15 +3297,6 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_msaa_2d", "msaa"), &Viewport::set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("get_msaa_2d"), &Viewport::get_msaa_2d);
 
-	ClassDB::bind_method(D_METHOD("set_screen_space_aa", "screen_space_aa"), &Viewport::set_screen_space_aa);
-	ClassDB::bind_method(D_METHOD("get_screen_space_aa"), &Viewport::get_screen_space_aa);
-
-	ClassDB::bind_method(D_METHOD("set_use_taa", "enable"), &Viewport::set_use_taa);
-	ClassDB::bind_method(D_METHOD("is_using_taa"), &Viewport::is_using_taa);
-
-	ClassDB::bind_method(D_METHOD("set_use_debanding", "enable"), &Viewport::set_use_debanding);
-	ClassDB::bind_method(D_METHOD("is_using_debanding"), &Viewport::is_using_debanding);
-
 	ClassDB::bind_method(D_METHOD("set_debug_draw", "debug_draw"), &Viewport::set_debug_draw);
 	ClassDB::bind_method(D_METHOD("get_debug_draw"), &Viewport::get_debug_draw);
 
@@ -3443,9 +3391,6 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "snap_2d_vertices_to_pixel"), "set_snap_2d_vertices_to_pixel", "is_snap_2d_vertices_to_pixel_enabled");
 	ADD_GROUP("Rendering", "");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "msaa_2d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), "set_msaa_2d", "get_msaa_2d");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "screen_space_aa", PROPERTY_HINT_ENUM, "Disabled (Fastest),FXAA (Fast)"), "set_screen_space_aa", "get_screen_space_aa");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_taa"), "set_use_taa", "is_using_taa");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_debanding"), "set_use_debanding", "is_using_debanding");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
 
 	ADD_GROUP("Canvas Items", "canvas_item_");
@@ -3529,7 +3474,6 @@ void Viewport::_bind_methods() {
 	BIND_ENUM_CONSTANT(DEBUG_DRAW_CLUSTER_OMNI_LIGHTS);
 	BIND_ENUM_CONSTANT(DEBUG_DRAW_CLUSTER_SPOT_LIGHTS);
 	BIND_ENUM_CONSTANT(DEBUG_DRAW_CLUSTER_DECALS);
-	BIND_ENUM_CONSTANT(DEBUG_DRAW_CLUSTER_REFLECTION_PROBES);
 	BIND_ENUM_CONSTANT(DEBUG_DRAW_OCCLUDERS)
 	BIND_ENUM_CONSTANT(DEBUG_DRAW_MOTION_VECTORS)
 

@@ -54,9 +54,6 @@ public:
 
 	/* ENVIRONMENT API */
 
-	virtual void positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) = 0;
-	virtual void directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) = 0;
-
 	struct RenderShadowData {
 		RID light;
 		int pass = 0;
@@ -105,12 +102,6 @@ public:
 	virtual void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) = 0;
 
 	virtual Ref<RenderSceneBuffers> render_buffers_create() = 0;
-
-	virtual void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_limit) = 0;
-	virtual bool screen_space_roughness_limiter_is_active() const = 0;
-
-	virtual void sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) = 0;
-	virtual void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) = 0;
 
 	virtual bool free(RID p_rid) = 0;
 

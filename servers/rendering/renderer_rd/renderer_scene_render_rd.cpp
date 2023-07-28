@@ -50,15 +50,6 @@ void get_vogel_disk(float *r_kernel, int p_sample_count) {
 	}
 }
 
-/* REFLECTION PROBE */
-
-RID RendererSceneRenderRD::reflection_probe_create_framebuffer(RID p_color, RID p_depth) {
-	Vector<RID> fb;
-	fb.push_back(p_color);
-	fb.push_back(p_depth);
-	return RD::get_singleton()->framebuffer_create(fb);
-}
-
 ////////////////////////////////
 Ref<RenderSceneBuffers> RendererSceneRenderRD::render_buffers_create() {
 	Ref<RenderSceneBuffersRD> rb;
@@ -160,7 +151,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
 	ERR_FAIL_COND(rb.is_null());
 
-	ERR_FAIL_COND_MSG(p_render_data->reflection_probe.is_valid(), "Post processes should not be applied on reflection probes.");
+	// ERR_FAIL_COND_MSG(p_render_data->reflection_probe.is_valid(), "Post processes should not be applied on reflection probes.");
 
 	// Glow, auto exposure and DoF (if enabled).
 
@@ -269,11 +260,11 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		tonemap.glow_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_BLACK);
 		tonemap.glow_map = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
 
-		if (rb->get_screen_space_aa() == RS::VIEWPORT_SCREEN_SPACE_AA_FXAA) {
-			tonemap.use_fxaa = true;
-		}
+		// if (rb->get_screen_space_aa() == RS::VIEWPORT_SCREEN_SPACE_AA_FXAA) {
+		// 	tonemap.use_fxaa = true;
+		// }
 
-		tonemap.use_debanding = rb->get_use_debanding();
+		tonemap.use_debanding = false;
 		tonemap.texture_size = Vector2i(rb->get_internal_size().x, rb->get_internal_size().y);
 
 		tonemap.use_color_correction = false;
@@ -383,100 +374,6 @@ bool RendererSceneRenderRD::_render_buffers_can_be_storage() {
 	return true;
 }
 
-void RendererSceneRenderRD::positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) {
-	ERR_FAIL_INDEX_MSG(p_quality, RS::SHADOW_QUALITY_MAX, "Shadow quality too high, please see RenderingServer's ShadowQuality enum");
-
-	if (shadows_quality != p_quality) {
-		shadows_quality = p_quality;
-
-		switch (shadows_quality) {
-			case RS::SHADOW_QUALITY_HARD: {
-				penumbra_shadow_samples = 4;
-				soft_shadow_samples = 0;
-				shadows_quality_radius = 1.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_VERY_LOW: {
-				penumbra_shadow_samples = 4;
-				soft_shadow_samples = 1;
-				shadows_quality_radius = 1.5;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_LOW: {
-				penumbra_shadow_samples = 8;
-				soft_shadow_samples = 4;
-				shadows_quality_radius = 2.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_MEDIUM: {
-				penumbra_shadow_samples = 12;
-				soft_shadow_samples = 8;
-				shadows_quality_radius = 2.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_HIGH: {
-				penumbra_shadow_samples = 24;
-				soft_shadow_samples = 16;
-				shadows_quality_radius = 3.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_ULTRA: {
-				penumbra_shadow_samples = 32;
-				soft_shadow_samples = 32;
-				shadows_quality_radius = 4.0;
-			} break;
-			case RS::SHADOW_QUALITY_MAX:
-				break;
-		}
-		get_vogel_disk(penumbra_shadow_kernel, penumbra_shadow_samples);
-		get_vogel_disk(soft_shadow_kernel, soft_shadow_samples);
-	}
-
-	_update_shader_quality_settings();
-}
-
-void RendererSceneRenderRD::directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) {
-	ERR_FAIL_INDEX_MSG(p_quality, RS::SHADOW_QUALITY_MAX, "Shadow quality too high, please see RenderingServer's ShadowQuality enum");
-
-	if (directional_shadow_quality != p_quality) {
-		directional_shadow_quality = p_quality;
-
-		switch (directional_shadow_quality) {
-			case RS::SHADOW_QUALITY_HARD: {
-				directional_penumbra_shadow_samples = 4;
-				directional_soft_shadow_samples = 0;
-				directional_shadow_quality_radius = 1.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_VERY_LOW: {
-				directional_penumbra_shadow_samples = 4;
-				directional_soft_shadow_samples = 1;
-				directional_shadow_quality_radius = 1.5;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_LOW: {
-				directional_penumbra_shadow_samples = 8;
-				directional_soft_shadow_samples = 4;
-				directional_shadow_quality_radius = 2.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_MEDIUM: {
-				directional_penumbra_shadow_samples = 12;
-				directional_soft_shadow_samples = 8;
-				directional_shadow_quality_radius = 2.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_HIGH: {
-				directional_penumbra_shadow_samples = 24;
-				directional_soft_shadow_samples = 16;
-				directional_shadow_quality_radius = 3.0;
-			} break;
-			case RS::SHADOW_QUALITY_SOFT_ULTRA: {
-				directional_penumbra_shadow_samples = 32;
-				directional_soft_shadow_samples = 32;
-				directional_shadow_quality_radius = 4.0;
-			} break;
-			case RS::SHADOW_QUALITY_MAX:
-				break;
-		}
-		get_vogel_disk(directional_penumbra_shadow_kernel, directional_penumbra_shadow_samples);
-		get_vogel_disk(directional_soft_shadow_kernel, directional_soft_shadow_samples);
-	}
-
-	_update_shader_quality_settings();
-}
-
 void RendererSceneRenderRD::decals_set_filter(RenderingServer::DecalFilter p_filter) {
 	if (decals_filter == p_filter) {
 		return;
@@ -490,14 +387,6 @@ void RendererSceneRenderRD::light_projectors_set_filter(RenderingServer::LightPr
 	}
 	light_projectors_filter = p_filter;
 	_update_shader_quality_settings();
-}
-
-int RendererSceneRenderRD::get_roughness_layers() const {
-	return sky.roughness_layers;
-}
-
-bool RendererSceneRenderRD::is_using_radiance_cubemap_array() const {
-	return sky.sky_use_cubemap_array;
 }
 
 bool RendererSceneRenderRD::_needs_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi) {
@@ -515,120 +404,6 @@ void RendererSceneRenderRD::_pre_resolve_render(RenderDataRD *p_render_data, boo
 	}
 }
 
-// void RendererSceneRenderRD::render_scene(const Ref<RenderSceneBuffers> &p_render_buffers, const CameraData *p_camera_data, const CameraData *p_prev_camera_data, const PagedArray<RenderGeometryInstance *> &p_instances, const PagedArray<RID> &p_lights, const PagedArray<RID> &p_reflection_probes, const PagedArray<RID> &p_voxel_gi_instances, const PagedArray<RID> &p_decals, const PagedArray<RID> &p_lightmaps, const PagedArray<RID> &p_fog_volumes, RID p_environment, RID p_camera_attributes, RID p_shadow_atlas, RID p_occluder_debug_tex, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass, float p_screen_mesh_lod_threshold, const RenderShadowData *p_render_shadows, int p_render_shadow_count, const RenderSDFGIData *p_render_sdfgi_regions, int p_render_sdfgi_region_count, const RenderSDFGIUpdateData *p_sdfgi_update_data, RenderingMethod::RenderInfo *r_render_info) {
-// 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
-// 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-
-// 	// getting this here now so we can direct call a bunch of things more easily
-// 	ERR_FAIL_COND(p_render_buffers.is_null());
-// 	Ref<RenderSceneBuffersRD> rb = p_render_buffers;
-// 	ERR_FAIL_COND(rb.is_null());
-
-// 	// setup scene data
-// 	RenderSceneDataRD scene_data;
-// 	{
-// 		// Our first camera is used by default
-// 		scene_data.cam_transform = p_camera_data->main_transform;
-// 		scene_data.cam_projection = p_camera_data->main_projection;
-// 		scene_data.cam_orthogonal = p_camera_data->is_orthogonal;
-// 		scene_data.camera_visible_layers = p_camera_data->visible_layers;
-// 		scene_data.taa_jitter = p_camera_data->taa_jitter;
-
-// 		scene_data.view_count = p_camera_data->view_count;
-// 		for (uint32_t v = 0; v < p_camera_data->view_count; v++) {
-// 			scene_data.view_eye_offset[v] = p_camera_data->view_offset[v].origin;
-// 			scene_data.view_projection[v] = p_camera_data->view_projection[v];
-// 		}
-
-// 		scene_data.prev_cam_transform = p_prev_camera_data->main_transform;
-// 		scene_data.prev_cam_projection = p_prev_camera_data->main_projection;
-// 		scene_data.prev_taa_jitter = p_prev_camera_data->taa_jitter;
-
-// 		for (uint32_t v = 0; v < p_camera_data->view_count; v++) {
-// 			scene_data.prev_view_projection[v] = p_prev_camera_data->view_projection[v];
-// 		}
-
-// 		scene_data.z_near = p_camera_data->main_projection.get_z_near();
-// 		scene_data.z_far = p_camera_data->main_projection.get_z_far();
-
-// 		// this should be the same for all cameras..
-// 		const float lod_distance_multiplier = p_camera_data->main_projection.get_lod_multiplier();
-
-// 		// Also, take into account resolution scaling for the multiplier, since we have more leeway with quality
-// 		// degradation visibility. Conversely, allow upwards scaling, too, for increased mesh detail at high res.
-// 		const float scaling_3d_scale = GLOBAL_GET("rendering/scaling_3d/scale");
-// 		scene_data.lod_distance_multiplier = lod_distance_multiplier * (1.0 / scaling_3d_scale);
-
-// 		if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_DISABLE_LOD) {
-// 			scene_data.screen_mesh_lod_threshold = 0.0;
-// 		} else {
-// 			scene_data.screen_mesh_lod_threshold = p_screen_mesh_lod_threshold;
-// 		}
-
-// 		if (p_shadow_atlas.is_valid()) {
-// 			int shadow_atlas_size = light_storage->shadow_atlas_get_size(p_shadow_atlas);
-// 			scene_data.shadow_atlas_pixel_size.x = 1.0 / shadow_atlas_size;
-// 			scene_data.shadow_atlas_pixel_size.y = 1.0 / shadow_atlas_size;
-// 		}
-// 		{
-// 			int directional_shadow_size = light_storage->directional_shadow_get_size();
-// 			scene_data.directional_shadow_pixel_size.x = 1.0 / directional_shadow_size;
-// 			scene_data.directional_shadow_pixel_size.y = 1.0 / directional_shadow_size;
-// 		}
-
-// 		scene_data.time = time;
-// 		scene_data.time_step = time_step;
-// 	}
-
-// 	//assign render data
-// 	RenderDataRD render_data;
-// 	{
-// 		render_data.render_buffers = rb;
-// 		render_data.scene_data = &scene_data;
-
-// 		render_data.instances = &p_instances;
-// 		render_data.lights = &p_lights;
-// 		render_data.reflection_probes = &p_reflection_probes;
-// 		render_data.voxel_gi_instances = &p_voxel_gi_instances;
-// 		render_data.decals = &p_decals;
-// 		render_data.lightmaps = &p_lightmaps;
-// 		render_data.fog_volumes = &p_fog_volumes;
-// 		render_data.environment = p_environment;
-// 		render_data.camera_attributes = p_camera_attributes;
-// 		render_data.shadow_atlas = p_shadow_atlas;
-// 		render_data.occluder_debug_tex = p_occluder_debug_tex;
-// 		render_data.reflection_atlas = p_reflection_atlas;
-// 		render_data.reflection_probe = p_reflection_probe;
-// 		render_data.reflection_probe_pass = p_reflection_probe_pass;
-
-// 		render_data.render_shadows = p_render_shadows;
-// 		render_data.render_shadow_count = p_render_shadow_count;
-// 		render_data.render_sdfgi_regions = p_render_sdfgi_regions;
-// 		render_data.render_sdfgi_region_count = p_render_sdfgi_region_count;
-// 		render_data.sdfgi_update_data = p_sdfgi_update_data;
-
-// 		render_data.render_info = r_render_info;
-// 	}
-
-// 	PagedArray<RID> empty;
-
-// 	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_UNSHADED) {
-// 		render_data.lights = &empty;
-// 		render_data.reflection_probes = &empty;
-// 		render_data.voxel_gi_instances = &empty;
-// 	}
-
-// 	Color clear_color;
-// 	if (p_render_buffers.is_valid() && p_reflection_probe.is_null()) {
-// 		clear_color = texture_storage->render_target_get_clear_request_color(rb->get_render_target());
-// 	} else {
-// 		clear_color = RSG::texture_storage->get_default_clear_color();
-// 	}
-
-// 	//calls _pre_opaque_render between depth pre-pass and opaque pass
-// 	_render_scene(&render_data, clear_color);
-// }
-
 void RendererSceneRenderRD::render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
 	_render_material(p_cam_transform, p_cam_projection, p_cam_orthogonal, p_instances, p_framebuffer, p_region, 1.0);
 }
@@ -636,9 +411,6 @@ void RendererSceneRenderRD::render_material(const Transform3D &p_cam_transform, 
 bool RendererSceneRenderRD::free(RID p_rid) {
 	if (RSG::camera_attributes->owns_camera_attributes(p_rid)) {
 		RSG::camera_attributes->camera_attributes_free(p_rid);
-	} else if (sky.sky_owner.owns(p_rid)) {
-		sky.update_dirty_skys();
-		sky.free_sky(p_rid);
 	} else {
 		return false;
 	}
@@ -651,30 +423,11 @@ void RendererSceneRenderRD::set_debug_draw_mode(RS::ViewportDebugDraw p_debug_dr
 }
 
 void RendererSceneRenderRD::update() {
-	sky.update_dirty_skys();
 }
 
 void RendererSceneRenderRD::set_time(double p_time, double p_step) {
 	time = p_time;
 	time_step = p_step;
-}
-
-void RendererSceneRenderRD::screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_limit) {
-	screen_space_roughness_limiter = p_enable;
-	screen_space_roughness_limiter_amount = p_amount;
-	screen_space_roughness_limiter_limit = p_limit;
-}
-
-bool RendererSceneRenderRD::screen_space_roughness_limiter_is_active() const {
-	return screen_space_roughness_limiter;
-}
-
-float RendererSceneRenderRD::screen_space_roughness_limiter_get_amount() const {
-	return screen_space_roughness_limiter_amount;
-}
-
-float RendererSceneRenderRD::screen_space_roughness_limiter_get_limit() const {
-	return screen_space_roughness_limiter_limit;
 }
 
 RendererSceneRenderRD *RendererSceneRenderRD::singleton = nullptr;
@@ -694,10 +447,6 @@ void RendererSceneRenderRD::init() {
 	/* Forward ID */
 	forward_id_storage = create_forward_id_storage();
 
-	/* SKY SHADER */
-
-	sky.init();
-
 	/* GI */
 
 	{ //decals
@@ -711,17 +460,12 @@ void RendererSceneRenderRD::init() {
 	RSG::camera_attributes->camera_attributes_set_dof_blur_quality(RS::DOFBlurQuality(int(GLOBAL_GET("rendering/camera/depth_of_field/depth_of_field_bokeh_quality"))), GLOBAL_GET("rendering/camera/depth_of_field/depth_of_field_use_jitter"));
 	use_physical_light_units = GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units");
 
-	screen_space_roughness_limiter = GLOBAL_GET("rendering/anti_aliasing/screen_space_roughness_limiter/enabled");
-	screen_space_roughness_limiter_amount = GLOBAL_GET("rendering/anti_aliasing/screen_space_roughness_limiter/amount");
-	screen_space_roughness_limiter_limit = GLOBAL_GET("rendering/anti_aliasing/screen_space_roughness_limiter/limit");
 	glow_bicubic_upscale = int(GLOBAL_GET("rendering/environment/glow/upscale_mode")) > 0;
 
 	directional_penumbra_shadow_kernel = memnew_arr(float, 128);
 	directional_soft_shadow_kernel = memnew_arr(float, 128);
 	penumbra_shadow_kernel = memnew_arr(float, 128);
 	soft_shadow_kernel = memnew_arr(float, 128);
-	positional_soft_shadow_filter_set_quality(RS::ShadowQuality(int(GLOBAL_GET("rendering/lights_and_shadows/positional_shadow/soft_shadow_filter_quality"))));
-	directional_soft_shadow_filter_set_quality(RS::ShadowQuality(int(GLOBAL_GET("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality"))));
 
 	decals_set_filter(RS::DecalFilter(int(GLOBAL_GET("rendering/textures/decals/filter"))));
 	light_projectors_set_filter(RS::LightProjectorFilter(int(GLOBAL_GET("rendering/textures/light_projectors/filter"))));
@@ -751,10 +495,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 	}
 	if (tone_mapper) {
 		memdelete(tone_mapper);
-	}
-
-	if (sky.sky_scene_state.uniform_set.is_valid() && RD::get_singleton()->uniform_set_is_valid(sky.sky_scene_state.uniform_set)) {
-		RD::get_singleton()->free(sky.sky_scene_state.uniform_set);
 	}
 
 	memdelete_arr(directional_penumbra_shadow_kernel);

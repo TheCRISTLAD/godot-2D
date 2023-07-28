@@ -139,7 +139,6 @@ public:
 	};
 
 	enum BoxType {
-		BOX_TYPE_REFLECTION_PROBE,
 		BOX_TYPE_DECAL,
 	};
 
@@ -147,7 +146,6 @@ public:
 		ELEMENT_TYPE_OMNI_LIGHT,
 		ELEMENT_TYPE_SPOT_LIGHT,
 		ELEMENT_TYPE_DECAL,
-		ELEMENT_TYPE_REFLECTION_PROBE,
 		ELEMENT_TYPE_MAX,
 	};
 
@@ -334,9 +332,6 @@ public:
 		if (p_box_type == BOX_TYPE_DECAL && cluster_count_by_type[ELEMENT_TYPE_DECAL] == max_elements_by_type) {
 			return; // Max number elements reached.
 		}
-		if (p_box_type == BOX_TYPE_REFLECTION_PROBE && cluster_count_by_type[ELEMENT_TYPE_REFLECTION_PROBE] == max_elements_by_type) {
-			return; // Max number elements reached.
-		}
 
 		RenderElementData &e = render_elements[render_element_count];
 		Transform3D xform = view_xform * p_transform;
@@ -366,7 +361,7 @@ public:
 		e.scale[1] = scale.y;
 		e.scale[2] = scale.z;
 
-		e.type = (p_box_type == BOX_TYPE_DECAL) ? ELEMENT_TYPE_DECAL : ELEMENT_TYPE_REFLECTION_PROBE;
+		e.type = ELEMENT_TYPE_DECAL;
 		e.original_index = cluster_count_by_type[e.type];
 
 		RendererRD::MaterialStorage::store_transform_transposed_3x4(xform, e.transform_inv);

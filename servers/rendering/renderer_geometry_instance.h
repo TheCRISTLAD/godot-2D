@@ -67,7 +67,6 @@ public:
 	virtual AABB get_aabb() = 0;
 
 	virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) = 0;
-	virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) = 0;
 	virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) = 0;
 
 	virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) = 0;

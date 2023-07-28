@@ -66,7 +66,6 @@ public:
 		virtual AABB get_aabb() override { return AABB(); }
 
 		virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) override {}
-		virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) override {}
 		virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) override {}
 
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override {}
@@ -95,9 +94,6 @@ public:
 
 	/* ENVIRONMENT API */
 
-	void positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override {}
-	void directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override {}
-
 	// void render_scene(const Ref<RenderSceneBuffers> &p_render_buffers, const CameraData *p_camera_data, const CameraData *p_prev_camera_data, const PagedArray<RenderGeometryInstance *> &p_instances, const PagedArray<RID> &p_lights, const PagedArray<RID> &p_reflection_probes, const PagedArray<RID> &p_voxel_gi_instances, const PagedArray<RID> &p_decals, const PagedArray<RID> &p_lightmaps, const PagedArray<RID> &p_fog_volumes, RID p_environment, RID p_camera_attributes, RID p_shadow_atlas, RID p_occluder_debug_tex, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass, float p_screen_mesh_lod_threshold, const RenderShadowData *p_render_shadows, int p_render_shadow_count, const RenderSDFGIData *p_render_sdfgi_regions, int p_render_sdfgi_region_count, const RenderSDFGIUpdateData *p_sdfgi_update_data = nullptr, RenderingMethod::RenderInfo *r_info = nullptr) override {}
 	void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override {}
 
@@ -106,12 +102,6 @@ public:
 	void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) override {}
 
 	Ref<RenderSceneBuffers> render_buffers_create() override { return Ref<RenderSceneBuffers>(); }
-
-	void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_curve) override {}
-	bool screen_space_roughness_limiter_is_active() const override { return false; }
-
-	void sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) override {}
-	void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) override {}
 
 	bool free(RID p_rid) override {
 		if (RSG::camera_attributes->owns_camera_attributes(p_rid)) {

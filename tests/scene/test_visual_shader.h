@@ -41,7 +41,7 @@ TEST_CASE("[SceneTree][VisualShader] Object creation and parameter") {
 	Ref<VisualShader> vs = memnew(VisualShader);
 	CHECK(vs.is_valid());
 
-	CHECK(vs->get_mode() == Shader::MODE_SPATIAL);
+	CHECK(vs->get_mode() == Shader::MODE_CANVAS_ITEM);
 
 	for (int i = 1; i < Shader::MODE_MAX; i++) {
 		vs->set_mode((Shader::Mode)i);

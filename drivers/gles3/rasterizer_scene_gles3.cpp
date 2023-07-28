@@ -480,12 +480,6 @@ Vector2 hammersley(uint32_t i, uint32_t N) {
 
 /* ENVIRONMENT API */
 
-void RasterizerSceneGLES3::positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) {
-}
-
-void RasterizerSceneGLES3::directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) {
-}
-
 _FORCE_INLINE_ static uint32_t _indices_to_primitives(RS::PrimitiveType p_primitive, uint32_t p_indices) {
 	static const uint32_t divisor[RS::PRIMITIVE_MAX] = { 1, 2, 1, 3, 1 };
 	static const uint32_t subtractor[RS::PRIMITIVE_MAX] = { 0, 0, 1, 0, 1 };
@@ -1224,54 +1218,11 @@ Ref<RenderSceneBuffers> RasterizerSceneGLES3::render_buffers_create() {
 	return rb;
 }
 
-//clear render buffers
-/*
-
-
-		if (rt->copy_screen_effect.color) {
-		glDeleteFramebuffers(1, &rt->copy_screen_effect.fbo);
-		rt->copy_screen_effect.fbo = 0;
-
-		glDeleteTextures(1, &rt->copy_screen_effect.color);
-		rt->copy_screen_effect.color = 0;
-	}
-
-	if (rt->multisample_active) {
-		glDeleteFramebuffers(1, &rt->multisample_fbo);
-		rt->multisample_fbo = 0;
-
-		glDeleteRenderbuffers(1, &rt->multisample_depth);
-		rt->multisample_depth = 0;
-
-		glDeleteRenderbuffers(1, &rt->multisample_color);
-
-		rt->multisample_color = 0;
-	}
-*/
-
 void RasterizerSceneGLES3::_render_buffers_debug_draw(Ref<RenderSceneBuffersGLES3> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) {
 }
 
-void RasterizerSceneGLES3::screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_curve) {
-}
-
-bool RasterizerSceneGLES3::screen_space_roughness_limiter_is_active() const {
-	return false;
-}
-
-void RasterizerSceneGLES3::sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) {
-}
-
-void RasterizerSceneGLES3::sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) {
-}
-
 bool RasterizerSceneGLES3::free(RID p_rid) {
-	if (sky_owner.owns(p_rid)) {
-		Sky *sky = sky_owner.get_or_null(p_rid);
-		ERR_FAIL_COND_V(!sky, false);
-		// _free_sky_data(sky);
-		sky_owner.free(p_rid);
-	} else if (GLES3::LightStorage::get_singleton()->owns_light_instance(p_rid)) {
+	if (GLES3::LightStorage::get_singleton()->owns_light_instance(p_rid)) {
 		GLES3::LightStorage::get_singleton()->light_instance_free(p_rid);
 	} else if (RSG::camera_attributes->owns_camera_attributes(p_rid)) {
 		//not much to delete, just free it
@@ -1328,18 +1279,18 @@ RasterizerSceneGLES3::RasterizerSceneGLES3() {
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
-	{
-		sky_globals.max_directional_lights = 4;
-		uint32_t directional_light_buffer_size = sky_globals.max_directional_lights * sizeof(DirectionalLightData);
-		sky_globals.directional_lights = memnew_arr(DirectionalLightData, sky_globals.max_directional_lights);
-		sky_globals.last_frame_directional_lights = memnew_arr(DirectionalLightData, sky_globals.max_directional_lights);
-		sky_globals.last_frame_directional_light_count = sky_globals.max_directional_lights + 1;
-		glGenBuffers(1, &sky_globals.directional_light_buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, sky_globals.directional_light_buffer);
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, sky_globals.directional_light_buffer, directional_light_buffer_size, nullptr, GL_STREAM_DRAW, "Sky DirectionalLight UBO");
+	// {
+	// 	sky_globals.max_directional_lights = 4;
+	// 	uint32_t directional_light_buffer_size = sky_globals.max_directional_lights * sizeof(DirectionalLightData);
+	// 	sky_globals.directional_lights = memnew_arr(DirectionalLightData, sky_globals.max_directional_lights);
+	// 	sky_globals.last_frame_directional_lights = memnew_arr(DirectionalLightData, sky_globals.max_directional_lights);
+	// 	sky_globals.last_frame_directional_light_count = sky_globals.max_directional_lights + 1;
+	// 	glGenBuffers(1, &sky_globals.directional_light_buffer);
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, sky_globals.directional_light_buffer);
+	// 	GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, sky_globals.directional_light_buffer, directional_light_buffer_size, nullptr, GL_STREAM_DRAW, "Sky DirectionalLight UBO");
 
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	// }
 
 	{
 		String global_defines;
@@ -1376,87 +1327,87 @@ void fragment() {
 		material_storage->material_set_shader(scene_globals.default_material, scene_globals.default_shader);
 	}
 
-	{
-		// Initialize Sky stuff
-		sky_globals.roughness_layers = GLOBAL_GET("rendering/reflections/sky_reflections/roughness_layers");
-		sky_globals.ggx_samples = GLOBAL_GET("rendering/reflections/sky_reflections/ggx_samples");
+	// {
+	// 	// Initialize Sky stuff
+	// 	sky_globals.roughness_layers = GLOBAL_GET("rendering/reflections/sky_reflections/roughness_layers");
+	// 	sky_globals.ggx_samples = GLOBAL_GET("rendering/reflections/sky_reflections/ggx_samples");
 
-		String global_defines;
-		global_defines += "#define MAX_GLOBAL_SHADER_UNIFORMS 256\n"; // TODO: this is arbitrary for now
-		global_defines += "\n#define MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS " + itos(sky_globals.max_directional_lights) + "\n";
-		material_storage->shaders.sky_shader.initialize(global_defines);
-		sky_globals.shader_default_version = material_storage->shaders.sky_shader.version_create();
-	}
+	// 	String global_defines;
+	// 	global_defines += "#define MAX_GLOBAL_SHADER_UNIFORMS 256\n"; // TODO: this is arbitrary for now
+	// 	global_defines += "\n#define MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS " + itos(sky_globals.max_directional_lights) + "\n";
+	// 	material_storage->shaders.sky_shader.initialize(global_defines);
+	// 	sky_globals.shader_default_version = material_storage->shaders.sky_shader.version_create();
+	// }
 
-	{
-		String global_defines;
-		global_defines += "\n#define MAX_SAMPLE_COUNT " + itos(sky_globals.ggx_samples) + "\n";
-		material_storage->shaders.cubemap_filter_shader.initialize(global_defines);
-		scene_globals.cubemap_filter_shader_version = material_storage->shaders.cubemap_filter_shader.version_create();
-	}
+	// {
+	// 	String global_defines;
+	// 	global_defines += "\n#define MAX_SAMPLE_COUNT " + itos(sky_globals.ggx_samples) + "\n";
+	// 	material_storage->shaders.cubemap_filter_shader.initialize(global_defines);
+	// 	scene_globals.cubemap_filter_shader_version = material_storage->shaders.cubemap_filter_shader.version_create();
+	// }
 
-	{
-		sky_globals.default_shader = material_storage->shader_allocate();
+	// 	{
+	// 		sky_globals.default_shader = material_storage->shader_allocate();
 
-		material_storage->shader_initialize(sky_globals.default_shader);
+	// 		material_storage->shader_initialize(sky_globals.default_shader);
 
-		material_storage->shader_set_code(sky_globals.default_shader, R"(
-// Default sky shader.
+	// 		material_storage->shader_set_code(sky_globals.default_shader, R"(
+	// // Default sky shader.
 
-shader_type sky;
+	// shader_type sky;
 
-void sky() {
-	COLOR = vec3(0.0);
-}
-)");
-		sky_globals.default_material = material_storage->material_allocate();
-		material_storage->material_initialize(sky_globals.default_material);
+	// void sky() {
+	// 	COLOR = vec3(0.0);
+	// }
+	// )");
+	// 		sky_globals.default_material = material_storage->material_allocate();
+	// 		material_storage->material_initialize(sky_globals.default_material);
 
-		material_storage->material_set_shader(sky_globals.default_material, sky_globals.default_shader);
-	}
-	{
-		sky_globals.fog_shader = material_storage->shader_allocate();
-		material_storage->shader_initialize(sky_globals.fog_shader);
+	// 		material_storage->material_set_shader(sky_globals.default_material, sky_globals.default_shader);
+	// 	}
+	// 	{
+	// 		sky_globals.fog_shader = material_storage->shader_allocate();
+	// 		material_storage->shader_initialize(sky_globals.fog_shader);
 
-		material_storage->shader_set_code(sky_globals.fog_shader, R"(
-// Default clear color sky shader.
+	// 		material_storage->shader_set_code(sky_globals.fog_shader, R"(
+	// // Default clear color sky shader.
 
-shader_type sky;
+	// shader_type sky;
 
-uniform vec4 clear_color;
+	// uniform vec4 clear_color;
 
-void sky() {
-	COLOR = clear_color.rgb;
-}
-)");
-		sky_globals.fog_material = material_storage->material_allocate();
-		material_storage->material_initialize(sky_globals.fog_material);
+	// void sky() {
+	// 	COLOR = clear_color.rgb;
+	// }
+	// )");
+	// 		sky_globals.fog_material = material_storage->material_allocate();
+	// 		material_storage->material_initialize(sky_globals.fog_material);
 
-		material_storage->material_set_shader(sky_globals.fog_material, sky_globals.fog_shader);
-	}
+	// 		material_storage->material_set_shader(sky_globals.fog_material, sky_globals.fog_shader);
+	// 	}
 
-	{
-		glGenVertexArrays(1, &sky_globals.screen_triangle_array);
-		glBindVertexArray(sky_globals.screen_triangle_array);
-		glGenBuffers(1, &sky_globals.screen_triangle);
-		glBindBuffer(GL_ARRAY_BUFFER, sky_globals.screen_triangle);
+	// 	{
+	// 		glGenVertexArrays(1, &sky_globals.screen_triangle_array);
+	// 		glBindVertexArray(sky_globals.screen_triangle_array);
+	// 		glGenBuffers(1, &sky_globals.screen_triangle);
+	// 		glBindBuffer(GL_ARRAY_BUFFER, sky_globals.screen_triangle);
 
-		const float qv[6] = {
-			-1.0f,
-			-1.0f,
-			3.0f,
-			-1.0f,
-			-1.0f,
-			3.0f,
-		};
+	// 		const float qv[6] = {
+	// 			-1.0f,
+	// 			-1.0f,
+	// 			3.0f,
+	// 			-1.0f,
+	// 			-1.0f,
+	// 			3.0f,
+	// 		};
 
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_ARRAY_BUFFER, sky_globals.screen_triangle, sizeof(float) * 6, qv, GL_STATIC_DRAW, "Screen triangle vertex buffer");
+	// 		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_ARRAY_BUFFER, sky_globals.screen_triangle, sizeof(float) * 6, qv, GL_STATIC_DRAW, "Screen triangle vertex buffer");
 
-		glVertexAttribPointer(RS::ARRAY_VERTEX, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
-		glEnableVertexAttribArray(RS::ARRAY_VERTEX);
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
-	}
+	// 		glVertexAttribPointer(RS::ARRAY_VERTEX, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
+	// 		glEnableVertexAttribArray(RS::ARRAY_VERTEX);
+	// 		glBindVertexArray(0);
+	// 		glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
+	// 	}
 
 #ifdef GLES_OVER_GL
 	glEnable(_EXT_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -1483,17 +1434,17 @@ RasterizerSceneGLES3::~RasterizerSceneGLES3() {
 	RSG::material_storage->shader_free(scene_globals.default_shader);
 
 	// Sky Shader
-	GLES3::MaterialStorage::get_singleton()->shaders.sky_shader.version_free(sky_globals.shader_default_version);
-	RSG::material_storage->material_free(sky_globals.default_material);
-	RSG::material_storage->shader_free(sky_globals.default_shader);
-	RSG::material_storage->material_free(sky_globals.fog_material);
-	RSG::material_storage->shader_free(sky_globals.fog_shader);
-	GLES3::Utilities::get_singleton()->buffer_free_data(sky_globals.screen_triangle);
-	glDeleteVertexArrays(1, &sky_globals.screen_triangle_array);
-	glDeleteTextures(1, &sky_globals.radical_inverse_vdc_cache_tex);
-	GLES3::Utilities::get_singleton()->buffer_free_data(sky_globals.directional_light_buffer);
-	memdelete_arr(sky_globals.directional_lights);
-	memdelete_arr(sky_globals.last_frame_directional_lights);
+	// GLES3::MaterialStorage::get_singleton()->shaders.sky_shader.version_free(sky_globals.shader_default_version);
+	// RSG::material_storage->material_free(sky_globals.default_material);
+	// RSG::material_storage->shader_free(sky_globals.default_shader);
+	// RSG::material_storage->material_free(sky_globals.fog_material);
+	// RSG::material_storage->shader_free(sky_globals.fog_shader);
+	// GLES3::Utilities::get_singleton()->buffer_free_data(sky_globals.screen_triangle);
+	// glDeleteVertexArrays(1, &sky_globals.screen_triangle_array);
+	// glDeleteTextures(1, &sky_globals.radical_inverse_vdc_cache_tex);
+	// GLES3::Utilities::get_singleton()->buffer_free_data(sky_globals.directional_light_buffer);
+	// memdelete_arr(sky_globals.directional_lights);
+	// memdelete_arr(sky_globals.last_frame_directional_lights);
 
 	// UBOs
 	if (scene_state.ubo_buffer != 0) {

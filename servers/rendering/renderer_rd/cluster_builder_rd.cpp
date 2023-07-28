@@ -474,8 +474,7 @@ void ClusterBuilderRD::bake_cluster() {
 							RD::get_singleton()->draw_list_bind_index_array(draw_list, shared->cone_index_array);
 						}
 					} break;
-					case ELEMENT_TYPE_DECAL:
-					case ELEMENT_TYPE_REFLECTION_PROBE: {
+					case ELEMENT_TYPE_DECAL: {
 						RD::get_singleton()->draw_list_bind_vertex_array(draw_list, shared->box_vertex_array);
 						RD::get_singleton()->draw_list_bind_index_array(draw_list, shared->box_index_array);
 					} break;

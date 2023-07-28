@@ -445,7 +445,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 		virtual void set_lightmap_capture(const Color *p_sh9) override;
 
 		virtual void pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) override {}
-		virtual void pair_reflection_probe_instances(const RID *p_reflection_probe_instances, uint32_t p_reflection_probe_instance_count) override {}
 		virtual void pair_decal_instances(const RID *p_decal_instances, uint32_t p_decal_instance_count) override {}
 
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override;
@@ -559,9 +558,6 @@ protected:
 	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
 	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
 
-	virtual void sub_surface_scattering_set_quality(RS::SubSurfaceScatteringQuality p_quality) override;
-	virtual void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) override;
-
 	/* Rendering */
 
 	virtual void _render_buffers_debug_draw(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) override;
@@ -576,7 +572,6 @@ public:
 	RendererRD::SSEffects *get_ss_effects() { return ss_effects; }
 
 	/* callback from updating our lighting UBOs, used to populate cluster builder */
-	virtual void setup_added_reflection_probe(const Transform3D &p_transform, const Vector3 &p_half_size) override;
 	virtual void setup_added_light(const RS::LightType p_type, const Transform3D &p_transform, float p_radius, float p_spot_aperture) override;
 	virtual void setup_added_decal(const Transform3D &p_transform, const Vector3 &p_half_size) override;
 

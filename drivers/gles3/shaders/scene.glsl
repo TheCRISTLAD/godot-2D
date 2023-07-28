@@ -10,12 +10,12 @@ mode_depth_instancing = #define MODE_RENDER_DEPTH \n#define USE_INSTANCING
 
 #[specializations]
 
-DISABLE_LIGHTMAP = false
-DISABLE_LIGHT_DIRECTIONAL = false
-DISABLE_LIGHT_OMNI = false
-DISABLE_LIGHT_SPOT = false
-DISABLE_FOG = false
-USE_RADIANCE_MAP = true
+DISABLE_LIGHTMAP = true
+DISABLE_LIGHT_DIRECTIONAL = true
+DISABLE_LIGHT_OMNI = true
+DISABLE_LIGHT_SPOT = true
+DISABLE_FOG = true
+USE_RADIANCE_MAP = false
 USE_MULTIVIEW = false
 
 
@@ -434,7 +434,7 @@ layout(std140) uniform GlobalShaderUniformData { //ubo:1
 	vec4 global_shader_uniforms[MAX_GLOBAL_SHADER_UNIFORMS];
 };
 
-	/* Material Uniforms */
+/* Material Uniforms */
 
 #ifdef MATERIAL_UNIFORMS_USED
 
@@ -1302,17 +1302,17 @@ void main() {
 	frag_color.rgb += emission + ambient_light;
 #endif
 #endif //MODE_UNSHADED
-	fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
+	// fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
 
-#ifndef DISABLE_FOG
-	if (scene_data.fog_enabled) {
-#ifdef BASE_PASS
-		frag_color.rgb = mix(frag_color.rgb, fog.rgb, fog.a);
-#else
-		frag_color.rgb *= (1.0 - fog.a);
-#endif // BASE_PASS
-	}
-#endif
+	// #ifndef DISABLE_FOG
+	// 	if (scene_data.fog_enabled) {
+	// #ifdef BASE_PASS
+	// 		frag_color.rgb = mix(frag_color.rgb, fog.rgb, fog.a);
+	// #else
+	// 		frag_color.rgb *= (1.0 - fog.a);
+	// #endif // BASE_PASS
+	// 	}
+	// #endif
 
 	// Tonemap before writing as we are writing to an sRGB framebuffer
 	frag_color.rgb *= exposure;

@@ -613,51 +613,51 @@ layout(location = 0) out mediump vec4 frag_color;
 	Only supporting normal fog here.
 */
 
-vec4 fog_process(vec3 vertex) {
-	vec3 fog_color = scene_data_block.data.fog_light_color;
+// vec4 fog_process(vec3 vertex) {
+// 	vec3 fog_color = scene_data_block.data.fog_light_color;
 
-	if (scene_data_block.data.fog_aerial_perspective > 0.0) {
-		vec3 sky_fog_color = vec3(0.0);
-		vec3 cube_view = scene_data_block.data.radiance_inverse_xform * vertex;
-		// mip_level always reads from the second mipmap and higher so the fog is always slightly blurred
-		float mip_level = mix(1.0 / MAX_ROUGHNESS_LOD, 1.0, 1.0 - (abs(vertex.z) - scene_data_block.data.z_near) / (scene_data_block.data.z_far - scene_data_block.data.z_near));
-#ifdef USE_RADIANCE_CUBEMAP_ARRAY
-		float lod, blend;
-		blend = modf(mip_level * MAX_ROUGHNESS_LOD, lod);
-		sky_fog_color = texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod)).rgb;
-		sky_fog_color = mix(sky_fog_color, texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod + 1)).rgb, blend);
-#else
-		sky_fog_color = textureLod(samplerCube(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), cube_view, mip_level * MAX_ROUGHNESS_LOD).rgb;
-#endif //USE_RADIANCE_CUBEMAP_ARRAY
-		fog_color = mix(fog_color, sky_fog_color, scene_data_block.data.fog_aerial_perspective);
-	}
+// 	if (scene_data_block.data.fog_aerial_perspective > 0.0) {
+// 		vec3 sky_fog_color = vec3(0.0);
+// 		vec3 cube_view = scene_data_block.data.radiance_inverse_xform * vertex;
+// 		// mip_level always reads from the second mipmap and higher so the fog is always slightly blurred
+// 		float mip_level = mix(1.0 / MAX_ROUGHNESS_LOD, 1.0, 1.0 - (abs(vertex.z) - scene_data_block.data.z_near) / (scene_data_block.data.z_far - scene_data_block.data.z_near));
+// #ifdef USE_RADIANCE_CUBEMAP_ARRAY
+// 		float lod, blend;
+// 		blend = modf(mip_level * MAX_ROUGHNESS_LOD, lod);
+// 		sky_fog_color = texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod)).rgb;
+// 		sky_fog_color = mix(sky_fog_color, texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod + 1)).rgb, blend);
+// #else
+// 		sky_fog_color = textureLod(samplerCube(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), cube_view, mip_level * MAX_ROUGHNESS_LOD).rgb;
+// #endif //USE_RADIANCE_CUBEMAP_ARRAY
+// 		fog_color = mix(fog_color, sky_fog_color, scene_data_block.data.fog_aerial_perspective);
+// 	}
 
-	if (scene_data_block.data.fog_sun_scatter > 0.001) {
-		vec4 sun_scatter = vec4(0.0);
-		float sun_total = 0.0;
-		vec3 view = normalize(vertex);
+// 	if (scene_data_block.data.fog_sun_scatter > 0.001) {
+// 		vec4 sun_scatter = vec4(0.0);
+// 		float sun_total = 0.0;
+// 		vec3 view = normalize(vertex);
 
-		for (uint i = 0; i < scene_data_block.data.directional_light_count; i++) {
-			vec3 light_color = directional_lights.data[i].color * directional_lights.data[i].energy;
-			float light_amount = pow(max(dot(view, directional_lights.data[i].direction), 0.0), 8.0);
-			fog_color += light_color * light_amount * scene_data_block.data.fog_sun_scatter;
-		}
-	}
+// 		for (uint i = 0; i < scene_data_block.data.directional_light_count; i++) {
+// 			vec3 light_color = directional_lights.data[i].color * directional_lights.data[i].energy;
+// 			float light_amount = pow(max(dot(view, directional_lights.data[i].direction), 0.0), 8.0);
+// 			fog_color += light_color * light_amount * scene_data_block.data.fog_sun_scatter;
+// 		}
+// 	}
 
-	float fog_amount = 1.0 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
+// 	float fog_amount = 1.0 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
 
-	if (abs(scene_data_block.data.fog_height_density) >= 0.0001) {
-		float y = (scene_data_block.data.inv_view_matrix * vec4(vertex, 1.0)).y;
+// 	if (abs(scene_data_block.data.fog_height_density) >= 0.0001) {
+// 		float y = (scene_data_block.data.inv_view_matrix * vec4(vertex, 1.0)).y;
 
-		float y_dist = y - scene_data_block.data.fog_height;
+// 		float y_dist = y - scene_data_block.data.fog_height;
 
-		float vfog_amount = 1.0 - exp(min(0.0, y_dist * scene_data_block.data.fog_height_density));
+// 		float vfog_amount = 1.0 - exp(min(0.0, y_dist * scene_data_block.data.fog_height_density));
 
-		fog_amount = max(vfog_amount, fog_amount);
-	}
+// 		fog_amount = max(vfog_amount, fog_amount);
+// 	}
 
-	return vec4(fog_color, fog_amount);
-}
+// 	return vec4(fog_color, fog_amount);
+// }
 
 #endif //!MODE_RENDER DEPTH
 
@@ -861,14 +861,14 @@ void main() {
 	// to maximize VGPR usage
 	// Draw "fixed" fog before volumetric fog to ensure volumetric fog can appear in front of the sky.
 
-	if (!sc_disable_fog && scene_data.fog_enabled) {
-		fog = fog_process(vertex);
-	}
+	// if (!sc_disable_fog && scene_data.fog_enabled) {
+	// 	fog = fog_process(vertex);
+	// }
 
 #endif //!CUSTOM_FOG_USED
 
-	uint fog_rg = packHalf2x16(fog.rg);
-	uint fog_ba = packHalf2x16(fog.ba);
+	// uint fog_rg = packHalf2x16(fog.rg);
+	// uint fog_ba = packHalf2x16(fog.ba);
 
 #endif //!MODE_RENDER_DEPTH
 
@@ -1143,53 +1143,53 @@ void main() {
 
 	// No GI nor non low end mode...
 
-#endif // USE_LIGHTMAP
+	// #endif // USE_LIGHTMAP
 
-	// skipping ssao, do we remove ssao totally?
+	// 	// skipping ssao, do we remove ssao totally?
 
-	if (!sc_disable_reflection_probes) { //Reflection probes
-		vec4 reflection_accum = vec4(0.0, 0.0, 0.0, 0.0);
-		vec4 ambient_accum = vec4(0.0, 0.0, 0.0, 0.0);
+	// 	if (!sc_disable_reflection_probes) { //Reflection probes
+	// 		vec4 reflection_accum = vec4(0.0, 0.0, 0.0, 0.0);
+	// 		vec4 ambient_accum = vec4(0.0, 0.0, 0.0, 0.0);
 
-		uint reflection_indices = draw_call.reflection_probes.x;
+	// 		uint reflection_indices = draw_call.reflection_probes.x;
 
-#ifdef LIGHT_ANISOTROPY_USED
-		// https://google.github.io/filament/Filament.html#lighting/imagebasedlights/anisotropy
-		vec3 anisotropic_direction = anisotropy >= 0.0 ? binormal : tangent;
-		vec3 anisotropic_tangent = cross(anisotropic_direction, view);
-		vec3 anisotropic_normal = cross(anisotropic_tangent, anisotropic_direction);
-		vec3 bent_normal = normalize(mix(normal, anisotropic_normal, abs(anisotropy) * clamp(5.0 * roughness, 0.0, 1.0)));
-#else
-		vec3 bent_normal = normal;
-#endif
-		vec3 ref_vec = normalize(reflect(-view, bent_normal));
-		ref_vec = mix(ref_vec, bent_normal, roughness * roughness);
+	// #ifdef LIGHT_ANISOTROPY_USED
+	// 		// https://google.github.io/filament/Filament.html#lighting/imagebasedlights/anisotropy
+	// 		vec3 anisotropic_direction = anisotropy >= 0.0 ? binormal : tangent;
+	// 		vec3 anisotropic_tangent = cross(anisotropic_direction, view);
+	// 		vec3 anisotropic_normal = cross(anisotropic_tangent, anisotropic_direction);
+	// 		vec3 bent_normal = normalize(mix(normal, anisotropic_normal, abs(anisotropy) * clamp(5.0 * roughness, 0.0, 1.0)));
+	// #else
+	// 		vec3 bent_normal = normal;
+	// #endif
+	// 		vec3 ref_vec = normalize(reflect(-view, bent_normal));
+	// 		ref_vec = mix(ref_vec, bent_normal, roughness * roughness);
 
-		for (uint i = 0; i < 8; i++) {
-			uint reflection_index = reflection_indices & 0xFF;
-			if (i == 3) {
-				reflection_indices = draw_call.reflection_probes.y;
-			} else {
-				reflection_indices = reflection_indices >> 8;
-			}
+	// 		for (uint i = 0; i < 8; i++) {
+	// 			uint reflection_index = reflection_indices & 0xFF;
+	// 			if (i == 3) {
+	// 				reflection_indices = draw_call.reflection_probes.y;
+	// 			} else {
+	// 				reflection_indices = reflection_indices >> 8;
+	// 			}
 
-			if (reflection_index == 0xFF) {
-				break;
-			}
+	// 			if (reflection_index == 0xFF) {
+	// 				break;
+	// 			}
 
-			reflection_process(reflection_index, vertex, ref_vec, bent_normal, roughness, ambient_light, specular_light, ambient_accum, reflection_accum);
-		}
+	// 			reflection_process(reflection_index, vertex, ref_vec, bent_normal, roughness, ambient_light, specular_light, ambient_accum, reflection_accum);
+	// 		}
 
-		if (reflection_accum.a > 0.0) {
-			specular_light = reflection_accum.rgb / reflection_accum.a;
-		}
+	// 		if (reflection_accum.a > 0.0) {
+	// 			specular_light = reflection_accum.rgb / reflection_accum.a;
+	// 		}
 
-#if !defined(USE_LIGHTMAP)
-		if (ambient_accum.a > 0.0) {
-			ambient_light = ambient_accum.rgb / ambient_accum.a;
-		}
-#endif
-	} //Reflection probes
+	// #if !defined(USE_LIGHTMAP)
+	// 		if (ambient_accum.a > 0.0) {
+	// 			ambient_light = ambient_accum.rgb / ambient_accum.a;
+	// 		}
+	// #endif
+	// 	} //Reflection probes
 
 	// finalize ambient light here
 	{
@@ -1735,7 +1735,7 @@ void main() {
 	ambient_light *= 1.0 - metallic;
 
 	//restore fog
-	fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
+	// fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
 
 #ifdef MODE_MULTIPLE_RENDER_TARGETS
 

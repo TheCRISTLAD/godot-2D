@@ -1097,14 +1097,10 @@ MaterialStorage::MaterialStorage() {
 	shader_data_request_func[RS::SHADER_SPATIAL] = _create_scene_shader_func;
 	shader_data_request_func[RS::SHADER_CANVAS_ITEM] = _create_canvas_shader_func;
 	shader_data_request_func[RS::SHADER_PARTICLES] = _create_particles_shader_func;
-	shader_data_request_func[RS::SHADER_SKY] = _create_sky_shader_func;
-	shader_data_request_func[RS::SHADER_FOG] = nullptr;
 
 	material_data_request_func[RS::SHADER_SPATIAL] = _create_scene_material_func;
 	material_data_request_func[RS::SHADER_CANVAS_ITEM] = _create_canvas_material_func;
 	material_data_request_func[RS::SHADER_PARTICLES] = _create_particles_material_func;
-	material_data_request_func[RS::SHADER_SKY] = _create_sky_material_func;
-	material_data_request_func[RS::SHADER_FOG] = nullptr;
 
 	static_assert(sizeof(GlobalShaderUniforms::Value) == 16);
 
@@ -1478,8 +1474,6 @@ MaterialStorage::MaterialStorage() {
 		actions.default_repeat = ShaderLanguage::REPEAT_ENABLE;
 
 		actions.global_buffer_array_variable = "global_shader_uniforms";
-
-		shaders.compiler_sky.initialize(actions);
 	}
 }
 
@@ -2162,8 +2156,8 @@ void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
 		new_mode = RS::SHADER_PARTICLES;
 	} else if (mode_string == "spatial") {
 		new_mode = RS::SHADER_SPATIAL;
-	} else if (mode_string == "sky") {
-		new_mode = RS::SHADER_SKY;
+		// } else if (mode_string == "sky") {
+		// 	new_mode = RS::SHADER_SKY;
 		//} else if (mode_string == "fog") {
 		//	new_mode = RS::SHADER_FOG;
 	} else {
@@ -2673,147 +2667,6 @@ GLES3::MaterialData *GLES3::_create_canvas_material_func(ShaderData *p_shader) {
 	material_data->shader_data = static_cast<CanvasShaderData *>(p_shader);
 	//update will happen later anyway so do nothing.
 	return material_data;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// SKY SHADER
-
-void SkyShaderData::set_code(const String &p_code) {
-	//compile
-
-	code = p_code;
-	valid = false;
-	ubo_size = 0;
-	uniforms.clear();
-
-	if (code.is_empty()) {
-		return; //just invalid, but no error
-	}
-
-	ShaderCompiler::GeneratedCode gen_code;
-	ShaderCompiler::IdentifierActions actions;
-	actions.entry_point_stages["sky"] = ShaderCompiler::STAGE_FRAGMENT;
-
-	uses_time = false;
-	uses_half_res = false;
-	uses_quarter_res = false;
-	uses_position = false;
-	uses_light = false;
-
-	actions.render_mode_flags["use_half_res_pass"] = &uses_half_res;
-	actions.render_mode_flags["use_quarter_res_pass"] = &uses_quarter_res;
-
-	actions.usage_flag_pointers["TIME"] = &uses_time;
-	actions.usage_flag_pointers["POSITION"] = &uses_position;
-	actions.usage_flag_pointers["LIGHT0_ENABLED"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT0_ENERGY"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT0_DIRECTION"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT0_COLOR"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT0_SIZE"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT1_ENABLED"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT1_ENERGY"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT1_DIRECTION"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT1_COLOR"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT1_SIZE"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT2_ENABLED"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT2_ENERGY"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT2_DIRECTION"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT2_COLOR"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT2_SIZE"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT3_ENABLED"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT3_ENERGY"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT3_DIRECTION"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT3_COLOR"] = &uses_light;
-	actions.usage_flag_pointers["LIGHT3_SIZE"] = &uses_light;
-
-	actions.uniforms = &uniforms;
-
-	Error err = MaterialStorage::get_singleton()->shaders.compiler_sky.compile(RS::SHADER_SKY, code, &actions, path, gen_code);
-	ERR_FAIL_COND_MSG(err != OK, "Shader compilation failed.");
-
-	if (version.is_null()) {
-		version = MaterialStorage::get_singleton()->shaders.sky_shader.version_create();
-	}
-
-#if 0
-	print_line("**compiling shader:");
-	print_line("**defines:\n");
-	for (int i = 0; i < gen_code.defines.size(); i++) {
-		print_line(gen_code.defines[i]);
-	}
-
-	HashMap<String, String>::Iterator el = gen_code.code.begin();
-	while (el) {
-		print_line("\n**code " + el->key + ":\n" + el->value);
-		++el;
-	}
-
-	print_line("\n**uniforms:\n" + gen_code.uniforms);
-	print_line("\n**vertex_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX]);
-	print_line("\n**fragment_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT]);
-#endif
-
-	LocalVector<ShaderGLES3::TextureUniformData> texture_uniform_data = get_texture_uniform_data(gen_code.texture_uniforms);
-
-	MaterialStorage::get_singleton()->shaders.sky_shader.version_set_code(version, gen_code.code, gen_code.uniforms, gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX], gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT], gen_code.defines, texture_uniform_data);
-	ERR_FAIL_COND(!MaterialStorage::get_singleton()->shaders.sky_shader.version_is_valid(version));
-
-	ubo_size = gen_code.uniform_total_size;
-	ubo_offsets = gen_code.uniform_offsets;
-	texture_uniforms = gen_code.texture_uniforms;
-
-	valid = true;
-}
-
-bool SkyShaderData::is_animated() const {
-	return false;
-}
-
-bool SkyShaderData::casts_shadows() const {
-	return false;
-}
-
-RS::ShaderNativeSourceCode SkyShaderData::get_native_source_code() const {
-	return MaterialStorage::get_singleton()->shaders.sky_shader.version_get_native_source_code(version);
-}
-
-SkyShaderData::SkyShaderData() {
-	valid = false;
-}
-
-SkyShaderData::~SkyShaderData() {
-	if (version.is_valid()) {
-		MaterialStorage::get_singleton()->shaders.sky_shader.version_free(version);
-	}
-}
-
-GLES3::ShaderData *GLES3::_create_sky_shader_func() {
-	SkyShaderData *shader_data = memnew(SkyShaderData);
-	return shader_data;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Sky material
-
-void SkyMaterialData::update_parameters(const HashMap<StringName, Variant> &p_parameters, bool p_uniform_dirty, bool p_textures_dirty) {
-	uniform_set_updated = true;
-	update_parameters_internal(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, true);
-}
-
-SkyMaterialData::~SkyMaterialData() {
-}
-GLES3::MaterialData *GLES3::_create_sky_material_func(ShaderData *p_shader) {
-	SkyMaterialData *material_data = memnew(SkyMaterialData);
-	material_data->shader_data = static_cast<SkyShaderData *>(p_shader);
-	//update will happen later anyway so do nothing.
-	return material_data;
-}
-
-void SkyMaterialData::bind_uniforms() {
-	// Bind Material Uniforms
-	glBindBufferBase(GL_UNIFORM_BUFFER, SKY_MATERIAL_UNIFORM_LOCATION, uniform_buffer);
-
-	bind_uniforms_generic(texture_cache, shader_data->texture_uniforms);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

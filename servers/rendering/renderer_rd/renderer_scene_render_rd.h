@@ -39,7 +39,6 @@
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
-#include "servers/rendering/renderer_rd/environment/sky.h"
 #include "servers/rendering/renderer_rd/framebuffer_cache_rd.h"
 #include "servers/rendering/renderer_rd/storage_rd/light_storage.h"
 #include "servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.h"
@@ -56,16 +55,12 @@ struct RenderDataRD {
 
 	const PagedArray<RenderGeometryInstance *> *instances = nullptr;
 	const PagedArray<RID> *lights = nullptr;
-	const PagedArray<RID> *reflection_probes = nullptr;
 	const PagedArray<RID> *decals = nullptr;
 	const PagedArray<RID> *lightmaps = nullptr;
 	RID environment;
 	RID camera_attributes;
 	RID shadow_atlas;
 	RID occluder_debug_tex;
-	RID reflection_atlas;
-	RID reflection_probe;
-	int reflection_probe_pass = 0;
 
 	RID cluster_buffer;
 	uint32_t cluster_size = 0;
@@ -93,8 +88,6 @@ struct RenderDataRD {
 };
 
 class RendererSceneRenderRD : public RendererSceneRender {
-	friend RendererRD::SkyRD;
-
 protected:
 	RendererRD::ForwardIDStorage *forward_id_storage = nullptr;
 	RendererRD::BokehDOF *bokeh_dof = nullptr;
@@ -138,8 +131,6 @@ protected:
 	PagedArrayPool<RenderGeometryInstance *> cull_argument_pool;
 	PagedArray<RenderGeometryInstance *> cull_argument; //need this to exist
 
-	RendererRD::SkyRD sky;
-
 	virtual void _update_shader_quality_settings() {}
 
 private:
@@ -165,11 +156,6 @@ private:
 
 	/* RENDER BUFFERS */
 
-	/* GI */
-	bool screen_space_roughness_limiter = false;
-	float screen_space_roughness_limiter_amount = 0.25;
-	float screen_space_roughness_limiter_limit = 0.18;
-
 	/* Light data */
 
 	uint64_t scene_pass = 0;
@@ -187,23 +173,14 @@ public:
 
 	/* LIGHTING */
 
-	virtual void setup_added_reflection_probe(const Transform3D &p_transform, const Vector3 &p_half_size){};
 	virtual void setup_added_light(const RS::LightType p_type, const Transform3D &p_transform, float p_radius, float p_spot_aperture){};
 	virtual void setup_added_decal(const Transform3D &p_transform, const Vector3 &p_half_size){};
-
-	/* SKY */
-
-	RendererRD::SkyRD *get_sky() { return &sky; }
 
 	/* ENVIRONMENT API */
 
 	_FORCE_INLINE_ bool is_using_physical_light_units() {
 		return use_physical_light_units;
 	}
-
-	/* REFLECTION PROBE */
-
-	virtual RID reflection_probe_create_framebuffer(RID p_color, RID p_depth);
 
 	/* render buffers */
 
@@ -223,14 +200,6 @@ public:
 	_FORCE_INLINE_ uint64_t get_scene_pass() {
 		return scene_pass;
 	}
-
-	virtual void screen_space_roughness_limiter_set_active(bool p_enable, float p_amount, float p_limit) override;
-	virtual bool screen_space_roughness_limiter_is_active() const override;
-	virtual float screen_space_roughness_limiter_get_amount() const;
-	virtual float screen_space_roughness_limiter_get_limit() const;
-
-	virtual void positional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
-	virtual void directional_soft_shadow_filter_set_quality(RS::ShadowQuality p_quality) override;
 
 	virtual void decals_set_filter(RS::DecalFilter p_filter) override;
 	virtual void light_projectors_set_filter(RS::LightProjectorFilter p_filter) override;
@@ -280,9 +249,6 @@ public:
 	_FORCE_INLINE_ RS::DecalFilter decals_get_filter() const {
 		return decals_filter;
 	}
-
-	int get_roughness_layers() const;
-	bool is_using_radiance_cubemap_array() const;
 
 	virtual bool free(RID p_rid) override;
 

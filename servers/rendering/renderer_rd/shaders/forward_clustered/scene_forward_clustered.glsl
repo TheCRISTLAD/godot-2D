@@ -614,9 +614,9 @@ layout(location = 4) out float depth_output_buffer;
 #ifdef MODE_RENDER_NORMAL_ROUGHNESS
 layout(location = 0) out vec4 normal_roughness_output_buffer;
 
-#ifdef MODE_RENDER_VOXEL_GI
-layout(location = 1) out uvec2 voxel_gi_buffer;
-#endif
+// #ifdef MODE_RENDER_VOXEL_GI
+// layout(location = 1) out uvec2 voxel_gi_buffer;
+// #endif
 
 #endif //MODE_RENDER_NORMAL
 #else // RENDER DEPTH
@@ -653,62 +653,62 @@ layout(location = 2) out vec2 motion_vector;
 
 #ifndef MODE_RENDER_DEPTH
 
-vec4 volumetric_fog_process(vec2 screen_uv, float z) {
-	vec3 fog_pos = vec3(screen_uv, z * implementation_data.volumetric_fog_inv_length);
-	if (fog_pos.z < 0.0) {
-		return vec4(0.0);
-	} else if (fog_pos.z < 1.0) {
-		fog_pos.z = pow(fog_pos.z, implementation_data.volumetric_fog_detail_spread);
-	}
+// vec4 volumetric_fog_process(vec2 screen_uv, float z) {
+// 	vec3 fog_pos = vec3(screen_uv, z * implementation_data.volumetric_fog_inv_length);
+// 	if (fog_pos.z < 0.0) {
+// 		return vec4(0.0);
+// 	} else if (fog_pos.z < 1.0) {
+// 		fog_pos.z = pow(fog_pos.z, implementation_data.volumetric_fog_detail_spread);
+// 	}
 
-	return texture(sampler3D(volumetric_fog_texture, material_samplers[SAMPLER_LINEAR_CLAMP]), fog_pos);
-}
+// 	return texture(sampler3D(volumetric_fog_texture, material_samplers[SAMPLER_LINEAR_CLAMP]), fog_pos);
+// }
 
-vec4 fog_process(vec3 vertex) {
-	vec3 fog_color = scene_data_block.data.fog_light_color;
+// vec4 fog_process(vec3 vertex) {
+// 	vec3 fog_color = scene_data_block.data.fog_light_color;
 
-	if (scene_data_block.data.fog_aerial_perspective > 0.0) {
-		vec3 sky_fog_color = vec3(0.0);
-		vec3 cube_view = scene_data_block.data.radiance_inverse_xform * vertex;
-		// mip_level always reads from the second mipmap and higher so the fog is always slightly blurred
-		float mip_level = mix(1.0 / MAX_ROUGHNESS_LOD, 1.0, 1.0 - (abs(vertex.z) - scene_data_block.data.z_near) / (scene_data_block.data.z_far - scene_data_block.data.z_near));
-#ifdef USE_RADIANCE_CUBEMAP_ARRAY
-		float lod, blend;
-		blend = modf(mip_level * MAX_ROUGHNESS_LOD, lod);
-		sky_fog_color = texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod)).rgb;
-		sky_fog_color = mix(sky_fog_color, texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod + 1)).rgb, blend);
-#else
-		sky_fog_color = textureLod(samplerCube(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), cube_view, mip_level * MAX_ROUGHNESS_LOD).rgb;
-#endif //USE_RADIANCE_CUBEMAP_ARRAY
-		fog_color = mix(fog_color, sky_fog_color, scene_data_block.data.fog_aerial_perspective);
-	}
+// 	if (scene_data_block.data.fog_aerial_perspective > 0.0) {
+// 		vec3 sky_fog_color = vec3(0.0);
+// 		vec3 cube_view = scene_data_block.data.radiance_inverse_xform * vertex;
+// 		// mip_level always reads from the second mipmap and higher so the fog is always slightly blurred
+// 		float mip_level = mix(1.0 / MAX_ROUGHNESS_LOD, 1.0, 1.0 - (abs(vertex.z) - scene_data_block.data.z_near) / (scene_data_block.data.z_far - scene_data_block.data.z_near));
+// #ifdef USE_RADIANCE_CUBEMAP_ARRAY
+// 		float lod, blend;
+// 		blend = modf(mip_level * MAX_ROUGHNESS_LOD, lod);
+// 		sky_fog_color = texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod)).rgb;
+// 		sky_fog_color = mix(sky_fog_color, texture(samplerCubeArray(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), vec4(cube_view, lod + 1)).rgb, blend);
+// #else
+// 		sky_fog_color = textureLod(samplerCube(radiance_cubemap, material_samplers[SAMPLER_LINEAR_WITH_MIPMAPS_CLAMP]), cube_view, mip_level * MAX_ROUGHNESS_LOD).rgb;
+// #endif //USE_RADIANCE_CUBEMAP_ARRAY
+// 		fog_color = mix(fog_color, sky_fog_color, scene_data_block.data.fog_aerial_perspective);
+// 	}
 
-	if (scene_data_block.data.fog_sun_scatter > 0.001) {
-		vec4 sun_scatter = vec4(0.0);
-		float sun_total = 0.0;
-		vec3 view = normalize(vertex);
+// 	if (scene_data_block.data.fog_sun_scatter > 0.001) {
+// 		vec4 sun_scatter = vec4(0.0);
+// 		float sun_total = 0.0;
+// 		vec3 view = normalize(vertex);
 
-		for (uint i = 0; i < scene_data_block.data.directional_light_count; i++) {
-			vec3 light_color = directional_lights.data[i].color * directional_lights.data[i].energy;
-			float light_amount = pow(max(dot(view, directional_lights.data[i].direction), 0.0), 8.0);
-			fog_color += light_color * light_amount * scene_data_block.data.fog_sun_scatter;
-		}
-	}
+// 		for (uint i = 0; i < scene_data_block.data.directional_light_count; i++) {
+// 			vec3 light_color = directional_lights.data[i].color * directional_lights.data[i].energy;
+// 			float light_amount = pow(max(dot(view, directional_lights.data[i].direction), 0.0), 8.0);
+// 			fog_color += light_color * light_amount * scene_data_block.data.fog_sun_scatter;
+// 		}
+// 	}
 
-	float fog_amount = 1.0 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
+// 	float fog_amount = 1.0 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
 
-	if (abs(scene_data_block.data.fog_height_density) >= 0.0001) {
-		float y = (scene_data_block.data.inv_view_matrix * vec4(vertex, 1.0)).y;
+// 	if (abs(scene_data_block.data.fog_height_density) >= 0.0001) {
+// 		float y = (scene_data_block.data.inv_view_matrix * vec4(vertex, 1.0)).y;
 
-		float y_dist = y - scene_data_block.data.fog_height;
+// 		float y_dist = y - scene_data_block.data.fog_height;
 
-		float vfog_amount = 1.0 - exp(min(0.0, y_dist * scene_data_block.data.fog_height_density));
+// 		float vfog_amount = 1.0 - exp(min(0.0, y_dist * scene_data_block.data.fog_height_density));
 
-		fog_amount = max(vfog_amount, fog_amount);
-	}
+// 		fog_amount = max(vfog_amount, fog_amount);
+// 	}
 
-	return vec4(fog_color, fog_amount);
-}
+// 	return vec4(fog_color, fog_amount);
+// }
 
 void cluster_get_item_range(uint p_offset, out uint item_min, out uint item_max, out uint item_from, out uint item_to) {
 	uint item_min_max = cluster_buffer.data[p_offset];
@@ -911,45 +911,45 @@ void fragment_shader(in SceneData scene_data) {
 	}
 #endif
 
-	/////////////////////// FOG //////////////////////
-#ifndef MODE_RENDER_DEPTH
+	// 	/////////////////////// FOG //////////////////////
+	// #ifndef MODE_RENDER_DEPTH
 
-#ifndef CUSTOM_FOG_USED
-	// fog must be processed as early as possible and then packed.
-	// to maximize VGPR usage
-	// Draw "fixed" fog before volumetric fog to ensure volumetric fog can appear in front of the sky.
+	// #ifndef CUSTOM_FOG_USED
+	// 	// fog must be processed as early as possible and then packed.
+	// 	// to maximize VGPR usage
+	// 	// Draw "fixed" fog before volumetric fog to ensure volumetric fog can appear in front of the sky.
 
-	if (scene_data.fog_enabled) {
-		fog = fog_process(vertex);
-	}
+	// 	if (scene_data.fog_enabled) {
+	// 		fog = fog_process(vertex);
+	// 	}
 
-	if (implementation_data.volumetric_fog_enabled) {
-#ifdef USE_MULTIVIEW
-		vec4 volumetric_fog = volumetric_fog_process(combined_uv, -vertex.z);
-#else
-		vec4 volumetric_fog = volumetric_fog_process(screen_uv, -vertex.z);
-#endif
-		if (scene_data.fog_enabled) {
-			//must use the full blending equation here to blend fogs
-			vec4 res;
-			float sa = 1.0 - volumetric_fog.a;
-			res.a = fog.a * sa + volumetric_fog.a;
-			if (res.a == 0.0) {
-				res.rgb = vec3(0.0);
-			} else {
-				res.rgb = (fog.rgb * fog.a * sa + volumetric_fog.rgb * volumetric_fog.a) / res.a;
-			}
-			fog = res;
-		} else {
-			fog = volumetric_fog;
-		}
-	}
-#endif //!CUSTOM_FOG_USED
+	// 	if (implementation_data.volumetric_fog_enabled) {
+	// #ifdef USE_MULTIVIEW
+	// 		vec4 volumetric_fog = volumetric_fog_process(combined_uv, -vertex.z);
+	// #else
+	// 		vec4 volumetric_fog = volumetric_fog_process(screen_uv, -vertex.z);
+	// #endif
+	// 		if (scene_data.fog_enabled) {
+	// 			//must use the full blending equation here to blend fogs
+	// 			vec4 res;
+	// 			float sa = 1.0 - volumetric_fog.a;
+	// 			res.a = fog.a * sa + volumetric_fog.a;
+	// 			if (res.a == 0.0) {
+	// 				res.rgb = vec3(0.0);
+	// 			} else {
+	// 				res.rgb = (fog.rgb * fog.a * sa + volumetric_fog.rgb * volumetric_fog.a) / res.a;
+	// 			}
+	// 			fog = res;
+	// 		} else {
+	// 			fog = volumetric_fog;
+	// 		}
+	// 	}
+	// #endif //!CUSTOM_FOG_USED
 
-	uint fog_rg = packHalf2x16(fog.rg);
-	uint fog_ba = packHalf2x16(fog.ba);
+	// 	uint fog_rg = packHalf2x16(fog.rg);
+	// 	uint fog_ba = packHalf2x16(fog.ba);
 
-#endif //!MODE_RENDER_DEPTH
+	// #endif //!MODE_RENDER_DEPTH
 
 	/////////////////////// DECALS ////////////////////////////////
 
@@ -1258,157 +1258,157 @@ void fragment_shader(in SceneData scene_data) {
 	}
 #else
 
-	if (sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_SDFGI)) { //has lightmap capture
+	// if (sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_SDFGI)) { //has lightmap capture
 
-		//make vertex orientation the world one, but still align to camera
-		vec3 cam_pos = mat3(scene_data.inv_view_matrix) * vertex;
-		vec3 cam_normal = mat3(scene_data.inv_view_matrix) * normal;
-		vec3 cam_reflection = mat3(scene_data.inv_view_matrix) * reflect(-view, normal);
+	// 	//make vertex orientation the world one, but still align to camera
+	// 	vec3 cam_pos = mat3(scene_data.inv_view_matrix) * vertex;
+	// 	vec3 cam_normal = mat3(scene_data.inv_view_matrix) * normal;
+	// 	vec3 cam_reflection = mat3(scene_data.inv_view_matrix) * reflect(-view, normal);
 
-		//apply y-mult
-		cam_pos.y *= sdfgi.y_mult;
-		cam_normal.y *= sdfgi.y_mult;
-		cam_normal = normalize(cam_normal);
-		cam_reflection.y *= sdfgi.y_mult;
-		cam_normal = normalize(cam_normal);
-		cam_reflection = normalize(cam_reflection);
+	// 	//apply y-mult
+	// 	cam_pos.y *= sdfgi.y_mult;
+	// 	cam_normal.y *= sdfgi.y_mult;
+	// 	cam_normal = normalize(cam_normal);
+	// 	cam_reflection.y *= sdfgi.y_mult;
+	// 	cam_normal = normalize(cam_normal);
+	// 	cam_reflection = normalize(cam_reflection);
 
-		vec4 light_accum = vec4(0.0);
-		float weight_accum = 0.0;
+	// 	vec4 light_accum = vec4(0.0);
+	// 	float weight_accum = 0.0;
 
-		vec4 light_blend_accum = vec4(0.0);
-		float weight_blend_accum = 0.0;
+	// 	vec4 light_blend_accum = vec4(0.0);
+	// 	float weight_blend_accum = 0.0;
 
-		float blend = -1.0;
+	// 	float blend = -1.0;
 
-		// helper constants, compute once
+	// 	// helper constants, compute once
 
-		uint cascade = 0xFFFFFFFF;
-		vec3 cascade_pos;
-		vec3 cascade_normal;
+	// 	uint cascade = 0xFFFFFFFF;
+	// 	vec3 cascade_pos;
+	// 	vec3 cascade_normal;
 
-		for (uint i = 0; i < sdfgi.max_cascades; i++) {
-			cascade_pos = (cam_pos - sdfgi.cascades[i].position) * sdfgi.cascades[i].to_probe;
+	// 	for (uint i = 0; i < sdfgi.max_cascades; i++) {
+	// 		cascade_pos = (cam_pos - sdfgi.cascades[i].position) * sdfgi.cascades[i].to_probe;
 
-			if (any(lessThan(cascade_pos, vec3(0.0))) || any(greaterThanEqual(cascade_pos, sdfgi.cascade_probe_size))) {
-				continue; //skip cascade
-			}
+	// 		if (any(lessThan(cascade_pos, vec3(0.0))) || any(greaterThanEqual(cascade_pos, sdfgi.cascade_probe_size))) {
+	// 			continue; //skip cascade
+	// 		}
 
-			cascade = i;
-			break;
-		}
+	// 		cascade = i;
+	// 		break;
+	// 	}
 
-		if (cascade < SDFGI_MAX_CASCADES) {
-			bool use_specular = true;
-			float blend;
-			vec3 diffuse, specular;
-			sdfgi_process(cascade, cascade_pos, cam_pos, cam_normal, cam_reflection, use_specular, roughness, diffuse, specular, blend);
+	// 	if (cascade < SDFGI_MAX_CASCADES) {
+	// 		bool use_specular = true;
+	// 		float blend;
+	// 		vec3 diffuse, specular;
+	// 		sdfgi_process(cascade, cascade_pos, cam_pos, cam_normal, cam_reflection, use_specular, roughness, diffuse, specular, blend);
 
-			if (blend > 0.0) {
-				//blend
-				if (cascade == sdfgi.max_cascades - 1) {
-					diffuse = mix(diffuse, ambient_light, blend);
-					if (use_specular) {
-						specular = mix(specular, specular_light, blend);
-					}
-				} else {
-					vec3 diffuse2, specular2;
-					float blend2;
-					cascade_pos = (cam_pos - sdfgi.cascades[cascade + 1].position) * sdfgi.cascades[cascade + 1].to_probe;
-					sdfgi_process(cascade + 1, cascade_pos, cam_pos, cam_normal, cam_reflection, use_specular, roughness, diffuse2, specular2, blend2);
-					diffuse = mix(diffuse, diffuse2, blend);
-					if (use_specular) {
-						specular = mix(specular, specular2, blend);
-					}
-				}
-			}
+	// 		if (blend > 0.0) {
+	// 			//blend
+	// 			if (cascade == sdfgi.max_cascades - 1) {
+	// 				diffuse = mix(diffuse, ambient_light, blend);
+	// 				if (use_specular) {
+	// 					specular = mix(specular, specular_light, blend);
+	// 				}
+	// 			} else {
+	// 				vec3 diffuse2, specular2;
+	// 				float blend2;
+	// 				cascade_pos = (cam_pos - sdfgi.cascades[cascade + 1].position) * sdfgi.cascades[cascade + 1].to_probe;
+	// 				sdfgi_process(cascade + 1, cascade_pos, cam_pos, cam_normal, cam_reflection, use_specular, roughness, diffuse2, specular2, blend2);
+	// 				diffuse = mix(diffuse, diffuse2, blend);
+	// 				if (use_specular) {
+	// 					specular = mix(specular, specular2, blend);
+	// 				}
+	// 			}
+	// 		}
 
-			ambient_light = diffuse;
-			if (use_specular) {
-				specular_light = specular;
-			}
-		}
-	}
+	// 		ambient_light = diffuse;
+	// 		if (use_specular) {
+	// 			specular_light = specular;
+	// 		}
+	// 	}
+	// }
 
-	if (sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_VOXEL_GI)) { // process voxel_gi_instances
-		uint index1 = instances.data[instance_index].gi_offset & 0xFFFF;
-		// Make vertex orientation the world one, but still align to camera.
-		vec3 cam_pos = mat3(scene_data.inv_view_matrix) * vertex;
-		vec3 cam_normal = mat3(scene_data.inv_view_matrix) * normal;
-		vec3 ref_vec = mat3(scene_data.inv_view_matrix) * normalize(reflect(-view, normal));
+	// if (sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_VOXEL_GI)) { // process voxel_gi_instances
+	// 	uint index1 = instances.data[instance_index].gi_offset & 0xFFFF;
+	// 	// Make vertex orientation the world one, but still align to camera.
+	// 	vec3 cam_pos = mat3(scene_data.inv_view_matrix) * vertex;
+	// 	vec3 cam_normal = mat3(scene_data.inv_view_matrix) * normal;
+	// 	vec3 ref_vec = mat3(scene_data.inv_view_matrix) * normalize(reflect(-view, normal));
 
-		//find arbitrary tangent and bitangent, then build a matrix
-		vec3 v0 = abs(cam_normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
-		vec3 tangent = normalize(cross(v0, cam_normal));
-		vec3 bitangent = normalize(cross(tangent, cam_normal));
-		mat3 normal_mat = mat3(tangent, bitangent, cam_normal);
+	// 	//find arbitrary tangent and bitangent, then build a matrix
+	// 	vec3 v0 = abs(cam_normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+	// 	vec3 tangent = normalize(cross(v0, cam_normal));
+	// 	vec3 bitangent = normalize(cross(tangent, cam_normal));
+	// 	mat3 normal_mat = mat3(tangent, bitangent, cam_normal);
 
-		vec4 amb_accum = vec4(0.0);
-		vec4 spec_accum = vec4(0.0);
-		voxel_gi_compute(index1, cam_pos, cam_normal, ref_vec, normal_mat, roughness * roughness, ambient_light, specular_light, spec_accum, amb_accum);
+	// 	vec4 amb_accum = vec4(0.0);
+	// 	vec4 spec_accum = vec4(0.0);
+	// 	voxel_gi_compute(index1, cam_pos, cam_normal, ref_vec, normal_mat, roughness * roughness, ambient_light, specular_light, spec_accum, amb_accum);
 
-		uint index2 = instances.data[instance_index].gi_offset >> 16;
+	// 	uint index2 = instances.data[instance_index].gi_offset >> 16;
 
-		if (index2 != 0xFFFF) {
-			voxel_gi_compute(index2, cam_pos, cam_normal, ref_vec, normal_mat, roughness * roughness, ambient_light, specular_light, spec_accum, amb_accum);
-		}
+	// 	if (index2 != 0xFFFF) {
+	// 		voxel_gi_compute(index2, cam_pos, cam_normal, ref_vec, normal_mat, roughness * roughness, ambient_light, specular_light, spec_accum, amb_accum);
+	// 	}
 
-		if (amb_accum.a > 0.0) {
-			amb_accum.rgb /= amb_accum.a;
-		}
+	// 	if (amb_accum.a > 0.0) {
+	// 		amb_accum.rgb /= amb_accum.a;
+	// 	}
 
-		if (spec_accum.a > 0.0) {
-			spec_accum.rgb /= spec_accum.a;
-		}
+	// 	if (spec_accum.a > 0.0) {
+	// 		spec_accum.rgb /= spec_accum.a;
+	// 	}
 
-		specular_light = spec_accum.rgb;
-		ambient_light = amb_accum.rgb;
-	}
+	// 	specular_light = spec_accum.rgb;
+	// 	ambient_light = amb_accum.rgb;
+	// }
 
-	if (!sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_GI_BUFFERS)) { //use GI buffers
+// 	if (!sc_use_forward_gi && bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_GI_BUFFERS)) { //use GI buffers
 
-		vec2 coord;
+// 		vec2 coord;
 
-		if (implementation_data.gi_upscale_for_msaa) {
-			vec2 base_coord = screen_uv;
-			vec2 closest_coord = base_coord;
-#ifdef USE_MULTIVIEW
-			float closest_ang = dot(normal, textureLod(sampler2DArray(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(base_coord, ViewIndex), 0.0).xyz * 2.0 - 1.0);
-#else // USE_MULTIVIEW
-			float closest_ang = dot(normal, textureLod(sampler2D(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), base_coord, 0.0).xyz * 2.0 - 1.0);
-#endif // USE_MULTIVIEW
+// 		if (implementation_data.gi_upscale_for_msaa) {
+// 			vec2 base_coord = screen_uv;
+// 			vec2 closest_coord = base_coord;
+// #ifdef USE_MULTIVIEW
+// 			float closest_ang = dot(normal, textureLod(sampler2DArray(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(base_coord, ViewIndex), 0.0).xyz * 2.0 - 1.0);
+// #else // USE_MULTIVIEW
+// 			float closest_ang = dot(normal, textureLod(sampler2D(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), base_coord, 0.0).xyz * 2.0 - 1.0);
+// #endif // USE_MULTIVIEW
 
-			for (int i = 0; i < 4; i++) {
-				const vec2 neighbors[4] = vec2[](vec2(-1, 0), vec2(1, 0), vec2(0, -1), vec2(0, 1));
-				vec2 neighbour_coord = base_coord + neighbors[i] * scene_data.screen_pixel_size;
-#ifdef USE_MULTIVIEW
-				float neighbour_ang = dot(normal, textureLod(sampler2DArray(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(neighbour_coord, ViewIndex), 0.0).xyz * 2.0 - 1.0);
-#else // USE_MULTIVIEW
-				float neighbour_ang = dot(normal, textureLod(sampler2D(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), neighbour_coord, 0.0).xyz * 2.0 - 1.0);
-#endif // USE_MULTIVIEW
-				if (neighbour_ang > closest_ang) {
-					closest_ang = neighbour_ang;
-					closest_coord = neighbour_coord;
-				}
-			}
+// 			for (int i = 0; i < 4; i++) {
+// 				const vec2 neighbors[4] = vec2[](vec2(-1, 0), vec2(1, 0), vec2(0, -1), vec2(0, 1));
+// 				vec2 neighbour_coord = base_coord + neighbors[i] * scene_data.screen_pixel_size;
+// #ifdef USE_MULTIVIEW
+// 				float neighbour_ang = dot(normal, textureLod(sampler2DArray(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(neighbour_coord, ViewIndex), 0.0).xyz * 2.0 - 1.0);
+// #else // USE_MULTIVIEW
+// 				float neighbour_ang = dot(normal, textureLod(sampler2D(normal_roughness_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), neighbour_coord, 0.0).xyz * 2.0 - 1.0);
+// #endif // USE_MULTIVIEW
+// 				if (neighbour_ang > closest_ang) {
+// 					closest_ang = neighbour_ang;
+// 					closest_coord = neighbour_coord;
+// 				}
+// 			}
 
-			coord = closest_coord;
+// 			coord = closest_coord;
 
-		} else {
-			coord = screen_uv;
-		}
+// 		} else {
+// 			coord = screen_uv;
+// 		}
 
-#ifdef USE_MULTIVIEW
-		vec4 buffer_ambient = textureLod(sampler2DArray(ambient_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(coord, ViewIndex), 0.0);
-		vec4 buffer_reflection = textureLod(sampler2DArray(reflection_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(coord, ViewIndex), 0.0);
-#else // USE_MULTIVIEW
-		vec4 buffer_ambient = textureLod(sampler2D(ambient_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), coord, 0.0);
-		vec4 buffer_reflection = textureLod(sampler2D(reflection_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), coord, 0.0);
-#endif // USE_MULTIVIEW
+// #ifdef USE_MULTIVIEW
+// 		vec4 buffer_ambient = textureLod(sampler2DArray(ambient_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(coord, ViewIndex), 0.0);
+// 		vec4 buffer_reflection = textureLod(sampler2DArray(reflection_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), vec3(coord, ViewIndex), 0.0);
+// #else // USE_MULTIVIEW
+// 		vec4 buffer_ambient = textureLod(sampler2D(ambient_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), coord, 0.0);
+// 		vec4 buffer_reflection = textureLod(sampler2D(reflection_buffer, material_samplers[SAMPLER_LINEAR_CLAMP]), coord, 0.0);
+// #endif // USE_MULTIVIEW
 
-		ambient_light = mix(ambient_light, buffer_ambient.rgb, buffer_ambient.a);
-		specular_light = mix(specular_light, buffer_reflection.rgb, buffer_reflection.a);
-	}
+// 		ambient_light = mix(ambient_light, buffer_ambient.rgb, buffer_ambient.a);
+// 		specular_light = mix(specular_light, buffer_reflection.rgb, buffer_reflection.a);
+// 	}
 #endif // !USE_LIGHTMAP
 
 	if (bool(implementation_data.ss_effects_flags & SCREEN_SPACE_EFFECTS_FLAGS_USE_SSAO)) {
@@ -1421,74 +1421,74 @@ void fragment_shader(in SceneData scene_data) {
 		ao_light_affect = mix(ao_light_affect, max(ao_light_affect, implementation_data.ssao_light_affect), implementation_data.ssao_ao_affect);
 	}
 
-	{ // process reflections
+	// 	{ // process reflections
 
-		vec4 reflection_accum = vec4(0.0, 0.0, 0.0, 0.0);
-		vec4 ambient_accum = vec4(0.0, 0.0, 0.0, 0.0);
+	// 		vec4 reflection_accum = vec4(0.0, 0.0, 0.0, 0.0);
+	// 		vec4 ambient_accum = vec4(0.0, 0.0, 0.0, 0.0);
 
-		uint cluster_reflection_offset = cluster_offset + implementation_data.cluster_type_size * 3;
+	// 		uint cluster_reflection_offset = cluster_offset + implementation_data.cluster_type_size * 3;
 
-		uint item_min;
-		uint item_max;
-		uint item_from;
-		uint item_to;
+	// 		uint item_min;
+	// 		uint item_max;
+	// 		uint item_from;
+	// 		uint item_to;
 
-		cluster_get_item_range(cluster_reflection_offset + implementation_data.max_cluster_element_count_div_32 + cluster_z, item_min, item_max, item_from, item_to);
+	// 		cluster_get_item_range(cluster_reflection_offset + implementation_data.max_cluster_element_count_div_32 + cluster_z, item_min, item_max, item_from, item_to);
 
-#ifdef USE_SUBGROUPS
-		item_from = subgroupBroadcastFirst(subgroupMin(item_from));
-		item_to = subgroupBroadcastFirst(subgroupMax(item_to));
-#endif
+	// #ifdef USE_SUBGROUPS
+	// 		item_from = subgroupBroadcastFirst(subgroupMin(item_from));
+	// 		item_to = subgroupBroadcastFirst(subgroupMax(item_to));
+	// #endif
 
-#ifdef LIGHT_ANISOTROPY_USED
-		// https://google.github.io/filament/Filament.html#lighting/imagebasedlights/anisotropy
-		vec3 anisotropic_direction = anisotropy >= 0.0 ? binormal : tangent;
-		vec3 anisotropic_tangent = cross(anisotropic_direction, view);
-		vec3 anisotropic_normal = cross(anisotropic_tangent, anisotropic_direction);
-		vec3 bent_normal = normalize(mix(normal, anisotropic_normal, abs(anisotropy) * clamp(5.0 * roughness, 0.0, 1.0)));
-#else
-		vec3 bent_normal = normal;
-#endif
-		vec3 ref_vec = normalize(reflect(-view, bent_normal));
-		ref_vec = mix(ref_vec, bent_normal, roughness * roughness);
+	// #ifdef LIGHT_ANISOTROPY_USED
+	// 		// https://google.github.io/filament/Filament.html#lighting/imagebasedlights/anisotropy
+	// 		vec3 anisotropic_direction = anisotropy >= 0.0 ? binormal : tangent;
+	// 		vec3 anisotropic_tangent = cross(anisotropic_direction, view);
+	// 		vec3 anisotropic_normal = cross(anisotropic_tangent, anisotropic_direction);
+	// 		vec3 bent_normal = normalize(mix(normal, anisotropic_normal, abs(anisotropy) * clamp(5.0 * roughness, 0.0, 1.0)));
+	// #else
+	// 		vec3 bent_normal = normal;
+	// #endif
+	// 		vec3 ref_vec = normalize(reflect(-view, bent_normal));
+	// 		ref_vec = mix(ref_vec, bent_normal, roughness * roughness);
 
-		for (uint i = item_from; i < item_to; i++) {
-			uint mask = cluster_buffer.data[cluster_reflection_offset + i];
-			mask &= cluster_get_range_clip_mask(i, item_min, item_max);
-#ifdef USE_SUBGROUPS
-			uint merged_mask = subgroupBroadcastFirst(subgroupOr(mask));
-#else
-			uint merged_mask = mask;
-#endif
+	// 		for (uint i = item_from; i < item_to; i++) {
+	// 			uint mask = cluster_buffer.data[cluster_reflection_offset + i];
+	// 			mask &= cluster_get_range_clip_mask(i, item_min, item_max);
+	// #ifdef USE_SUBGROUPS
+	// 			uint merged_mask = subgroupBroadcastFirst(subgroupOr(mask));
+	// #else
+	// 			uint merged_mask = mask;
+	// #endif
 
-			while (merged_mask != 0) {
-				uint bit = findMSB(merged_mask);
-				merged_mask &= ~(1u << bit);
-#ifdef USE_SUBGROUPS
-				if (((1u << bit) & mask) == 0) { //do not process if not originally here
-					continue;
-				}
-#endif
-				uint reflection_index = 32 * i + bit;
+	// 			while (merged_mask != 0) {
+	// 				uint bit = findMSB(merged_mask);
+	// 				merged_mask &= ~(1u << bit);
+	// #ifdef USE_SUBGROUPS
+	// 				if (((1u << bit) & mask) == 0) { //do not process if not originally here
+	// 					continue;
+	// 				}
+	// #endif
+	// 				uint reflection_index = 32 * i + bit;
 
-				if (!bool(reflections.data[reflection_index].mask & instances.data[instance_index].layer_mask)) {
-					continue; //not masked
-				}
+	// 				if (!bool(reflections.data[reflection_index].mask & instances.data[instance_index].layer_mask)) {
+	// 					continue; //not masked
+	// 				}
 
-				reflection_process(reflection_index, vertex, ref_vec, normal, roughness, ambient_light, specular_light, ambient_accum, reflection_accum);
-			}
-		}
+	// 				reflection_process(reflection_index, vertex, ref_vec, normal, roughness, ambient_light, specular_light, ambient_accum, reflection_accum);
+	// 			}
+	// 		}
 
-		if (reflection_accum.a > 0.0) {
-			specular_light = reflection_accum.rgb / reflection_accum.a;
-		}
+	// 		if (reflection_accum.a > 0.0) {
+	// 			specular_light = reflection_accum.rgb / reflection_accum.a;
+	// 		}
 
-#if !defined(USE_LIGHTMAP)
-		if (ambient_accum.a > 0.0) {
-			ambient_light = ambient_accum.rgb / ambient_accum.a;
-		}
-#endif
-	}
+	// #if !defined(USE_LIGHTMAP)
+	// 		if (ambient_accum.a > 0.0) {
+	// 			ambient_light = ambient_accum.rgb / ambient_accum.a;
+	// 		}
+	// #endif
+	// 	}
 
 	//finalize ambient light here
 	{
@@ -2170,17 +2170,17 @@ void fragment_shader(in SceneData scene_data) {
 #ifdef MODE_RENDER_NORMAL_ROUGHNESS
 	normal_roughness_output_buffer = vec4(normal * 0.5 + 0.5, roughness);
 
-#ifdef MODE_RENDER_VOXEL_GI
-	if (bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_VOXEL_GI)) { // process voxel_gi_instances
-		uint index1 = instances.data[instance_index].gi_offset & 0xFFFF;
-		uint index2 = instances.data[instance_index].gi_offset >> 16;
-		voxel_gi_buffer.x = index1 & 0xFFu;
-		voxel_gi_buffer.y = index2 & 0xFFu;
-	} else {
-		voxel_gi_buffer.x = 0xFF;
-		voxel_gi_buffer.y = 0xFF;
-	}
-#endif
+	// #ifdef MODE_RENDER_VOXEL_GI
+	// 	if (bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_VOXEL_GI)) { // process voxel_gi_instances
+	// 		uint index1 = instances.data[instance_index].gi_offset & 0xFFFF;
+	// 		uint index2 = instances.data[instance_index].gi_offset >> 16;
+	// 		voxel_gi_buffer.x = index1 & 0xFFu;
+	// 		voxel_gi_buffer.y = index2 & 0xFFu;
+	// 	} else {
+	// 		voxel_gi_buffer.x = 0xFF;
+	// 		voxel_gi_buffer.y = 0xFF;
+	// 	}
+	// #endif
 
 #endif //MODE_RENDER_NORMAL_ROUGHNESS
 
@@ -2201,7 +2201,7 @@ void fragment_shader(in SceneData scene_data) {
 	ambient_light *= 1.0 - metallic;
 
 	//restore fog
-	fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
+	// fog = vec4(unpackHalf2x16(fog_rg), unpackHalf2x16(fog_ba));
 
 #ifdef MODE_SEPARATE_SPECULAR
 
