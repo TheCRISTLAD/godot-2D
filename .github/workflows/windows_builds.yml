@@ -6,7 +6,7 @@ on:
 # SCONS_CACHE for windows must be set in the build environment
 env:
   # Used for the cache key. Add version suffix to force clean build.
-  GODOT_BASE_BRANCH: '4.1'
+  GODOT_BASE_BRANCH: '4.1.1'
   SCONSFLAGS: verbose=yes debug_symbols=no
   SCONS_CACHE_MSVC_CONFIG: true
 
@@ -28,19 +28,21 @@ jobs:
             target: editor
             tests: false
             sconsflags: optimize=speed_trace
-            bin: "./bin/godot.windows.editor.x86_64.exe"
+            # bin: "./bin/godot.windows.editor.x86_64.exe"
 
           - name: Release Template
             cache-name: windows-release-template
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace
+            # bin: "./bin/godot.windows.template_release.x86_64.exe"
 
           - name: Debug Template
             cache-name: windows-debug-template
             target: template_debug
             tests: false
-            sconsflags: optimize=speed_trace     
+            sconsflags: optimize=speed_trace
+            # bin: "./bin/godot.windows.template_debug.x86_64.exe"
 
     steps:
       - uses: actions/checkout@v3

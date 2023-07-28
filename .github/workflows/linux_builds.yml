@@ -5,7 +5,7 @@ on:
 # Global Settings
 env:
   # Used for the cache key, and godot-cpp checkout. Add version suffix to force clean build.
-  GODOT_BASE_BRANCH: '4.1'
+  GODOT_BASE_BRANCH: '4.1.1'
   SCONSFLAGS: verbose=yes debug_symbols=no
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -27,30 +27,24 @@ jobs:
             target: editor
             tests: false # Disabled due freeze caused by mix Mono build and CI
             sconsflags: optimize=speed_trace
-            bin: "./bin/godot.linuxbsd.editor.x86_64"
+            # bin: "./bin/godot.linuxbsd.editor.x86_64"
 
           - name: Release Template
             cache-name: linux-template
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace
+            # bin: "./bin/godot.linuxbsd.template_release.x86_64"
 
           - name: Debug Template
             cache-name: linux-template
             target: template_debug
             tests: false
             sconsflags: optimize=speed_trace
+            # bin: "./bin/godot.linuxbsd.template_debug.x86_64"
 
     steps:
       - uses: actions/checkout@v3
-
-      # Need newer mesa for lavapipe to work properly.
-      - name: Linux dependencies for tests
-        if: ${{ matrix.proj-test }}
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          sudo add-apt-repository ppa:kisak/kisak-mesa
-          sudo apt-get install -qq mesa-vulkan-drivers
 
       - name: Setup Godot build cache
         uses: ./.github/actions/godot-cache
@@ -60,12 +54,6 @@ jobs:
 
       - name: Setup python and scons
         uses: ./.github/actions/godot-deps
-
-      - name: Set up .NET Sdk
-        uses: actions/setup-dotnet@v2
-        if: ${{ matrix.build-mono }}
-        with:
-          dotnet-version: '6.0.x'
 
       - name: Setup GCC problem matcher
         uses: ammaraskar/gcc-problem-matcher@master
@@ -78,112 +66,20 @@ jobs:
           target: ${{ matrix.target }}
           tests: ${{ matrix.tests }}
 
-      - name: Generate C# glue
-        if: ${{ matrix.build-mono }}
-        run: |
-          ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue || true
-
-      - name: Build .NET solutions
-        if: ${{ matrix.build-mono }}
-        run: |
-          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd
-
       # Execute unit tests for the editor
       - name: Unit tests
-        if: ${{ matrix.tests }}
         run: |
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
           ${{ matrix.bin }} --test --headless
 
-      # Check class reference
-      - name: Check for class reference updates
-        if: ${{ matrix.doc-test }}
-        run: |
-          echo "Running --doctool to see if this changes the public API without updating the documentation."
-          echo -e "If a diff is shown, it means that your code/doc changes are incomplete and you should update the class reference with --doctool.\n\n"
-          ${{ matrix.bin }} --doctool --headless 2>&1 > /dev/null || true
-          git diff --color --exit-code && ! git ls-files --others --exclude-standard | sed -e 's/^/New doc file missing in PR: /' | grep 'xml$'
-
-      # Test 3.x -> 4.x project converter
-      - name: Test project converter
-        if: ${{ matrix.proj-conv }}
-        run: |
-          mkdir converter_test
-          cd converter_test
-          touch project.godot
-          ../${{ matrix.bin }} --headless --validate-conversion-3to4
-          cd ..
-          rm converter_test -rf
-
-      # Download and extract zip archive with project, folder is renamed to be able to easy change used project
-      - name: Download test project
-        if: ${{ matrix.proj-test }}
-        run: |
-          wget https://github.com/godotengine/regression-test-project/archive/4.0.zip
-          unzip 4.0.zip
-          mv "regression-test-project-4.0" "test_project"
-
-      # Editor is quite complicated piece of software, so it is easy to introduce bug here
-      - name: Open and close editor (Vulkan)
-        if: ${{ matrix.proj-test }}
-        run: |
-          xvfb-run ${{ matrix.bin }} --audio-driver Dummy --editor --quit --path test_project 2>&1 | tee sanitizers_log.txt || true
-          misc/scripts/check_ci_log.py sanitizers_log.txt
-
-      - name: Open and close editor (GLES3)
-        if: ${{ matrix.proj-test }}
-        run: |
-          DRI_PRIME=0 xvfb-run ${{ matrix.bin }} --audio-driver Dummy --rendering-driver opengl3 --editor --quit --path test_project 2>&1 | tee sanitizers_log.txt || true
-          misc/scripts/check_ci_log.py sanitizers_log.txt
-
-      # Run test project
-      - name: Run project
-        if: ${{ matrix.proj-test }}
-        run: |
-          xvfb-run ${{ matrix.bin }} 40 --audio-driver Dummy --path test_project 2>&1 | tee sanitizers_log.txt || true
-          misc/scripts/check_ci_log.py sanitizers_log.txt
-
-      # Checkout godot-cpp
-      - name: Checkout godot-cpp
-        if: ${{ matrix.godot-cpp-test }}
-        uses: actions/checkout@v3
-        with:
-          repository: godotengine/godot-cpp
-          ref: ${{ env.GODOT_BASE_BRANCH }}
-          submodules: 'recursive'
-          path: 'godot-cpp'
-
-      # Dump GDExtension interface and API
-      - name: Dump GDExtension interface and API for godot-cpp build
-        if: ${{ matrix.godot-cpp-test }}
-        run: |
-          ${{ matrix.bin }} --headless --dump-gdextension-interface --dump-extension-api
-          cp -f gdextension_interface.h godot-cpp/gdextension/
-          cp -f extension_api.json godot-cpp/gdextension/
-
-      # Build godot-cpp test extension
-      - name: Build godot-cpp test extension
-        if: ${{ matrix.godot-cpp-test }}
-        run: |
-          cd godot-cpp/test
-          scons target=template_debug dev_build=yes
-          cd ../..
-
-      - name: Check for GDExtension compatibility
-        if: ${{ matrix.compat }}
-        run: |
-          ./misc/scripts/validate_extension_api.sh "${{ matrix.bin }}" || true # don't fail the CI for now
-
       - name: Prepare artifact
-        if: ${{ matrix.artifact }}
         run: |
           strip bin/godot.*
           chmod +x bin/godot.*
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
-        if: ${{ matrix.artifact }}
         with:
           name: ${{ matrix.cache-name }}
 

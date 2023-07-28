@@ -5,7 +5,7 @@ on:
 # Global Settings
 env:
   # Used for the cache key. Add version suffix to force clean build.
-  GODOT_BASE_BRANCH: '4.1'
+  GODOT_BASE_BRANCH: '4.1.1'
   SCONSFLAGS: verbose=yes optimize=speed_trace
 
 concurrency:
@@ -31,12 +31,14 @@ jobs:
             target: template_release
             tests: false
             sconsflags: debug_symbols=no
+            bin: "./bin/godot.macos.template_release.x86_64"
 
           - name: Debug Template
             cache-name: macos-template
             target: template_debug
             tests: false
             sconsflags: debug_symbols=no
+            bin: "./bin/godot.macos.template_debug.x86_64"
 
     steps:
       - uses: actions/checkout@v3
