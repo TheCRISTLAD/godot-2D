@@ -20,25 +20,25 @@ jobs:
       matrix:
         include:
           - name: Release Template (arm32)
-            cache-name: android-release-template
+            cache-name: android-release-template_arm32
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace arch=arm32
 
           - name: Debug Template (arm32)
-            cache-name: android-debug-template
+            cache-name: android-debug-template_arm32
             target: template_debug
             tests: false
             sconsflags: optimize=speed_trace arch=arm32
 
           - name: Release Template (arm64)
-            cache-name: android-release-template
+            cache-name: android-release-template_arm64
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace arch=arm64
 
           - name: Debug Template (arm64)
-            cache-name: android-debug-template
+            cache-name: android-debug-template_arm64
             target: template_debug
             tests: false
             sconsflags: optimize=speed_trace arch=arm64
