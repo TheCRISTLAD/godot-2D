@@ -81,3 +81,8 @@ jobs:
         uses: ./.github/actions/upload-artifact
         with:
           name: ${{ matrix.cache-name }}
+
+      - name: Upload release
+        uses: ./.github/actions/upload-release-asset@v1.0.0
+        with:
+          name: ${{ matrix.cache-name }}

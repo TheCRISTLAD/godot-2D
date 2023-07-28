@@ -186,3 +186,8 @@ jobs:
         if: ${{ matrix.artifact }}
         with:
           name: ${{ matrix.cache-name }}
+
+      - name: Upload release
+        uses: ./.github/actions/upload-release-asset@v1.0.0
+        with:
+          name: ${{ matrix.cache-name }}

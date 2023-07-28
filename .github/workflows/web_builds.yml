@@ -15,9 +15,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  web-template:
+  build-web:
     runs-on: "ubuntu-20.04"
-    name: Release Template
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Release Template
+            cache-name: web-release-template
+            target: template_release
+            tests: false
+            sconsflags: optimize=size
+
+          - name: Debug Template
+            cache-name: web-debug-template
+            target: template_debug
+            tests: false
+            sconsflags: optimize=size
 
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +40,7 @@ jobs:
       - name: Set up Emscripten latest
         uses: mymindstorm/setup-emsdk@v12
         with:
+          cache-name: ${{ matrix.cache-name }}
           version: ${{env.EM_VERSION}}
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
 
@@ -39,21 +55,16 @@ jobs:
       - name: Setup python and scons
         uses: ./.github/actions/godot-deps
 
-      - name: Compilation Release
+      - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }}
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }}
           platform: web
-          target: template_release
-          tests: false
-
-      - name: Compilation Debug
-        uses: ./.github/actions/godot-build
-        with:
-          sconsflags: ${{ env.SCONSFLAGS }}
-          platform: web
-          target: template_debug
-          tests: false
+          target: ${{ matrix.target }}
+          tests: ${{ matrix.tests }}
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
+
+      - name: Upload release
+        uses: ./.github/actions/upload-release-asset@v1.0.0
