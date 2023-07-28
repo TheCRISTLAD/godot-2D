@@ -170,7 +170,7 @@
 #include "scene/resources/skeleton_modification_stack_2d.h"
 #include "scene/resources/skeleton_profile.h"
 #include "scene/resources/style_box.h"
-#include "scene/resources/surface_tool.h"
+// #include "scene/resources/surface_tool.h"
 #include "scene/resources/syntax_highlighter.h"
 #include "scene/resources/text_file.h"
 #include "scene/resources/text_line.h"
@@ -605,7 +605,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(ArrayMesh);
 	GDREGISTER_CLASS(PlaceholderMesh);
 	GDREGISTER_CLASS(MultiMesh);
-	GDREGISTER_CLASS(SurfaceTool);
+	// GDREGISTER_CLASS(SurfaceTool);
 	GDREGISTER_CLASS(MeshDataTool);
 
 	GDREGISTER_CLASS(PhysicsMaterial);
@@ -734,20 +734,20 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("ARVRServer", "XRServer");
 	ClassDB::add_compatibility_class("AStar", "AStar3D");
 	ClassDB::add_compatibility_class("BoneAttachment", "BoneAttachment3D");
-	ClassDB::add_compatibility_class("BoxShape", "BoxShape3D");
+	// ClassDB::add_compatibility_class("BoxShape", "BoxShape3D");
 	ClassDB::add_compatibility_class("Camera", "Camera3D");
-	ClassDB::add_compatibility_class("CapsuleShape", "CapsuleShape3D");
+	// ClassDB::add_compatibility_class("CapsuleShape", "CapsuleShape3D");
 	ClassDB::add_compatibility_class("ClippedCamera", "ClippedCamera3D");
 	ClassDB::add_compatibility_class("CollisionObject", "CollisionObject3D");
 	ClassDB::add_compatibility_class("CollisionPolygon", "CollisionPolygon3D");
-	ClassDB::add_compatibility_class("CollisionShape", "CollisionShape3D");
-	ClassDB::add_compatibility_class("ConcavePolygonShape", "ConcavePolygonShape3D");
+	// ClassDB::add_compatibility_class("CollisionShape", "CollisionShape3D");
+	// ClassDB::add_compatibility_class("ConcavePolygonShape", "ConcavePolygonShape3D");
 	ClassDB::add_compatibility_class("ConeTwistJoint", "ConeTwistJoint3D");
-	ClassDB::add_compatibility_class("ConvexPolygonShape", "ConvexPolygonShape3D");
+	// ClassDB::add_compatibility_class("ConvexPolygonShape", "ConvexPolygonShape3D");
 	ClassDB::add_compatibility_class("CPUParticles", "CPUParticles3D");
 	ClassDB::add_compatibility_class("CubeMesh", "BoxMesh");
 	ClassDB::add_compatibility_class("GradientTexture", "GradientTexture1D");
-	ClassDB::add_compatibility_class("HeightMapShape", "HeightMapShape3D");
+	// ClassDB::add_compatibility_class("HeightMapShape", "HeightMapShape3D");
 	ClassDB::add_compatibility_class("HingeJoint", "HingeJoint3D");
 	ClassDB::add_compatibility_class("Joint", "Joint3D");
 	ClassDB::add_compatibility_class("KinematicBody", "CharacterBody3D");
@@ -773,19 +773,19 @@ void register_scene_types() {
 	ClassDB::add_compatibility_class("PhysicsServer", "PhysicsServer3D");
 	ClassDB::add_compatibility_class("PhysicsShapeQueryParameters", "PhysicsShapeQueryParameters3D");
 	ClassDB::add_compatibility_class("PinJoint", "PinJoint3D");
-	ClassDB::add_compatibility_class("PlaneShape", "WorldBoundaryShape3D");
+	// ClassDB::add_compatibility_class("PlaneShape", "WorldBoundaryShape3D");
 	ClassDB::add_compatibility_class("Position2D", "Marker2D");
 	ClassDB::add_compatibility_class("Position3D", "Marker3D");
 	ClassDB::add_compatibility_class("RayCast", "RayCast3D");
-	ClassDB::add_compatibility_class("RayShape", "SeparationRayShape3D");
+	// ClassDB::add_compatibility_class("RayShape", "SeparationRayShape3D");
 	ClassDB::add_compatibility_class("RayShape2D", "SeparationRayShape2D");
 	ClassDB::add_compatibility_class("RemoteTransform", "RemoteTransform3D");
 	ClassDB::add_compatibility_class("RigidBody", "RigidBody3D");
 	ClassDB::add_compatibility_class("RigidDynamicBody2D", "RigidBody2D");
 	ClassDB::add_compatibility_class("RigidDynamicBody3D", "RigidBody3D");
-	ClassDB::add_compatibility_class("Shape", "Shape3D");
+	// ClassDB::add_compatibility_class("Shape", "Shape3D");
 	ClassDB::add_compatibility_class("ShortCut", "Shortcut");
-	ClassDB::add_compatibility_class("SphereShape", "SphereShape3D");
+	// ClassDB::add_compatibility_class("SphereShape", "SphereShape3D");
 	ClassDB::add_compatibility_class("SpotLight", "SpotLight3D");
 	ClassDB::add_compatibility_class("SpringArm", "SpringArm3D");
 	ClassDB::add_compatibility_class("Sprite", "Sprite2D");

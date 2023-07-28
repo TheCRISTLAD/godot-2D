@@ -373,23 +373,6 @@ File extracted from upstream release tarball:
 - Added the file `godot_module_mbedtls_config.h` to customize the build configuration when bundling the full library.
 
 
-## meshoptimizer
-
-- Upstream: https://github.com/zeux/meshoptimizer
-- Version: git (4a287848fd664ae1c3fc8e5e008560534ceeb526, 2022)
-- License: MIT
-
-Files extracted from upstream repository:
-
-- All files in `src/`.
-- `LICENSE.md`.
-
-An [experimental upstream feature](https://github.com/zeux/meshoptimizer/tree/simplify-attr),
-has been backported. On top of that, it was modified to report only distance error metrics
-instead of a combination of distance and attribute errors. Patches for both changes can be
-found in the `patches` directory.
-
-
 ## minimp3
 
 - Upstream: https://github.com/lieff/minimp3

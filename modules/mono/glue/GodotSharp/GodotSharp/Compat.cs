@@ -98,15 +98,15 @@ partial class RichTextLabel
     }
 }
 
-partial class SurfaceTool
-{
-    /// <inheritdoc cref="AddTriangleFan(Vector3[], Vector2[], Color[], Vector2[], Vector3[], Godot.Collections.Array{Plane})"/>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public void AddTriangleFan(Vector3[] vertices, Vector2[] uvs, Color[] colors, Vector2[] uv2S, Vector3[] normals, Godot.Collections.Array tangents)
-    {
-        AddTriangleFan(vertices, uvs, colors, uv2S, normals, new Godot.Collections.Array<Plane>(tangents));
-    }
-}
+// partial class SurfaceTool
+// {
+//     /// <inheritdoc cref="AddTriangleFan(Vector3[], Vector2[], Color[], Vector2[], Vector3[], Godot.Collections.Array{Plane})"/>
+//     [EditorBrowsable(EditorBrowsableState.Never)]
+//     public void AddTriangleFan(Vector3[] vertices, Vector2[] uvs, Color[] colors, Vector2[] uv2S, Vector3[] normals, Godot.Collections.Array tangents)
+//     {
+//         AddTriangleFan(vertices, uvs, colors, uv2S, normals, new Godot.Collections.Array<Plane>(tangents));
+//     }
+// }
 
 partial class Tree
 {
