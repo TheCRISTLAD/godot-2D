@@ -1,0 +1,24 @@
+name: Upload Godot release
+description: Upload the Godot release.
+inputs:
+  name:
+    description: The release name.
+    default: "${{ github.job }}"
+  path:
+    description: The path to upload.
+    required: true
+    default: "bin/*"
+runs:
+  using: "composite"
+  steps:
+    - name: Upload Godot release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_name: ${{ inputs.name }}
+        tag_name: ${{ github.ref }}
+        path: ${{ inputs.path }}
+        draft: false
+        prerelease: false

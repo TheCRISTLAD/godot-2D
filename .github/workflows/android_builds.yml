@@ -82,12 +82,6 @@ jobs:
           name: ${{ matrix.cache-name }}
 
       - name: Upload release
-        id: create_release
-        uses: ./.github/actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/upload-release
         with:
-          release_name: ${{ matrix.cache-name }}
-          tag_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
+          name: ${{ matrix.cache-name }}
