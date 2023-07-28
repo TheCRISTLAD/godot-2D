@@ -7,16 +7,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Upload Godot release
-      uses: actions/create-release@v1
-      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "bin/*"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ inputs.name }}
-        body: |
-          testing release
-          - Test
-        draft: true
-        prerelease: false
