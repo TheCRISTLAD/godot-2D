@@ -68,12 +68,10 @@ void Shader::set_code(const String &p_code) {
 
 	String type = ShaderLanguage::get_shader_type(p_code);
 
-	if (type == "canvas_item") {
-		mode = MODE_CANVAS_ITEM;
-	} else if (type == "particles") {
+	if (type == "particles") {
 		mode = MODE_PARTICLES;
 	} else {
-		mode = MODE_SPATIAL;
+		mode = MODE_CANVAS_ITEM;
 	}
 
 	code = p_code;
@@ -206,7 +204,7 @@ void Shader::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_code", "get_code");
 
-	BIND_ENUM_CONSTANT(MODE_SPATIAL);
+	// BIND_ENUM_CONSTANT(MODE_SPATIAL);
 	BIND_ENUM_CONSTANT(MODE_CANVAS_ITEM);
 	BIND_ENUM_CONSTANT(MODE_PARTICLES);
 }

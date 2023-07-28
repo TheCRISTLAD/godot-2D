@@ -329,12 +329,10 @@ void ShaderTextEditor::_check_shader_mode() {
 
 	Shader::Mode mode;
 
-	if (type == "canvas_item") {
-		mode = Shader::MODE_CANVAS_ITEM;
-	} else if (type == "particles") {
+	if (type == "particles") {
 		mode = Shader::MODE_PARTICLES;
 	} else {
-		mode = Shader::MODE_SPATIAL;
+		mode = Shader::MODE_CANVAS_ITEM;
 	}
 
 	if (shader->get_mode() != mode) {

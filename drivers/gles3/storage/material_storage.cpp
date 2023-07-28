@@ -1094,11 +1094,11 @@ MaterialStorage *MaterialStorage::get_singleton() {
 MaterialStorage::MaterialStorage() {
 	singleton = this;
 
-	shader_data_request_func[RS::SHADER_SPATIAL] = _create_scene_shader_func;
+	// shader_data_request_func[RS::SHADER_SPATIAL] = _create_scene_shader_func;
 	shader_data_request_func[RS::SHADER_CANVAS_ITEM] = _create_canvas_shader_func;
 	shader_data_request_func[RS::SHADER_PARTICLES] = _create_particles_shader_func;
 
-	material_data_request_func[RS::SHADER_SPATIAL] = _create_scene_material_func;
+	// material_data_request_func[RS::SHADER_SPATIAL] = _create_scene_material_func;
 	material_data_request_func[RS::SHADER_CANVAS_ITEM] = _create_canvas_material_func;
 	material_data_request_func[RS::SHADER_PARTICLES] = _create_particles_material_func;
 
@@ -1186,182 +1186,182 @@ MaterialStorage::MaterialStorage() {
 		shaders.compiler_canvas.initialize(actions);
 	}
 
-	{
-		// Setup Scene compiler
+	// {
+	// 	// Setup Scene compiler
 
-		//shader compiler
-		ShaderCompiler::DefaultIdentifierActions actions;
+	// 	//shader compiler
+	// 	ShaderCompiler::DefaultIdentifierActions actions;
 
-		actions.renames["MODEL_MATRIX"] = "model_matrix";
-		actions.renames["MODEL_NORMAL_MATRIX"] = "model_normal_matrix";
-		actions.renames["VIEW_MATRIX"] = "scene_data.view_matrix";
-		actions.renames["INV_VIEW_MATRIX"] = "scene_data.inv_view_matrix";
-		actions.renames["PROJECTION_MATRIX"] = "projection_matrix";
-		actions.renames["INV_PROJECTION_MATRIX"] = "inv_projection_matrix";
-		actions.renames["MODELVIEW_MATRIX"] = "modelview";
-		actions.renames["MODELVIEW_NORMAL_MATRIX"] = "modelview_normal";
+	// 	actions.renames["MODEL_MATRIX"] = "model_matrix";
+	// 	actions.renames["MODEL_NORMAL_MATRIX"] = "model_normal_matrix";
+	// 	actions.renames["VIEW_MATRIX"] = "scene_data.view_matrix";
+	// 	actions.renames["INV_VIEW_MATRIX"] = "scene_data.inv_view_matrix";
+	// 	actions.renames["PROJECTION_MATRIX"] = "projection_matrix";
+	// 	actions.renames["INV_PROJECTION_MATRIX"] = "inv_projection_matrix";
+	// 	actions.renames["MODELVIEW_MATRIX"] = "modelview";
+	// 	actions.renames["MODELVIEW_NORMAL_MATRIX"] = "modelview_normal";
 
-		actions.renames["VERTEX"] = "vertex";
-		actions.renames["NORMAL"] = "normal";
-		actions.renames["TANGENT"] = "tangent";
-		actions.renames["BINORMAL"] = "binormal";
-		actions.renames["POSITION"] = "position";
-		actions.renames["UV"] = "uv_interp";
-		actions.renames["UV2"] = "uv2_interp";
-		actions.renames["COLOR"] = "color_interp";
-		actions.renames["POINT_SIZE"] = "point_size";
-		actions.renames["INSTANCE_ID"] = "gl_InstanceID";
-		actions.renames["VERTEX_ID"] = "gl_VertexID";
+	// 	actions.renames["VERTEX"] = "vertex";
+	// 	actions.renames["NORMAL"] = "normal";
+	// 	actions.renames["TANGENT"] = "tangent";
+	// 	actions.renames["BINORMAL"] = "binormal";
+	// 	actions.renames["POSITION"] = "position";
+	// 	actions.renames["UV"] = "uv_interp";
+	// 	actions.renames["UV2"] = "uv2_interp";
+	// 	actions.renames["COLOR"] = "color_interp";
+	// 	actions.renames["POINT_SIZE"] = "point_size";
+	// 	actions.renames["INSTANCE_ID"] = "gl_InstanceID";
+	// 	actions.renames["VERTEX_ID"] = "gl_VertexID";
 
-		actions.renames["ALPHA_SCISSOR_THRESHOLD"] = "alpha_scissor_threshold";
-		actions.renames["ALPHA_HASH_SCALE"] = "alpha_hash_scale";
-		actions.renames["ALPHA_ANTIALIASING_EDGE"] = "alpha_antialiasing_edge";
-		actions.renames["ALPHA_TEXTURE_COORDINATE"] = "alpha_texture_coordinate";
+	// 	actions.renames["ALPHA_SCISSOR_THRESHOLD"] = "alpha_scissor_threshold";
+	// 	actions.renames["ALPHA_HASH_SCALE"] = "alpha_hash_scale";
+	// 	actions.renames["ALPHA_ANTIALIASING_EDGE"] = "alpha_antialiasing_edge";
+	// 	actions.renames["ALPHA_TEXTURE_COORDINATE"] = "alpha_texture_coordinate";
 
-		//builtins
+	// 	//builtins
 
-		actions.renames["TIME"] = "scene_data.time";
-		actions.renames["EXPOSURE"] = "(1.0 / scene_data.emissive_exposure_normalization)";
-		actions.renames["PI"] = _MKSTR(Math_PI);
-		actions.renames["TAU"] = _MKSTR(Math_TAU);
-		actions.renames["E"] = _MKSTR(Math_E);
-		actions.renames["VIEWPORT_SIZE"] = "scene_data.viewport_size";
+	// 	actions.renames["TIME"] = "scene_data.time";
+	// 	actions.renames["EXPOSURE"] = "(1.0 / scene_data.emissive_exposure_normalization)";
+	// 	actions.renames["PI"] = _MKSTR(Math_PI);
+	// 	actions.renames["TAU"] = _MKSTR(Math_TAU);
+	// 	actions.renames["E"] = _MKSTR(Math_E);
+	// 	actions.renames["VIEWPORT_SIZE"] = "scene_data.viewport_size";
 
-		actions.renames["FRAGCOORD"] = "gl_FragCoord";
-		actions.renames["FRONT_FACING"] = "gl_FrontFacing";
-		actions.renames["NORMAL_MAP"] = "normal_map";
-		actions.renames["NORMAL_MAP_DEPTH"] = "normal_map_depth";
-		actions.renames["ALBEDO"] = "albedo";
-		actions.renames["ALPHA"] = "alpha";
-		actions.renames["METALLIC"] = "metallic";
-		actions.renames["SPECULAR"] = "specular";
-		actions.renames["ROUGHNESS"] = "roughness";
-		actions.renames["RIM"] = "rim";
-		actions.renames["RIM_TINT"] = "rim_tint";
-		actions.renames["CLEARCOAT"] = "clearcoat";
-		actions.renames["CLEARCOAT_ROUGHNESS"] = "clearcoat_roughness";
-		actions.renames["ANISOTROPY"] = "anisotropy";
-		actions.renames["ANISOTROPY_FLOW"] = "anisotropy_flow";
-		actions.renames["SSS_STRENGTH"] = "sss_strength";
-		actions.renames["SSS_TRANSMITTANCE_COLOR"] = "transmittance_color";
-		actions.renames["SSS_TRANSMITTANCE_DEPTH"] = "transmittance_depth";
-		actions.renames["SSS_TRANSMITTANCE_BOOST"] = "transmittance_boost";
-		actions.renames["BACKLIGHT"] = "backlight";
-		actions.renames["AO"] = "ao";
-		actions.renames["AO_LIGHT_AFFECT"] = "ao_light_affect";
-		actions.renames["EMISSION"] = "emission";
-		actions.renames["POINT_COORD"] = "gl_PointCoord";
-		actions.renames["INSTANCE_CUSTOM"] = "instance_custom";
-		actions.renames["SCREEN_UV"] = "screen_uv";
-		actions.renames["DEPTH"] = "gl_FragDepth";
-		actions.renames["FOG"] = "fog";
-		actions.renames["RADIANCE"] = "custom_radiance";
-		actions.renames["IRRADIANCE"] = "custom_irradiance";
-		actions.renames["BONE_INDICES"] = "bone_attrib";
-		actions.renames["BONE_WEIGHTS"] = "weight_attrib";
-		actions.renames["CUSTOM0"] = "custom0_attrib";
-		actions.renames["CUSTOM1"] = "custom1_attrib";
-		actions.renames["CUSTOM2"] = "custom2_attrib";
-		actions.renames["CUSTOM3"] = "custom3_attrib";
-		actions.renames["OUTPUT_IS_SRGB"] = "SHADER_IS_SRGB";
+	// 	actions.renames["FRAGCOORD"] = "gl_FragCoord";
+	// 	actions.renames["FRONT_FACING"] = "gl_FrontFacing";
+	// 	actions.renames["NORMAL_MAP"] = "normal_map";
+	// 	actions.renames["NORMAL_MAP_DEPTH"] = "normal_map_depth";
+	// 	actions.renames["ALBEDO"] = "albedo";
+	// 	actions.renames["ALPHA"] = "alpha";
+	// 	actions.renames["METALLIC"] = "metallic";
+	// 	actions.renames["SPECULAR"] = "specular";
+	// 	actions.renames["ROUGHNESS"] = "roughness";
+	// 	actions.renames["RIM"] = "rim";
+	// 	actions.renames["RIM_TINT"] = "rim_tint";
+	// 	actions.renames["CLEARCOAT"] = "clearcoat";
+	// 	actions.renames["CLEARCOAT_ROUGHNESS"] = "clearcoat_roughness";
+	// 	actions.renames["ANISOTROPY"] = "anisotropy";
+	// 	actions.renames["ANISOTROPY_FLOW"] = "anisotropy_flow";
+	// 	actions.renames["SSS_STRENGTH"] = "sss_strength";
+	// 	actions.renames["SSS_TRANSMITTANCE_COLOR"] = "transmittance_color";
+	// 	actions.renames["SSS_TRANSMITTANCE_DEPTH"] = "transmittance_depth";
+	// 	actions.renames["SSS_TRANSMITTANCE_BOOST"] = "transmittance_boost";
+	// 	actions.renames["BACKLIGHT"] = "backlight";
+	// 	actions.renames["AO"] = "ao";
+	// 	actions.renames["AO_LIGHT_AFFECT"] = "ao_light_affect";
+	// 	actions.renames["EMISSION"] = "emission";
+	// 	actions.renames["POINT_COORD"] = "gl_PointCoord";
+	// 	actions.renames["INSTANCE_CUSTOM"] = "instance_custom";
+	// 	actions.renames["SCREEN_UV"] = "screen_uv";
+	// 	actions.renames["DEPTH"] = "gl_FragDepth";
+	// 	actions.renames["FOG"] = "fog";
+	// 	actions.renames["RADIANCE"] = "custom_radiance";
+	// 	actions.renames["IRRADIANCE"] = "custom_irradiance";
+	// 	actions.renames["BONE_INDICES"] = "bone_attrib";
+	// 	actions.renames["BONE_WEIGHTS"] = "weight_attrib";
+	// 	actions.renames["CUSTOM0"] = "custom0_attrib";
+	// 	actions.renames["CUSTOM1"] = "custom1_attrib";
+	// 	actions.renames["CUSTOM2"] = "custom2_attrib";
+	// 	actions.renames["CUSTOM3"] = "custom3_attrib";
+	// 	actions.renames["OUTPUT_IS_SRGB"] = "SHADER_IS_SRGB";
 
-		actions.renames["NODE_POSITION_WORLD"] = "model_matrix[3].xyz";
-		actions.renames["CAMERA_POSITION_WORLD"] = "scene_data.inv_view_matrix[3].xyz";
-		actions.renames["CAMERA_DIRECTION_WORLD"] = "scene_data.view_matrix[3].xyz";
-		actions.renames["CAMERA_VISIBLE_LAYERS"] = "scene_data.camera_visible_layers";
-		actions.renames["NODE_POSITION_VIEW"] = "(scene_data.view_matrix * model_matrix)[3].xyz";
+	// 	actions.renames["NODE_POSITION_WORLD"] = "model_matrix[3].xyz";
+	// 	actions.renames["CAMERA_POSITION_WORLD"] = "scene_data.inv_view_matrix[3].xyz";
+	// 	actions.renames["CAMERA_DIRECTION_WORLD"] = "scene_data.view_matrix[3].xyz";
+	// 	actions.renames["CAMERA_VISIBLE_LAYERS"] = "scene_data.camera_visible_layers";
+	// 	actions.renames["NODE_POSITION_VIEW"] = "(scene_data.view_matrix * model_matrix)[3].xyz";
 
-		actions.renames["VIEW_INDEX"] = "ViewIndex";
-		actions.renames["VIEW_MONO_LEFT"] = "uint(0)";
-		actions.renames["VIEW_RIGHT"] = "uint(1)";
-		actions.renames["EYE_OFFSET"] = "eye_offset";
+	// 	actions.renames["VIEW_INDEX"] = "ViewIndex";
+	// 	actions.renames["VIEW_MONO_LEFT"] = "uint(0)";
+	// 	actions.renames["VIEW_RIGHT"] = "uint(1)";
+	// 	actions.renames["EYE_OFFSET"] = "eye_offset";
 
-		//for light
-		actions.renames["VIEW"] = "view";
-		actions.renames["SPECULAR_AMOUNT"] = "specular_amount";
-		actions.renames["LIGHT_COLOR"] = "light_color";
-		actions.renames["LIGHT_IS_DIRECTIONAL"] = "is_directional";
-		actions.renames["LIGHT"] = "light";
-		actions.renames["ATTENUATION"] = "attenuation";
-		actions.renames["DIFFUSE_LIGHT"] = "diffuse_light";
-		actions.renames["SPECULAR_LIGHT"] = "specular_light";
+	// 	//for light
+	// 	actions.renames["VIEW"] = "view";
+	// 	actions.renames["SPECULAR_AMOUNT"] = "specular_amount";
+	// 	actions.renames["LIGHT_COLOR"] = "light_color";
+	// 	actions.renames["LIGHT_IS_DIRECTIONAL"] = "is_directional";
+	// 	actions.renames["LIGHT"] = "light";
+	// 	actions.renames["ATTENUATION"] = "attenuation";
+	// 	actions.renames["DIFFUSE_LIGHT"] = "diffuse_light";
+	// 	actions.renames["SPECULAR_LIGHT"] = "specular_light";
 
-		actions.usage_defines["NORMAL"] = "#define NORMAL_USED\n";
-		actions.usage_defines["TANGENT"] = "#define TANGENT_USED\n";
-		actions.usage_defines["BINORMAL"] = "@TANGENT";
-		actions.usage_defines["RIM"] = "#define LIGHT_RIM_USED\n";
-		actions.usage_defines["RIM_TINT"] = "@RIM";
-		actions.usage_defines["CLEARCOAT"] = "#define LIGHT_CLEARCOAT_USED\n";
-		actions.usage_defines["CLEARCOAT_ROUGHNESS"] = "@CLEARCOAT";
-		actions.usage_defines["ANISOTROPY"] = "#define LIGHT_ANISOTROPY_USED\n";
-		actions.usage_defines["ANISOTROPY_FLOW"] = "@ANISOTROPY";
-		actions.usage_defines["AO"] = "#define AO_USED\n";
-		actions.usage_defines["AO_LIGHT_AFFECT"] = "#define AO_USED\n";
-		actions.usage_defines["UV"] = "#define UV_USED\n";
-		actions.usage_defines["UV2"] = "#define UV2_USED\n";
-		actions.usage_defines["BONE_INDICES"] = "#define BONES_USED\n";
-		actions.usage_defines["BONE_WEIGHTS"] = "#define WEIGHTS_USED\n";
-		actions.usage_defines["CUSTOM0"] = "#define CUSTOM0_USED\n";
-		actions.usage_defines["CUSTOM1"] = "#define CUSTOM1_USED\n";
-		actions.usage_defines["CUSTOM2"] = "#define CUSTOM2_USED\n";
-		actions.usage_defines["CUSTOM3"] = "#define CUSTOM3_USED\n";
-		actions.usage_defines["NORMAL_MAP"] = "#define NORMAL_MAP_USED\n";
-		actions.usage_defines["NORMAL_MAP_DEPTH"] = "@NORMAL_MAP";
-		actions.usage_defines["COLOR"] = "#define COLOR_USED\n";
-		actions.usage_defines["INSTANCE_CUSTOM"] = "#define ENABLE_INSTANCE_CUSTOM\n";
-		actions.usage_defines["POSITION"] = "#define OVERRIDE_POSITION\n";
+	// 	actions.usage_defines["NORMAL"] = "#define NORMAL_USED\n";
+	// 	actions.usage_defines["TANGENT"] = "#define TANGENT_USED\n";
+	// 	actions.usage_defines["BINORMAL"] = "@TANGENT";
+	// 	actions.usage_defines["RIM"] = "#define LIGHT_RIM_USED\n";
+	// 	actions.usage_defines["RIM_TINT"] = "@RIM";
+	// 	actions.usage_defines["CLEARCOAT"] = "#define LIGHT_CLEARCOAT_USED\n";
+	// 	actions.usage_defines["CLEARCOAT_ROUGHNESS"] = "@CLEARCOAT";
+	// 	actions.usage_defines["ANISOTROPY"] = "#define LIGHT_ANISOTROPY_USED\n";
+	// 	actions.usage_defines["ANISOTROPY_FLOW"] = "@ANISOTROPY";
+	// 	actions.usage_defines["AO"] = "#define AO_USED\n";
+	// 	actions.usage_defines["AO_LIGHT_AFFECT"] = "#define AO_USED\n";
+	// 	actions.usage_defines["UV"] = "#define UV_USED\n";
+	// 	actions.usage_defines["UV2"] = "#define UV2_USED\n";
+	// 	actions.usage_defines["BONE_INDICES"] = "#define BONES_USED\n";
+	// 	actions.usage_defines["BONE_WEIGHTS"] = "#define WEIGHTS_USED\n";
+	// 	actions.usage_defines["CUSTOM0"] = "#define CUSTOM0_USED\n";
+	// 	actions.usage_defines["CUSTOM1"] = "#define CUSTOM1_USED\n";
+	// 	actions.usage_defines["CUSTOM2"] = "#define CUSTOM2_USED\n";
+	// 	actions.usage_defines["CUSTOM3"] = "#define CUSTOM3_USED\n";
+	// 	actions.usage_defines["NORMAL_MAP"] = "#define NORMAL_MAP_USED\n";
+	// 	actions.usage_defines["NORMAL_MAP_DEPTH"] = "@NORMAL_MAP";
+	// 	actions.usage_defines["COLOR"] = "#define COLOR_USED\n";
+	// 	actions.usage_defines["INSTANCE_CUSTOM"] = "#define ENABLE_INSTANCE_CUSTOM\n";
+	// 	actions.usage_defines["POSITION"] = "#define OVERRIDE_POSITION\n";
 
-		actions.usage_defines["ALPHA_SCISSOR_THRESHOLD"] = "#define ALPHA_SCISSOR_USED\n";
-		actions.usage_defines["ALPHA_HASH_SCALE"] = "#define ALPHA_HASH_USED\n";
-		actions.usage_defines["ALPHA_ANTIALIASING_EDGE"] = "#define ALPHA_ANTIALIASING_EDGE_USED\n";
-		actions.usage_defines["ALPHA_TEXTURE_COORDINATE"] = "@ALPHA_ANTIALIASING_EDGE";
+	// 	actions.usage_defines["ALPHA_SCISSOR_THRESHOLD"] = "#define ALPHA_SCISSOR_USED\n";
+	// 	actions.usage_defines["ALPHA_HASH_SCALE"] = "#define ALPHA_HASH_USED\n";
+	// 	actions.usage_defines["ALPHA_ANTIALIASING_EDGE"] = "#define ALPHA_ANTIALIASING_EDGE_USED\n";
+	// 	actions.usage_defines["ALPHA_TEXTURE_COORDINATE"] = "@ALPHA_ANTIALIASING_EDGE";
 
-		actions.usage_defines["SSS_STRENGTH"] = "#define ENABLE_SSS\n";
-		actions.usage_defines["SSS_TRANSMITTANCE_DEPTH"] = "#define ENABLE_TRANSMITTANCE\n";
-		actions.usage_defines["BACKLIGHT"] = "#define LIGHT_BACKLIGHT_USED\n";
-		actions.usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
+	// 	actions.usage_defines["SSS_STRENGTH"] = "#define ENABLE_SSS\n";
+	// 	actions.usage_defines["SSS_TRANSMITTANCE_DEPTH"] = "#define ENABLE_TRANSMITTANCE\n";
+	// 	actions.usage_defines["BACKLIGHT"] = "#define LIGHT_BACKLIGHT_USED\n";
+	// 	actions.usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
 
-		actions.usage_defines["DIFFUSE_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
-		actions.usage_defines["SPECULAR_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
+	// 	actions.usage_defines["DIFFUSE_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
+	// 	actions.usage_defines["SPECULAR_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
 
-		actions.usage_defines["FOG"] = "#define CUSTOM_FOG_USED\n";
-		actions.usage_defines["RADIANCE"] = "#define CUSTOM_RADIANCE_USED\n";
-		actions.usage_defines["IRRADIANCE"] = "#define CUSTOM_IRRADIANCE_USED\n";
+	// 	actions.usage_defines["FOG"] = "#define CUSTOM_FOG_USED\n";
+	// 	actions.usage_defines["RADIANCE"] = "#define CUSTOM_RADIANCE_USED\n";
+	// 	actions.usage_defines["IRRADIANCE"] = "#define CUSTOM_IRRADIANCE_USED\n";
 
-		actions.render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
-		actions.render_mode_defines["world_vertex_coords"] = "#define VERTEX_WORLD_COORDS_USED\n";
-		actions.render_mode_defines["ensure_correct_normals"] = "#define ENSURE_CORRECT_NORMALS\n";
-		actions.render_mode_defines["cull_front"] = "#define DO_SIDE_CHECK\n";
-		actions.render_mode_defines["cull_disabled"] = "#define DO_SIDE_CHECK\n";
-		actions.render_mode_defines["particle_trails"] = "#define USE_PARTICLE_TRAILS\n";
-		actions.render_mode_defines["depth_draw_opaque"] = "#define USE_OPAQUE_PREPASS\n";
+	// 	actions.render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
+	// 	actions.render_mode_defines["world_vertex_coords"] = "#define VERTEX_WORLD_COORDS_USED\n";
+	// 	actions.render_mode_defines["ensure_correct_normals"] = "#define ENSURE_CORRECT_NORMALS\n";
+	// 	actions.render_mode_defines["cull_front"] = "#define DO_SIDE_CHECK\n";
+	// 	actions.render_mode_defines["cull_disabled"] = "#define DO_SIDE_CHECK\n";
+	// 	actions.render_mode_defines["particle_trails"] = "#define USE_PARTICLE_TRAILS\n";
+	// 	actions.render_mode_defines["depth_draw_opaque"] = "#define USE_OPAQUE_PREPASS\n";
 
-		bool force_lambert = GLOBAL_GET("rendering/shading/overrides/force_lambert_over_burley");
+	// 	bool force_lambert = GLOBAL_GET("rendering/shading/overrides/force_lambert_over_burley");
 
-		if (!force_lambert) {
-			actions.render_mode_defines["diffuse_burley"] = "#define DIFFUSE_BURLEY\n";
-		}
+	// 	if (!force_lambert) {
+	// 		actions.render_mode_defines["diffuse_burley"] = "#define DIFFUSE_BURLEY\n";
+	// 	}
 
-		actions.render_mode_defines["diffuse_lambert_wrap"] = "#define DIFFUSE_LAMBERT_WRAP\n";
-		actions.render_mode_defines["diffuse_toon"] = "#define DIFFUSE_TOON\n";
+	// 	actions.render_mode_defines["diffuse_lambert_wrap"] = "#define DIFFUSE_LAMBERT_WRAP\n";
+	// 	actions.render_mode_defines["diffuse_toon"] = "#define DIFFUSE_TOON\n";
 
-		actions.render_mode_defines["sss_mode_skin"] = "#define SSS_MODE_SKIN\n";
+	// 	actions.render_mode_defines["sss_mode_skin"] = "#define SSS_MODE_SKIN\n";
 
-		actions.render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_SCHLICK_GGX\n";
-		actions.render_mode_defines["specular_toon"] = "#define SPECULAR_TOON\n";
-		actions.render_mode_defines["specular_disabled"] = "#define SPECULAR_DISABLED\n";
-		actions.render_mode_defines["shadows_disabled"] = "#define SHADOWS_DISABLED\n";
-		actions.render_mode_defines["ambient_light_disabled"] = "#define AMBIENT_LIGHT_DISABLED\n";
-		actions.render_mode_defines["shadow_to_opacity"] = "#define USE_SHADOW_TO_OPACITY\n";
-		actions.render_mode_defines["unshaded"] = "#define MODE_UNSHADED\n";
+	// 	actions.render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_SCHLICK_GGX\n";
+	// 	actions.render_mode_defines["specular_toon"] = "#define SPECULAR_TOON\n";
+	// 	actions.render_mode_defines["specular_disabled"] = "#define SPECULAR_DISABLED\n";
+	// 	actions.render_mode_defines["shadows_disabled"] = "#define SHADOWS_DISABLED\n";
+	// 	actions.render_mode_defines["ambient_light_disabled"] = "#define AMBIENT_LIGHT_DISABLED\n";
+	// 	actions.render_mode_defines["shadow_to_opacity"] = "#define USE_SHADOW_TO_OPACITY\n";
+	// 	actions.render_mode_defines["unshaded"] = "#define MODE_UNSHADED\n";
 
-		actions.default_filter = ShaderLanguage::FILTER_LINEAR_MIPMAP;
-		actions.default_repeat = ShaderLanguage::REPEAT_ENABLE;
+	// 	actions.default_filter = ShaderLanguage::FILTER_LINEAR_MIPMAP;
+	// 	actions.default_repeat = ShaderLanguage::REPEAT_ENABLE;
 
-		actions.global_buffer_array_variable = "global_shader_uniforms";
+	// 	actions.global_buffer_array_variable = "global_shader_uniforms";
 
-		shaders.compiler_scene.initialize(actions);
-	}
+	// 	shaders.compiler_scene.initialize(actions);
+	// }
 
 	{
 		// Setup Particles compiler
@@ -1423,58 +1423,58 @@ MaterialStorage::MaterialStorage() {
 		shaders.compiler_particles.initialize(actions);
 	}
 
-	{
-		// Setup Sky compiler
-		ShaderCompiler::DefaultIdentifierActions actions;
+	// {
+	// 	// Setup Sky compiler
+	// 	ShaderCompiler::DefaultIdentifierActions actions;
 
-		actions.renames["COLOR"] = "color";
-		actions.renames["ALPHA"] = "alpha";
-		actions.renames["EYEDIR"] = "cube_normal";
-		actions.renames["POSITION"] = "position";
-		actions.renames["SKY_COORDS"] = "panorama_coords";
-		actions.renames["SCREEN_UV"] = "uv";
-		actions.renames["TIME"] = "time";
-		actions.renames["FRAGCOORD"] = "gl_FragCoord";
-		actions.renames["PI"] = _MKSTR(Math_PI);
-		actions.renames["TAU"] = _MKSTR(Math_TAU);
-		actions.renames["E"] = _MKSTR(Math_E);
-		actions.renames["HALF_RES_COLOR"] = "half_res_color";
-		actions.renames["QUARTER_RES_COLOR"] = "quarter_res_color";
-		actions.renames["RADIANCE"] = "radiance";
-		actions.renames["FOG"] = "custom_fog";
-		actions.renames["LIGHT0_ENABLED"] = "directional_lights.data[0].enabled";
-		actions.renames["LIGHT0_DIRECTION"] = "directional_lights.data[0].direction_energy.xyz";
-		actions.renames["LIGHT0_ENERGY"] = "directional_lights.data[0].direction_energy.w";
-		actions.renames["LIGHT0_COLOR"] = "directional_lights.data[0].color_size.xyz";
-		actions.renames["LIGHT0_SIZE"] = "directional_lights.data[0].color_size.w";
-		actions.renames["LIGHT1_ENABLED"] = "directional_lights.data[1].enabled";
-		actions.renames["LIGHT1_DIRECTION"] = "directional_lights.data[1].direction_energy.xyz";
-		actions.renames["LIGHT1_ENERGY"] = "directional_lights.data[1].direction_energy.w";
-		actions.renames["LIGHT1_COLOR"] = "directional_lights.data[1].color_size.xyz";
-		actions.renames["LIGHT1_SIZE"] = "directional_lights.data[1].color_size.w";
-		actions.renames["LIGHT2_ENABLED"] = "directional_lights.data[2].enabled";
-		actions.renames["LIGHT2_DIRECTION"] = "directional_lights.data[2].direction_energy.xyz";
-		actions.renames["LIGHT2_ENERGY"] = "directional_lights.data[2].direction_energy.w";
-		actions.renames["LIGHT2_COLOR"] = "directional_lights.data[2].color_size.xyz";
-		actions.renames["LIGHT2_SIZE"] = "directional_lights.data[2].color_size.w";
-		actions.renames["LIGHT3_ENABLED"] = "directional_lights.data[3].enabled";
-		actions.renames["LIGHT3_DIRECTION"] = "directional_lights.data[3].direction_energy.xyz";
-		actions.renames["LIGHT3_ENERGY"] = "directional_lights.data[3].direction_energy.w";
-		actions.renames["LIGHT3_COLOR"] = "directional_lights.data[3].color_size.xyz";
-		actions.renames["LIGHT3_SIZE"] = "directional_lights.data[3].color_size.w";
-		actions.renames["AT_CUBEMAP_PASS"] = "AT_CUBEMAP_PASS";
-		actions.renames["AT_HALF_RES_PASS"] = "AT_HALF_RES_PASS";
-		actions.renames["AT_QUARTER_RES_PASS"] = "AT_QUARTER_RES_PASS";
-		actions.usage_defines["HALF_RES_COLOR"] = "\n#define USES_HALF_RES_COLOR\n";
-		actions.usage_defines["QUARTER_RES_COLOR"] = "\n#define USES_QUARTER_RES_COLOR\n";
-		actions.render_mode_defines["disable_fog"] = "#define DISABLE_FOG\n";
-		actions.render_mode_defines["use_debanding"] = "#define USE_DEBANDING\n";
+	// 	actions.renames["COLOR"] = "color";
+	// 	actions.renames["ALPHA"] = "alpha";
+	// 	actions.renames["EYEDIR"] = "cube_normal";
+	// 	actions.renames["POSITION"] = "position";
+	// 	actions.renames["SKY_COORDS"] = "panorama_coords";
+	// 	actions.renames["SCREEN_UV"] = "uv";
+	// 	actions.renames["TIME"] = "time";
+	// 	actions.renames["FRAGCOORD"] = "gl_FragCoord";
+	// 	actions.renames["PI"] = _MKSTR(Math_PI);
+	// 	actions.renames["TAU"] = _MKSTR(Math_TAU);
+	// 	actions.renames["E"] = _MKSTR(Math_E);
+	// 	actions.renames["HALF_RES_COLOR"] = "half_res_color";
+	// 	actions.renames["QUARTER_RES_COLOR"] = "quarter_res_color";
+	// 	actions.renames["RADIANCE"] = "radiance";
+	// 	actions.renames["FOG"] = "custom_fog";
+	// 	actions.renames["LIGHT0_ENABLED"] = "directional_lights.data[0].enabled";
+	// 	actions.renames["LIGHT0_DIRECTION"] = "directional_lights.data[0].direction_energy.xyz";
+	// 	actions.renames["LIGHT0_ENERGY"] = "directional_lights.data[0].direction_energy.w";
+	// 	actions.renames["LIGHT0_COLOR"] = "directional_lights.data[0].color_size.xyz";
+	// 	actions.renames["LIGHT0_SIZE"] = "directional_lights.data[0].color_size.w";
+	// 	actions.renames["LIGHT1_ENABLED"] = "directional_lights.data[1].enabled";
+	// 	actions.renames["LIGHT1_DIRECTION"] = "directional_lights.data[1].direction_energy.xyz";
+	// 	actions.renames["LIGHT1_ENERGY"] = "directional_lights.data[1].direction_energy.w";
+	// 	actions.renames["LIGHT1_COLOR"] = "directional_lights.data[1].color_size.xyz";
+	// 	actions.renames["LIGHT1_SIZE"] = "directional_lights.data[1].color_size.w";
+	// 	actions.renames["LIGHT2_ENABLED"] = "directional_lights.data[2].enabled";
+	// 	actions.renames["LIGHT2_DIRECTION"] = "directional_lights.data[2].direction_energy.xyz";
+	// 	actions.renames["LIGHT2_ENERGY"] = "directional_lights.data[2].direction_energy.w";
+	// 	actions.renames["LIGHT2_COLOR"] = "directional_lights.data[2].color_size.xyz";
+	// 	actions.renames["LIGHT2_SIZE"] = "directional_lights.data[2].color_size.w";
+	// 	actions.renames["LIGHT3_ENABLED"] = "directional_lights.data[3].enabled";
+	// 	actions.renames["LIGHT3_DIRECTION"] = "directional_lights.data[3].direction_energy.xyz";
+	// 	actions.renames["LIGHT3_ENERGY"] = "directional_lights.data[3].direction_energy.w";
+	// 	actions.renames["LIGHT3_COLOR"] = "directional_lights.data[3].color_size.xyz";
+	// 	actions.renames["LIGHT3_SIZE"] = "directional_lights.data[3].color_size.w";
+	// 	actions.renames["AT_CUBEMAP_PASS"] = "AT_CUBEMAP_PASS";
+	// 	actions.renames["AT_HALF_RES_PASS"] = "AT_HALF_RES_PASS";
+	// 	actions.renames["AT_QUARTER_RES_PASS"] = "AT_QUARTER_RES_PASS";
+	// 	actions.usage_defines["HALF_RES_COLOR"] = "\n#define USES_HALF_RES_COLOR\n";
+	// 	actions.usage_defines["QUARTER_RES_COLOR"] = "\n#define USES_QUARTER_RES_COLOR\n";
+	// 	actions.render_mode_defines["disable_fog"] = "#define DISABLE_FOG\n";
+	// 	actions.render_mode_defines["use_debanding"] = "#define USE_DEBANDING\n";
 
-		actions.default_filter = ShaderLanguage::FILTER_LINEAR_MIPMAP;
-		actions.default_repeat = ShaderLanguage::REPEAT_ENABLE;
+	// 	actions.default_filter = ShaderLanguage::FILTER_LINEAR_MIPMAP;
+	// 	actions.default_repeat = ShaderLanguage::REPEAT_ENABLE;
 
-		actions.global_buffer_array_variable = "global_shader_uniforms";
-	}
+	// 	actions.global_buffer_array_variable = "global_shader_uniforms";
+	// }
 }
 
 MaterialStorage::~MaterialStorage() {
@@ -2154,8 +2154,8 @@ void MaterialStorage::shader_set_code(RID p_shader, const String &p_code) {
 		new_mode = RS::SHADER_CANVAS_ITEM;
 	} else if (mode_string == "particles") {
 		new_mode = RS::SHADER_PARTICLES;
-	} else if (mode_string == "spatial") {
-		new_mode = RS::SHADER_SPATIAL;
+		// } else if (mode_string == "spatial") {
+		// new_mode = RS::SHADER_SPATIAL;
 		// } else if (mode_string == "sky") {
 		// 	new_mode = RS::SHADER_SKY;
 		//} else if (mode_string == "fog") {
@@ -2675,198 +2675,198 @@ GLES3::MaterialData *GLES3::_create_canvas_material_func(ShaderData *p_shader) {
 void SceneShaderData::set_code(const String &p_code) {
 	//compile
 
-	code = p_code;
-	valid = false;
-	ubo_size = 0;
-	uniforms.clear();
+	// 	code = p_code;
+	// 	valid = false;
+	// 	ubo_size = 0;
+	// 	uniforms.clear();
 
-	if (code.is_empty()) {
-		return; //just invalid, but no error
-	}
+	// 	if (code.is_empty()) {
+	// 		return; //just invalid, but no error
+	// 	}
 
-	ShaderCompiler::GeneratedCode gen_code;
+	// 	ShaderCompiler::GeneratedCode gen_code;
 
-	int blend_modei = BLEND_MODE_MIX;
-	int depth_testi = DEPTH_TEST_ENABLED;
-	int alpha_antialiasing_modei = ALPHA_ANTIALIASING_OFF;
-	int cull_modei = CULL_BACK;
-	int depth_drawi = DEPTH_DRAW_OPAQUE;
+	// 	int blend_modei = BLEND_MODE_MIX;
+	// 	int depth_testi = DEPTH_TEST_ENABLED;
+	// 	int alpha_antialiasing_modei = ALPHA_ANTIALIASING_OFF;
+	// 	int cull_modei = CULL_BACK;
+	// 	int depth_drawi = DEPTH_DRAW_OPAQUE;
 
-	uses_point_size = false;
-	uses_alpha = false;
-	uses_alpha_clip = false;
-	uses_blend_alpha = false;
-	uses_depth_prepass_alpha = false;
-	uses_discard = false;
-	uses_roughness = false;
-	uses_normal = false;
-	wireframe = false;
+	// 	uses_point_size = false;
+	// 	uses_alpha = false;
+	// 	uses_alpha_clip = false;
+	// 	uses_blend_alpha = false;
+	// 	uses_depth_prepass_alpha = false;
+	// 	uses_discard = false;
+	// 	uses_roughness = false;
+	// 	uses_normal = false;
+	// 	wireframe = false;
 
-	unshaded = false;
-	uses_vertex = false;
-	uses_position = false;
-	uses_sss = false;
-	uses_transmittance = false;
-	uses_screen_texture = false;
-	uses_depth_texture = false;
-	uses_normal_texture = false;
-	uses_time = false;
-	writes_modelview_or_projection = false;
-	uses_world_coordinates = false;
-	uses_particle_trails = false;
+	// 	unshaded = false;
+	// 	uses_vertex = false;
+	// 	uses_position = false;
+	// 	uses_sss = false;
+	// 	uses_transmittance = false;
+	// 	uses_screen_texture = false;
+	// 	uses_depth_texture = false;
+	// 	uses_normal_texture = false;
+	// 	uses_time = false;
+	// 	writes_modelview_or_projection = false;
+	// 	uses_world_coordinates = false;
+	// 	uses_particle_trails = false;
 
-	ShaderCompiler::IdentifierActions actions;
-	actions.entry_point_stages["vertex"] = ShaderCompiler::STAGE_VERTEX;
-	actions.entry_point_stages["fragment"] = ShaderCompiler::STAGE_FRAGMENT;
-	actions.entry_point_stages["light"] = ShaderCompiler::STAGE_FRAGMENT;
+	// 	ShaderCompiler::IdentifierActions actions;
+	// 	actions.entry_point_stages["vertex"] = ShaderCompiler::STAGE_VERTEX;
+	// 	actions.entry_point_stages["fragment"] = ShaderCompiler::STAGE_FRAGMENT;
+	// 	actions.entry_point_stages["light"] = ShaderCompiler::STAGE_FRAGMENT;
 
-	actions.render_mode_values["blend_add"] = Pair<int *, int>(&blend_modei, BLEND_MODE_ADD);
-	actions.render_mode_values["blend_mix"] = Pair<int *, int>(&blend_modei, BLEND_MODE_MIX);
-	actions.render_mode_values["blend_sub"] = Pair<int *, int>(&blend_modei, BLEND_MODE_SUB);
-	actions.render_mode_values["blend_mul"] = Pair<int *, int>(&blend_modei, BLEND_MODE_MUL);
+	// 	actions.render_mode_values["blend_add"] = Pair<int *, int>(&blend_modei, BLEND_MODE_ADD);
+	// 	actions.render_mode_values["blend_mix"] = Pair<int *, int>(&blend_modei, BLEND_MODE_MIX);
+	// 	actions.render_mode_values["blend_sub"] = Pair<int *, int>(&blend_modei, BLEND_MODE_SUB);
+	// 	actions.render_mode_values["blend_mul"] = Pair<int *, int>(&blend_modei, BLEND_MODE_MUL);
 
-	actions.render_mode_values["alpha_to_coverage"] = Pair<int *, int>(&alpha_antialiasing_modei, ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE);
-	actions.render_mode_values["alpha_to_coverage_and_one"] = Pair<int *, int>(&alpha_antialiasing_modei, ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE_AND_TO_ONE);
+	// 	actions.render_mode_values["alpha_to_coverage"] = Pair<int *, int>(&alpha_antialiasing_modei, ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE);
+	// 	actions.render_mode_values["alpha_to_coverage_and_one"] = Pair<int *, int>(&alpha_antialiasing_modei, ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE_AND_TO_ONE);
 
-	actions.render_mode_values["depth_draw_never"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_DISABLED);
-	actions.render_mode_values["depth_draw_opaque"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_OPAQUE);
-	actions.render_mode_values["depth_draw_always"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_ALWAYS);
+	// 	actions.render_mode_values["depth_draw_never"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_DISABLED);
+	// 	actions.render_mode_values["depth_draw_opaque"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_OPAQUE);
+	// 	actions.render_mode_values["depth_draw_always"] = Pair<int *, int>(&depth_drawi, DEPTH_DRAW_ALWAYS);
 
-	actions.render_mode_values["depth_test_disabled"] = Pair<int *, int>(&depth_testi, DEPTH_TEST_DISABLED);
+	// 	actions.render_mode_values["depth_test_disabled"] = Pair<int *, int>(&depth_testi, DEPTH_TEST_DISABLED);
 
-	actions.render_mode_values["cull_disabled"] = Pair<int *, int>(&cull_modei, CULL_DISABLED);
-	actions.render_mode_values["cull_front"] = Pair<int *, int>(&cull_modei, CULL_FRONT);
-	actions.render_mode_values["cull_back"] = Pair<int *, int>(&cull_modei, CULL_BACK);
+	// 	actions.render_mode_values["cull_disabled"] = Pair<int *, int>(&cull_modei, CULL_DISABLED);
+	// 	actions.render_mode_values["cull_front"] = Pair<int *, int>(&cull_modei, CULL_FRONT);
+	// 	actions.render_mode_values["cull_back"] = Pair<int *, int>(&cull_modei, CULL_BACK);
 
-	actions.render_mode_flags["unshaded"] = &unshaded;
-	actions.render_mode_flags["wireframe"] = &wireframe;
-	actions.render_mode_flags["particle_trails"] = &uses_particle_trails;
+	// 	actions.render_mode_flags["unshaded"] = &unshaded;
+	// 	actions.render_mode_flags["wireframe"] = &wireframe;
+	// 	actions.render_mode_flags["particle_trails"] = &uses_particle_trails;
 
-	actions.usage_flag_pointers["ALPHA"] = &uses_alpha;
-	actions.usage_flag_pointers["ALPHA_SCISSOR_THRESHOLD"] = &uses_alpha_clip;
-	// Use alpha clip pipeline for alpha hash/dither.
-	// This prevents sorting issues inherent to alpha blending and allows such materials to cast shadows.
-	actions.usage_flag_pointers["ALPHA_HASH_SCALE"] = &uses_alpha_clip;
-	actions.render_mode_flags["depth_prepass_alpha"] = &uses_depth_prepass_alpha;
+	// 	actions.usage_flag_pointers["ALPHA"] = &uses_alpha;
+	// 	actions.usage_flag_pointers["ALPHA_SCISSOR_THRESHOLD"] = &uses_alpha_clip;
+	// 	// Use alpha clip pipeline for alpha hash/dither.
+	// 	// This prevents sorting issues inherent to alpha blending and allows such materials to cast shadows.
+	// 	actions.usage_flag_pointers["ALPHA_HASH_SCALE"] = &uses_alpha_clip;
+	// 	actions.render_mode_flags["depth_prepass_alpha"] = &uses_depth_prepass_alpha;
 
-	actions.usage_flag_pointers["SSS_STRENGTH"] = &uses_sss;
-	actions.usage_flag_pointers["SSS_TRANSMITTANCE_DEPTH"] = &uses_transmittance;
+	// 	actions.usage_flag_pointers["SSS_STRENGTH"] = &uses_sss;
+	// 	actions.usage_flag_pointers["SSS_TRANSMITTANCE_DEPTH"] = &uses_transmittance;
 
-	actions.usage_flag_pointers["DISCARD"] = &uses_discard;
-	actions.usage_flag_pointers["TIME"] = &uses_time;
-	actions.usage_flag_pointers["ROUGHNESS"] = &uses_roughness;
-	actions.usage_flag_pointers["NORMAL"] = &uses_normal;
-	actions.usage_flag_pointers["NORMAL_MAP"] = &uses_normal;
+	// 	actions.usage_flag_pointers["DISCARD"] = &uses_discard;
+	// 	actions.usage_flag_pointers["TIME"] = &uses_time;
+	// 	actions.usage_flag_pointers["ROUGHNESS"] = &uses_roughness;
+	// 	actions.usage_flag_pointers["NORMAL"] = &uses_normal;
+	// 	actions.usage_flag_pointers["NORMAL_MAP"] = &uses_normal;
 
-	actions.usage_flag_pointers["POINT_SIZE"] = &uses_point_size;
-	actions.usage_flag_pointers["POINT_COORD"] = &uses_point_size;
+	// 	actions.usage_flag_pointers["POINT_SIZE"] = &uses_point_size;
+	// 	actions.usage_flag_pointers["POINT_COORD"] = &uses_point_size;
 
-	actions.write_flag_pointers["MODELVIEW_MATRIX"] = &writes_modelview_or_projection;
-	actions.write_flag_pointers["PROJECTION_MATRIX"] = &writes_modelview_or_projection;
-	actions.write_flag_pointers["VERTEX"] = &uses_vertex;
-	actions.write_flag_pointers["POSITION"] = &uses_position;
+	// 	actions.write_flag_pointers["MODELVIEW_MATRIX"] = &writes_modelview_or_projection;
+	// 	actions.write_flag_pointers["PROJECTION_MATRIX"] = &writes_modelview_or_projection;
+	// 	actions.write_flag_pointers["VERTEX"] = &uses_vertex;
+	// 	actions.write_flag_pointers["POSITION"] = &uses_position;
 
-	actions.usage_flag_pointers["TANGENT"] = &uses_tangent;
-	actions.usage_flag_pointers["BINORMAL"] = &uses_tangent;
-	actions.usage_flag_pointers["COLOR"] = &uses_color;
-	actions.usage_flag_pointers["UV"] = &uses_uv;
-	actions.usage_flag_pointers["UV2"] = &uses_uv2;
-	actions.usage_flag_pointers["CUSTOM0"] = &uses_custom0;
-	actions.usage_flag_pointers["CUSTOM1"] = &uses_custom1;
-	actions.usage_flag_pointers["CUSTOM2"] = &uses_custom2;
-	actions.usage_flag_pointers["CUSTOM3"] = &uses_custom3;
-	actions.usage_flag_pointers["BONE_INDICES"] = &uses_bones;
-	actions.usage_flag_pointers["BONE_WEIGHTS"] = &uses_weights;
+	// 	actions.usage_flag_pointers["TANGENT"] = &uses_tangent;
+	// 	actions.usage_flag_pointers["BINORMAL"] = &uses_tangent;
+	// 	actions.usage_flag_pointers["COLOR"] = &uses_color;
+	// 	actions.usage_flag_pointers["UV"] = &uses_uv;
+	// 	actions.usage_flag_pointers["UV2"] = &uses_uv2;
+	// 	actions.usage_flag_pointers["CUSTOM0"] = &uses_custom0;
+	// 	actions.usage_flag_pointers["CUSTOM1"] = &uses_custom1;
+	// 	actions.usage_flag_pointers["CUSTOM2"] = &uses_custom2;
+	// 	actions.usage_flag_pointers["CUSTOM3"] = &uses_custom3;
+	// 	actions.usage_flag_pointers["BONE_INDICES"] = &uses_bones;
+	// 	actions.usage_flag_pointers["BONE_WEIGHTS"] = &uses_weights;
 
-	actions.uniforms = &uniforms;
+	// 	actions.uniforms = &uniforms;
 
-	Error err = MaterialStorage::get_singleton()->shaders.compiler_scene.compile(RS::SHADER_SPATIAL, code, &actions, path, gen_code);
-	ERR_FAIL_COND_MSG(err != OK, "Shader compilation failed.");
+	// 	Error err = MaterialStorage::get_singleton()->shaders.compiler_scene.compile(RS::SHADER_SPATIAL, code, &actions, path, gen_code);
+	// 	ERR_FAIL_COND_MSG(err != OK, "Shader compilation failed.");
 
-	if (version.is_null()) {
-		version = MaterialStorage::get_singleton()->shaders.scene_shader.version_create();
-	}
+	// 	if (version.is_null()) {
+	// 		version = MaterialStorage::get_singleton()->shaders.scene_shader.version_create();
+	// 	}
 
-	depth_draw = DepthDraw(depth_drawi);
-	depth_test = DepthTest(depth_testi);
-	cull_mode = Cull(cull_modei);
-	blend_mode = BlendMode(blend_modei);
-	alpha_antialiasing_mode = AlphaAntiAliasing(alpha_antialiasing_modei);
-	vertex_input_mask = uint32_t(uses_normal);
-	vertex_input_mask |= uses_tangent << 1;
-	vertex_input_mask |= uses_color << 2;
-	vertex_input_mask |= uses_uv << 3;
-	vertex_input_mask |= uses_uv2 << 4;
-	vertex_input_mask |= uses_custom0 << 5;
-	vertex_input_mask |= uses_custom1 << 6;
-	vertex_input_mask |= uses_custom2 << 7;
-	vertex_input_mask |= uses_custom3 << 8;
-	vertex_input_mask |= uses_bones << 9;
-	vertex_input_mask |= uses_weights << 10;
-	uses_screen_texture_mipmaps = gen_code.uses_screen_texture_mipmaps;
-	uses_screen_texture = gen_code.uses_screen_texture;
-	uses_depth_texture = gen_code.uses_depth_texture;
-	uses_normal_texture = gen_code.uses_normal_roughness_texture;
-	uses_vertex_time = gen_code.uses_vertex_time;
-	uses_fragment_time = gen_code.uses_fragment_time;
+	// 	depth_draw = DepthDraw(depth_drawi);
+	// 	depth_test = DepthTest(depth_testi);
+	// 	cull_mode = Cull(cull_modei);
+	// 	blend_mode = BlendMode(blend_modei);
+	// 	alpha_antialiasing_mode = AlphaAntiAliasing(alpha_antialiasing_modei);
+	// 	vertex_input_mask = uint32_t(uses_normal);
+	// 	vertex_input_mask |= uses_tangent << 1;
+	// 	vertex_input_mask |= uses_color << 2;
+	// 	vertex_input_mask |= uses_uv << 3;
+	// 	vertex_input_mask |= uses_uv2 << 4;
+	// 	vertex_input_mask |= uses_custom0 << 5;
+	// 	vertex_input_mask |= uses_custom1 << 6;
+	// 	vertex_input_mask |= uses_custom2 << 7;
+	// 	vertex_input_mask |= uses_custom3 << 8;
+	// 	vertex_input_mask |= uses_bones << 9;
+	// 	vertex_input_mask |= uses_weights << 10;
+	// 	uses_screen_texture_mipmaps = gen_code.uses_screen_texture_mipmaps;
+	// 	uses_screen_texture = gen_code.uses_screen_texture;
+	// 	uses_depth_texture = gen_code.uses_depth_texture;
+	// 	uses_normal_texture = gen_code.uses_normal_roughness_texture;
+	// 	uses_vertex_time = gen_code.uses_vertex_time;
+	// 	uses_fragment_time = gen_code.uses_fragment_time;
 
-#ifdef DEBUG_ENABLED
-	if (uses_particle_trails) {
-		WARN_PRINT_ONCE_ED("Particle trails are only available when using the Forward+ or Mobile rendering backends.");
-	}
+	// #ifdef DEBUG_ENABLED
+	// 	if (uses_particle_trails) {
+	// 		WARN_PRINT_ONCE_ED("Particle trails are only available when using the Forward+ or Mobile rendering backends.");
+	// 	}
 
-	if (uses_sss) {
-		WARN_PRINT_ONCE_ED("Sub-surface scattering is only available when using the Forward+ rendering backend.");
-	}
+	// 	if (uses_sss) {
+	// 		WARN_PRINT_ONCE_ED("Sub-surface scattering is only available when using the Forward+ rendering backend.");
+	// 	}
 
-	if (uses_transmittance) {
-		WARN_PRINT_ONCE_ED("Transmittance is only available when using the Forward+ rendering backend.");
-	}
+	// 	if (uses_transmittance) {
+	// 		WARN_PRINT_ONCE_ED("Transmittance is only available when using the Forward+ rendering backend.");
+	// 	}
 
-	if (uses_depth_texture) {
-		WARN_PRINT_ONCE_ED("Reading from the depth texture is not supported when using the GL Compatibility backend yet. Support will be added in a future release.");
-	}
+	// 	if (uses_depth_texture) {
+	// 		WARN_PRINT_ONCE_ED("Reading from the depth texture is not supported when using the GL Compatibility backend yet. Support will be added in a future release.");
+	// 	}
 
-	if (uses_normal_texture) {
-		WARN_PRINT_ONCE_ED("Reading from the normal-roughness texture is only available when using the Forward+ or Mobile rendering backends.");
-	}
-#endif
+	// 	if (uses_normal_texture) {
+	// 		WARN_PRINT_ONCE_ED("Reading from the normal-roughness texture is only available when using the Forward+ or Mobile rendering backends.");
+	// 	}
+	// #endif
 
-#if 0
-	print_line("**compiling shader:");
-	print_line("**defines:\n");
-	for (int i = 0; i < gen_code.defines.size(); i++) {
-		print_line(gen_code.defines[i]);
-	}
+	// #if 0
+	// 	print_line("**compiling shader:");
+	// 	print_line("**defines:\n");
+	// 	for (int i = 0; i < gen_code.defines.size(); i++) {
+	// 		print_line(gen_code.defines[i]);
+	// 	}
 
-	HashMap<String, String>::Iterator el = gen_code.code.begin();
-	while (el) {
-		print_line("\n**code " + el->key + ":\n" + el->value);
-		++el;
-	}
+	// 	HashMap<String, String>::Iterator el = gen_code.code.begin();
+	// 	while (el) {
+	// 		print_line("\n**code " + el->key + ":\n" + el->value);
+	// 		++el;
+	// 	}
 
-	print_line("\n**uniforms:\n" + gen_code.uniforms);
-	print_line("\n**vertex_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX]);
-	print_line("\n**fragment_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT]);
-#endif
+	// 	print_line("\n**uniforms:\n" + gen_code.uniforms);
+	// 	print_line("\n**vertex_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX]);
+	// 	print_line("\n**fragment_globals:\n" + gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT]);
+	// #endif
 
-	LocalVector<ShaderGLES3::TextureUniformData> texture_uniform_data = get_texture_uniform_data(gen_code.texture_uniforms);
+	// 	LocalVector<ShaderGLES3::TextureUniformData> texture_uniform_data = get_texture_uniform_data(gen_code.texture_uniforms);
 
-	MaterialStorage::get_singleton()->shaders.scene_shader.version_set_code(version, gen_code.code, gen_code.uniforms, gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX], gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT], gen_code.defines, texture_uniform_data);
-	ERR_FAIL_COND(!MaterialStorage::get_singleton()->shaders.scene_shader.version_is_valid(version));
+	// 	MaterialStorage::get_singleton()->shaders.scene_shader.version_set_code(version, gen_code.code, gen_code.uniforms, gen_code.stage_globals[ShaderCompiler::STAGE_VERTEX], gen_code.stage_globals[ShaderCompiler::STAGE_FRAGMENT], gen_code.defines, texture_uniform_data);
+	// 	ERR_FAIL_COND(!MaterialStorage::get_singleton()->shaders.scene_shader.version_is_valid(version));
 
-	ubo_size = gen_code.uniform_total_size;
-	ubo_offsets = gen_code.uniform_offsets;
-	texture_uniforms = gen_code.texture_uniforms;
+	// 	ubo_size = gen_code.uniform_total_size;
+	// 	ubo_offsets = gen_code.uniform_offsets;
+	// 	texture_uniforms = gen_code.texture_uniforms;
 
-	// if any form of Alpha Antialiasing is enabled, set the blend mode to alpha to coverage
-	if (alpha_antialiasing_mode != ALPHA_ANTIALIASING_OFF) {
-		blend_mode = BLEND_MODE_ALPHA_TO_COVERAGE;
-	}
+	// 	// if any form of Alpha Antialiasing is enabled, set the blend mode to alpha to coverage
+	// 	if (alpha_antialiasing_mode != ALPHA_ANTIALIASING_OFF) {
+	// 		blend_mode = BLEND_MODE_ALPHA_TO_COVERAGE;
+	// 	}
 
-	if (blend_mode == BLEND_MODE_ADD || blend_mode == BLEND_MODE_SUB || blend_mode == BLEND_MODE_MUL) {
-		uses_blend_alpha = true; // Force alpha used because of blend.
-	}
+	// 	if (blend_mode == BLEND_MODE_ADD || blend_mode == BLEND_MODE_SUB || blend_mode == BLEND_MODE_MUL) {
+	// 		uses_blend_alpha = true; // Force alpha used because of blend.
+	// 	}
 
 	valid = true;
 }

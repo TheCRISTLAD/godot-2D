@@ -165,157 +165,157 @@ void RasterizerSceneGLES3::_geometry_instance_dependency_deleted(const RID &p_de
 }
 
 void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, GLES3::SceneMaterialData *p_material, uint32_t p_material_id, uint32_t p_shader_id, RID p_mesh) {
-	GLES3::MeshStorage *mesh_storage = GLES3::MeshStorage::get_singleton();
+	// GLES3::MeshStorage *mesh_storage = GLES3::MeshStorage::get_singleton();
 
-	bool has_read_screen_alpha = p_material->shader_data->uses_screen_texture || p_material->shader_data->uses_depth_texture || p_material->shader_data->uses_normal_texture;
-	bool has_base_alpha = ((p_material->shader_data->uses_alpha && !p_material->shader_data->uses_alpha_clip) || has_read_screen_alpha);
-	bool has_blend_alpha = p_material->shader_data->uses_blend_alpha;
-	bool has_alpha = has_base_alpha || has_blend_alpha;
+	// bool has_read_screen_alpha = p_material->shader_data->uses_screen_texture || p_material->shader_data->uses_depth_texture || p_material->shader_data->uses_normal_texture;
+	// bool has_base_alpha = ((p_material->shader_data->uses_alpha && !p_material->shader_data->uses_alpha_clip) || has_read_screen_alpha);
+	// bool has_blend_alpha = p_material->shader_data->uses_blend_alpha;
+	// bool has_alpha = has_base_alpha || has_blend_alpha;
 
-	uint32_t flags = 0;
+	// uint32_t flags = 0;
 
-	if (p_material->shader_data->uses_screen_texture) {
-		flags |= GeometryInstanceSurface::FLAG_USES_SCREEN_TEXTURE;
-	}
+	// if (p_material->shader_data->uses_screen_texture) {
+	// 	flags |= GeometryInstanceSurface::FLAG_USES_SCREEN_TEXTURE;
+	// }
 
-	if (p_material->shader_data->uses_depth_texture) {
-		flags |= GeometryInstanceSurface::FLAG_USES_DEPTH_TEXTURE;
-	}
+	// if (p_material->shader_data->uses_depth_texture) {
+	// 	flags |= GeometryInstanceSurface::FLAG_USES_DEPTH_TEXTURE;
+	// }
 
-	if (p_material->shader_data->uses_normal_texture) {
-		flags |= GeometryInstanceSurface::FLAG_USES_NORMAL_TEXTURE;
-	}
+	// if (p_material->shader_data->uses_normal_texture) {
+	// 	flags |= GeometryInstanceSurface::FLAG_USES_NORMAL_TEXTURE;
+	// }
 
-	if (ginstance->data->cast_double_sided_shadows) {
-		flags |= GeometryInstanceSurface::FLAG_USES_DOUBLE_SIDED_SHADOWS;
-	}
+	// if (ginstance->data->cast_double_sided_shadows) {
+	// 	flags |= GeometryInstanceSurface::FLAG_USES_DOUBLE_SIDED_SHADOWS;
+	// }
 
-	if (has_alpha || has_read_screen_alpha || p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED || p_material->shader_data->depth_test == GLES3::SceneShaderData::DEPTH_TEST_DISABLED) {
-		//material is only meant for alpha pass
-		flags |= GeometryInstanceSurface::FLAG_PASS_ALPHA;
-		if (p_material->shader_data->uses_depth_prepass_alpha && !(p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED || p_material->shader_data->depth_test == GLES3::SceneShaderData::DEPTH_TEST_DISABLED)) {
-			flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
-			flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
-		}
-	} else {
-		flags |= GeometryInstanceSurface::FLAG_PASS_OPAQUE;
-		flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
-		flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
-	}
+	// if (has_alpha || has_read_screen_alpha || p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED || p_material->shader_data->depth_test == GLES3::SceneShaderData::DEPTH_TEST_DISABLED) {
+	// 	//material is only meant for alpha pass
+	// 	flags |= GeometryInstanceSurface::FLAG_PASS_ALPHA;
+	// 	if (p_material->shader_data->uses_depth_prepass_alpha && !(p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED || p_material->shader_data->depth_test == GLES3::SceneShaderData::DEPTH_TEST_DISABLED)) {
+	// 		flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
+	// 		flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
+	// 	}
+	// } else {
+	// 	flags |= GeometryInstanceSurface::FLAG_PASS_OPAQUE;
+	// 	flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
+	// 	flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
+	// }
 
-	GLES3::SceneMaterialData *material_shadow = nullptr;
-	void *surface_shadow = nullptr;
-	if (!p_material->shader_data->uses_particle_trails && !p_material->shader_data->writes_modelview_or_projection && !p_material->shader_data->uses_vertex && !p_material->shader_data->uses_discard && !p_material->shader_data->uses_depth_prepass_alpha && !p_material->shader_data->uses_alpha_clip) {
-		flags |= GeometryInstanceSurface::FLAG_USES_SHARED_SHADOW_MATERIAL;
-		material_shadow = static_cast<GLES3::SceneMaterialData *>(GLES3::MaterialStorage::get_singleton()->material_get_data(scene_globals.default_material, RS::SHADER_SPATIAL));
+	// GLES3::SceneMaterialData *material_shadow = nullptr;
+	// void *surface_shadow = nullptr;
+	// if (!p_material->shader_data->uses_particle_trails && !p_material->shader_data->writes_modelview_or_projection && !p_material->shader_data->uses_vertex && !p_material->shader_data->uses_discard && !p_material->shader_data->uses_depth_prepass_alpha && !p_material->shader_data->uses_alpha_clip) {
+	// 	flags |= GeometryInstanceSurface::FLAG_USES_SHARED_SHADOW_MATERIAL;
+	// 	material_shadow = static_cast<GLES3::SceneMaterialData *>(GLES3::MaterialStorage::get_singleton()->material_get_data(scene_globals.default_material, RS::SHADER_SPATIAL));
 
-		RID shadow_mesh = mesh_storage->mesh_get_shadow_mesh(p_mesh);
+	// 	RID shadow_mesh = mesh_storage->mesh_get_shadow_mesh(p_mesh);
 
-		if (shadow_mesh.is_valid()) {
-			surface_shadow = mesh_storage->mesh_get_surface(shadow_mesh, p_surface);
-		}
+	// 	if (shadow_mesh.is_valid()) {
+	// 		surface_shadow = mesh_storage->mesh_get_surface(shadow_mesh, p_surface);
+	// 	}
 
-	} else {
-		material_shadow = p_material;
-	}
+	// } else {
+	// 	material_shadow = p_material;
+	// }
 
-	GeometryInstanceSurface *sdcache = geometry_instance_surface_alloc.alloc();
+	// GeometryInstanceSurface *sdcache = geometry_instance_surface_alloc.alloc();
 
-	sdcache->flags = flags;
+	// sdcache->flags = flags;
 
-	sdcache->shader = p_material->shader_data;
-	sdcache->material = p_material;
-	sdcache->surface = mesh_storage->mesh_get_surface(p_mesh, p_surface);
-	sdcache->primitive = mesh_storage->mesh_surface_get_primitive(sdcache->surface);
-	sdcache->surface_index = p_surface;
+	// sdcache->shader = p_material->shader_data;
+	// sdcache->material = p_material;
+	// sdcache->surface = mesh_storage->mesh_get_surface(p_mesh, p_surface);
+	// sdcache->primitive = mesh_storage->mesh_surface_get_primitive(sdcache->surface);
+	// sdcache->surface_index = p_surface;
 
-	if (ginstance->data->dirty_dependencies) {
-		RSG::utilities->base_update_dependency(p_mesh, &ginstance->data->dependency_tracker);
-	}
+	// if (ginstance->data->dirty_dependencies) {
+	// 	RSG::utilities->base_update_dependency(p_mesh, &ginstance->data->dependency_tracker);
+	// }
 
-	//shadow
-	sdcache->shader_shadow = material_shadow->shader_data;
-	sdcache->material_shadow = material_shadow;
+	// //shadow
+	// sdcache->shader_shadow = material_shadow->shader_data;
+	// sdcache->material_shadow = material_shadow;
 
-	sdcache->surface_shadow = surface_shadow ? surface_shadow : sdcache->surface;
+	// sdcache->surface_shadow = surface_shadow ? surface_shadow : sdcache->surface;
 
-	sdcache->owner = ginstance;
+	// sdcache->owner = ginstance;
 
-	sdcache->next = ginstance->surface_caches;
-	ginstance->surface_caches = sdcache;
+	// sdcache->next = ginstance->surface_caches;
+	// ginstance->surface_caches = sdcache;
 
-	//sortkey
+	// //sortkey
 
-	sdcache->sort.sort_key1 = 0;
-	sdcache->sort.sort_key2 = 0;
+	// sdcache->sort.sort_key1 = 0;
+	// sdcache->sort.sort_key2 = 0;
 
-	sdcache->sort.surface_index = p_surface;
-	sdcache->sort.material_id_low = p_material_id & 0x0000FFFF;
-	sdcache->sort.material_id_hi = p_material_id >> 16;
-	sdcache->sort.shader_id = p_shader_id;
-	sdcache->sort.geometry_id = p_mesh.get_local_index();
-	sdcache->sort.priority = p_material->priority;
+	// sdcache->sort.surface_index = p_surface;
+	// sdcache->sort.material_id_low = p_material_id & 0x0000FFFF;
+	// sdcache->sort.material_id_hi = p_material_id >> 16;
+	// sdcache->sort.shader_id = p_shader_id;
+	// sdcache->sort.geometry_id = p_mesh.get_local_index();
+	// sdcache->sort.priority = p_material->priority;
 }
 
 void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material_chain(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, GLES3::SceneMaterialData *p_material_data, RID p_mat_src, RID p_mesh) {
-	GLES3::SceneMaterialData *material_data = p_material_data;
-	GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
+	// GLES3::SceneMaterialData *material_data = p_material_data;
+	// GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
 
-	_geometry_instance_add_surface_with_material(ginstance, p_surface, material_data, p_mat_src.get_local_index(), material_storage->material_get_shader_id(p_mat_src), p_mesh);
+	// _geometry_instance_add_surface_with_material(ginstance, p_surface, material_data, p_mat_src.get_local_index(), material_storage->material_get_shader_id(p_mat_src), p_mesh);
 
-	while (material_data->next_pass.is_valid()) {
-		RID next_pass = material_data->next_pass;
-		material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(next_pass, RS::SHADER_SPATIAL));
-		if (!material_data || !material_data->shader_data->valid) {
-			break;
-		}
-		if (ginstance->data->dirty_dependencies) {
-			material_storage->material_update_dependency(next_pass, &ginstance->data->dependency_tracker);
-		}
-		_geometry_instance_add_surface_with_material(ginstance, p_surface, material_data, next_pass.get_local_index(), material_storage->material_get_shader_id(next_pass), p_mesh);
-	}
+	// while (material_data->next_pass.is_valid()) {
+	// 	RID next_pass = material_data->next_pass;
+	// 	material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(next_pass, RS::SHADER_SPATIAL));
+	// 	if (!material_data || !material_data->shader_data->valid) {
+	// 		break;
+	// 	}
+	// 	if (ginstance->data->dirty_dependencies) {
+	// 		material_storage->material_update_dependency(next_pass, &ginstance->data->dependency_tracker);
+	// 	}
+	// 	_geometry_instance_add_surface_with_material(ginstance, p_surface, material_data, next_pass.get_local_index(), material_storage->material_get_shader_id(next_pass), p_mesh);
+	// }
 }
 
 void RasterizerSceneGLES3::_geometry_instance_add_surface(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, RID p_material, RID p_mesh) {
-	GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
-	RID m_src;
+	// GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
+	// RID m_src;
 
-	m_src = ginstance->data->material_override.is_valid() ? ginstance->data->material_override : p_material;
+	// m_src = ginstance->data->material_override.is_valid() ? ginstance->data->material_override : p_material;
 
-	GLES3::SceneMaterialData *material_data = nullptr;
+	// GLES3::SceneMaterialData *material_data = nullptr;
 
-	if (m_src.is_valid()) {
-		material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(m_src, RS::SHADER_SPATIAL));
-		if (!material_data || !material_data->shader_data->valid) {
-			material_data = nullptr;
-		}
-	}
+	// if (m_src.is_valid()) {
+	// 	material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(m_src, RS::SHADER_SPATIAL));
+	// 	if (!material_data || !material_data->shader_data->valid) {
+	// 		material_data = nullptr;
+	// 	}
+	// }
 
-	if (material_data) {
-		if (ginstance->data->dirty_dependencies) {
-			material_storage->material_update_dependency(m_src, &ginstance->data->dependency_tracker);
-		}
-	} else {
-		material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(scene_globals.default_material, RS::SHADER_SPATIAL));
-		m_src = scene_globals.default_material;
-	}
+	// if (material_data) {
+	// 	if (ginstance->data->dirty_dependencies) {
+	// 		material_storage->material_update_dependency(m_src, &ginstance->data->dependency_tracker);
+	// 	}
+	// } else {
+	// 	material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(scene_globals.default_material, RS::SHADER_SPATIAL));
+	// 	m_src = scene_globals.default_material;
+	// }
 
-	ERR_FAIL_COND(!material_data);
+	// ERR_FAIL_COND(!material_data);
 
-	_geometry_instance_add_surface_with_material_chain(ginstance, p_surface, material_data, m_src, p_mesh);
+	// _geometry_instance_add_surface_with_material_chain(ginstance, p_surface, material_data, m_src, p_mesh);
 
-	if (ginstance->data->material_overlay.is_valid()) {
-		m_src = ginstance->data->material_overlay;
+	// if (ginstance->data->material_overlay.is_valid()) {
+	// 	m_src = ginstance->data->material_overlay;
 
-		material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(m_src, RS::SHADER_SPATIAL));
-		if (material_data && material_data->shader_data->valid) {
-			if (ginstance->data->dirty_dependencies) {
-				material_storage->material_update_dependency(m_src, &ginstance->data->dependency_tracker);
-			}
+	// 	material_data = static_cast<GLES3::SceneMaterialData *>(material_storage->material_get_data(m_src, RS::SHADER_SPATIAL));
+	// 	if (material_data && material_data->shader_data->valid) {
+	// 		if (ginstance->data->dirty_dependencies) {
+	// 			material_storage->material_update_dependency(m_src, &ginstance->data->dependency_tracker);
+	// 		}
 
-			_geometry_instance_add_surface_with_material_chain(ginstance, p_surface, material_data, m_src, p_mesh);
-		}
-	}
+	// 		_geometry_instance_add_surface_with_material_chain(ginstance, p_surface, material_data, m_src, p_mesh);
+	// 	}
+	// }
 }
 
 void RasterizerSceneGLES3::_geometry_instance_update(RenderGeometryInstance *p_geometry_instance) {

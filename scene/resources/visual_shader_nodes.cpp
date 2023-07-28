@@ -738,7 +738,7 @@ bool VisualShaderNodeTexture::is_output_port_expandable(int p_port) const {
 }
 
 bool VisualShaderNodeTexture::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (p_port == 0) {
 			return true;
 		}
@@ -776,24 +776,8 @@ String VisualShaderNodeTexture::generate_global(Shader::Mode p_mode, VisualShade
 			code += ";\n";
 		} break;
 		case SOURCE_SCREEN: {
-			if ((p_mode == Shader::MODE_SPATIAL || p_mode == Shader::MODE_CANVAS_ITEM) && p_type == VisualShader::TYPE_FRAGMENT) {
+			if (p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
 				code += "uniform sampler2D " + make_unique_id(p_type, p_id, "screen_tex") + " : hint_screen_texture;\n";
-			}
-		} break;
-		case SOURCE_DEPTH:
-		case SOURCE_3D_NORMAL:
-		case SOURCE_ROUGHNESS: {
-			if (p_mode == Shader::MODE_SPATIAL && p_type == VisualShader::TYPE_FRAGMENT) {
-				String sampler_name = "";
-				String hint = " : ";
-				if (source == SOURCE_DEPTH) {
-					sampler_name = "depth_tex";
-					hint += "hint_depth_texture;\n";
-				} else {
-					sampler_name = source == SOURCE_ROUGHNESS ? "roughness_tex" : "normal_roughness_tex";
-					hint += "hint_normal_roughness_texture;\n";
-				}
-				code += "uniform sampler2D " + make_unique_id(p_type, p_id, sampler_name) + hint;
 			}
 		} break;
 		default: {
@@ -805,7 +789,7 @@ String VisualShaderNodeTexture::generate_global(Shader::Mode p_mode, VisualShade
 
 String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 	String default_uv;
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (source == SOURCE_SCREEN) {
 			default_uv = "SCREEN_UV";
 		} else {
@@ -838,7 +822,7 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
 			return code;
 		} break;
 		case SOURCE_SCREEN: {
-			if ((p_mode == Shader::MODE_SPATIAL || p_mode == Shader::MODE_CANVAS_ITEM) && p_type == VisualShader::TYPE_FRAGMENT) {
+			if (p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
 				String id = make_unique_id(p_type, p_id, "screen_tex");
 				if (p_input_vars[1].is_empty()) {
 					code += "	" + p_output_vars[0] + " = texture(" + id + ", " + uv + ");\n";
@@ -858,50 +842,6 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
 				} else {
 					code += "	" + p_output_vars[0] + " = textureLod(" + id + ", " + uv + ", " + p_input_vars[1] + ");\n";
 				}
-				return code;
-			}
-		} break;
-		case SOURCE_3D_NORMAL:
-		case SOURCE_ROUGHNESS:
-		case SOURCE_DEPTH: {
-			if (!p_for_preview && p_mode == Shader::MODE_SPATIAL && p_type == VisualShader::TYPE_FRAGMENT) {
-				String var_name = "";
-				String sampler_name = "";
-
-				switch (source) {
-					case SOURCE_DEPTH: {
-						var_name = "_depth";
-						sampler_name = "depth_tex";
-					} break;
-					case SOURCE_ROUGHNESS: {
-						var_name = "_roughness";
-						sampler_name = "roughness_tex";
-					} break;
-					case SOURCE_3D_NORMAL: {
-						var_name = "_normal";
-						sampler_name = "normal_roughness_tex";
-					} break;
-					default: {
-					} break;
-				}
-
-				String id = make_unique_id(p_type, p_id, sampler_name);
-				String type = source == SOURCE_3D_NORMAL ? "vec3" : "float";
-				String components = source == SOURCE_3D_NORMAL ? "rgb" : "r";
-
-				code += "	{\n";
-				if (p_input_vars[1].is_empty()) {
-					code += "		" + type + " " + var_name + " = texture(" + id + ", " + uv + ")." + components + ";\n";
-				} else {
-					code += "		" + type + " " + var_name + " = textureLod(" + id + ", " + uv + ", " + p_input_vars[1] + ")." + components + ";\n";
-				}
-				if (source == SOURCE_3D_NORMAL) {
-					code += "		" + p_output_vars[0] + " = vec4(" + var_name + ", 1.0);\n";
-				} else {
-					code += "		" + p_output_vars[0] + " = vec4(" + var_name + ", " + var_name + ", " + var_name + ", 1.0);\n";
-				}
-				code += "	}\n";
-
 				return code;
 			}
 		} break;
@@ -997,23 +937,13 @@ String VisualShaderNodeTexture::get_warning(Shader::Mode p_mode, VisualShader::T
 			return String(); // All good.
 		} break;
 		case SOURCE_SCREEN: {
-			if ((p_mode == Shader::MODE_SPATIAL || p_mode == Shader::MODE_CANVAS_ITEM) && p_type == VisualShader::TYPE_FRAGMENT) {
+			if (p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
 				return String(); // All good.
 			}
 		} break;
 		case SOURCE_2D_NORMAL:
 		case SOURCE_2D_TEXTURE: {
 			if (p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
-				return String(); // All good.
-			}
-		} break;
-		case SOURCE_3D_NORMAL:
-		case SOURCE_ROUGHNESS:
-		case SOURCE_DEPTH: {
-			if (p_mode == Shader::MODE_SPATIAL && p_type == VisualShader::TYPE_FRAGMENT) {
-				if (get_output_port_for_preview() == 0) { // Not supported in preview(canvas_item) shader.
-					return RTR("Invalid source for preview.");
-				}
 				return String(); // All good.
 			}
 		} break;
@@ -1277,7 +1207,7 @@ bool VisualShaderNodeSample3D::is_output_port_expandable(int p_port) const {
 }
 
 bool VisualShaderNodeSample3D::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (p_port == 0) {
 			return true;
 		}
@@ -1298,7 +1228,7 @@ String VisualShaderNodeSample3D::generate_code(Shader::Mode p_mode, VisualShader
 		}
 	}
 	String default_uv;
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		default_uv = "vec3(UV, 0.0)";
 	} else {
 		default_uv = "vec3(0.0)";
@@ -1561,7 +1491,7 @@ String VisualShaderNodeCubemap::generate_code(Shader::Mode p_mode, VisualShader:
 	}
 
 	String default_uv;
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		default_uv = "vec3(UV, 0.0)";
 	} else {
 		default_uv = "vec3(0.0)";
@@ -1578,7 +1508,7 @@ String VisualShaderNodeCubemap::generate_code(Shader::Mode p_mode, VisualShader:
 }
 
 bool VisualShaderNodeCubemap::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (p_port == 0) {
 			return true;
 		}
@@ -3310,7 +3240,7 @@ String VisualShaderNodeUVFunc::get_input_port_name(int p_port) const {
 }
 
 bool VisualShaderNodeUVFunc::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (p_port == 0) {
 			return true;
 		}
@@ -3339,7 +3269,7 @@ String VisualShaderNodeUVFunc::generate_code(Shader::Mode p_mode, VisualShader::
 
 	String uv;
 	if (p_input_vars[0].is_empty()) {
-		if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+		if (p_mode == Shader::MODE_CANVAS_ITEM) {
 			uv = "UV";
 		} else {
 			uv = "vec2(0.0)";
@@ -3446,7 +3376,7 @@ String VisualShaderNodeUVPolarCoord::get_input_port_name(int p_port) const {
 }
 
 bool VisualShaderNodeUVPolarCoord::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+	if (p_mode == Shader::MODE_CANVAS_ITEM) {
 		if (p_port == 0) {
 			return true;
 		}
@@ -3472,7 +3402,7 @@ String VisualShaderNodeUVPolarCoord::generate_code(Shader::Mode p_mode, VisualSh
 
 	String uv;
 	if (p_input_vars[0].is_empty()) {
-		if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+		if (p_mode == Shader::MODE_CANVAS_ITEM) {
 			uv = "UV";
 		} else {
 			uv = "vec2(0.0)";
@@ -7027,7 +6957,7 @@ String VisualShaderNodeFresnel::generate_code(Shader::Mode p_mode, VisualShader:
 	String normal;
 	String view;
 	if (p_input_vars[0].is_empty()) {
-		if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
+		if (p_mode == Shader::MODE_CANVAS_ITEM) {
 			normal = "NORMAL";
 		} else {
 			normal = "vec3(0.0)";
@@ -7036,11 +6966,7 @@ String VisualShaderNodeFresnel::generate_code(Shader::Mode p_mode, VisualShader:
 		normal = p_input_vars[0];
 	}
 	if (p_input_vars[1].is_empty()) {
-		if (p_mode == Shader::MODE_SPATIAL) {
-			view = "VIEW";
-		} else {
-			view = "vec3(0.0)";
-		}
+		view = "vec3(0.0)";
 	} else {
 		view = p_input_vars[1];
 	}
@@ -7057,16 +6983,7 @@ String VisualShaderNodeFresnel::generate_code(Shader::Mode p_mode, VisualShader:
 }
 
 bool VisualShaderNodeFresnel::is_input_port_default(int p_port, Shader::Mode p_mode) const {
-	if (p_port == 0) {
-		if (p_mode == Shader::MODE_CANVAS_ITEM || p_mode == Shader::MODE_SPATIAL) {
-			return true;
-		}
-	} else if (p_port == 1) {
-		if (p_mode == Shader::MODE_SPATIAL) {
-			return true;
-		}
-	}
-	return false;
+	return p_port == 0 && p_mode == Shader::MODE_CANVAS_ITEM;
 }
 
 VisualShaderNodeFresnel::VisualShaderNodeFresnel() {

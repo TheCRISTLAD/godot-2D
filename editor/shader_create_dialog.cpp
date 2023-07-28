@@ -166,11 +166,11 @@ void ShaderCreateDialog::_create_new() {
 			if (current_template == 0) { // Default template.
 				code += "\n";
 				switch (current_mode) {
-					case Shader::MODE_SPATIAL:
-						code += "void fragment() {\n";
-						code += "\t// Place fragment code here.\n";
-						code += "}\n";
-						break;
+					// case Shader::MODE_SPATIAL:
+					// 	code += "void fragment() {\n";
+					// 	code += "\t// Place fragment code here.\n";
+					// 	code += "}\n";
+					// 	break;
 					case Shader::MODE_CANVAS_ITEM:
 						code += "void fragment() {\n";
 						code += "\t// Place fragment code here.\n";
