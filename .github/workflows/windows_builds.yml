@@ -31,10 +31,16 @@ jobs:
             bin: "./bin/godot.windows.editor.x86_64.exe"
 
           - name: Release Template
-            cache-name: windows-template
+            cache-name: windows-release-template
             target: template_release
             tests: false
             sconsflags: optimize=speed_trace
+
+          - name: Debug Template
+            cache-name: windows-debug-template
+            target: template_debug
+            tests: false
+            sconsflags: optimize=speed_trace     
 
     steps:
       - uses: actions/checkout@v3

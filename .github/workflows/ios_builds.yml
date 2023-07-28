@@ -27,12 +27,20 @@ jobs:
       - name: Setup python and scons
         uses: ./.github/actions/godot-deps
 
-      - name: Compilation (arm64)
+      - name: Compilation Release (arm64)
         uses: ./.github/actions/godot-build
         with:
           sconsflags: ${{ env.SCONSFLAGS }}
           platform: ios
           target: template_release
+          tests: false
+
+      - name: Compilation Debug (arm64)
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }}
+          platform: ios
+          target: template_debug
           tests: false
 
       - name: Upload artifact

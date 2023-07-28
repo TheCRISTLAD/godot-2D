@@ -35,6 +35,11 @@ jobs:
             tests: false
             sconsflags: optimize=speed_trace
 
+          - name: Debug Template
+            cache-name: linux-template
+            target: template_debug
+            tests: false
+            sconsflags: optimize=speed_trace
 
     steps:
       - uses: actions/checkout@v3

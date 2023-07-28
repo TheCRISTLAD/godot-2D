@@ -32,6 +32,12 @@ jobs:
             tests: false
             sconsflags: debug_symbols=no
 
+          - name: Debug Template
+            cache-name: macos-template
+            target: template_debug
+            tests: false
+            sconsflags: debug_symbols=no
+
     steps:
       - uses: actions/checkout@v3
 
