@@ -14,7 +14,7 @@ runs:
       with:
         name: ${{ inputs.name }}
         tag_name: ${{ inputs.name }}
-        files: "bin/*"
+        files: bin/*
         generate_release_notes: true
         prerelease: true
         draft: true
