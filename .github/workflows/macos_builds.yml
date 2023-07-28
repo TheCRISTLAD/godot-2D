@@ -27,13 +27,13 @@ jobs:
             # bin: "./bin/godot.macos.editor.x86_64"
 
           - name: Release Template
-            cache-name: macos-template
+            cache-name: macos-release-template
             target: template_release
             tests: false
             sconsflags: debug_symbols=no
 
           - name: Debug Template
-            cache-name: macos-template
+            cache-name: macos-debug-template
             target: template_debug
             tests: false
             sconsflags: debug_symbols=no
