@@ -12,6 +12,11 @@ runs:
     - name: Upload Godot release
       uses: softprops/action-gh-release@v1
       with:
+        name: ${{ inputs.name }}
+        tag_name: ${{ inputs.name }}
         files: "bin/*"
+        generate_release_notes: true
+        prerelease: true
+        draft: true
       env:
         GITHUB_TOKEN: ${{ github.token }}
