@@ -137,7 +137,6 @@
 #include "scene/resources/audio_stream_wav.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/bone_map.h"
-#include "scene/resources/camera_attributes.h"
 #include "scene/resources/capsule_shape_2d.h"
 #include "scene/resources/circle_shape_2d.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
@@ -609,9 +608,6 @@ void register_scene_types() {
 	GDREGISTER_CLASS(MeshDataTool);
 
 	GDREGISTER_CLASS(PhysicsMaterial);
-	GDREGISTER_VIRTUAL_CLASS(CameraAttributes);
-	GDREGISTER_CLASS(CameraAttributesPhysical);
-	GDREGISTER_CLASS(CameraAttributesPractical);
 	GDREGISTER_CLASS(World2D);
 	GDREGISTER_VIRTUAL_CLASS(Texture);
 	GDREGISTER_VIRTUAL_CLASS(Texture2D);

@@ -505,8 +505,6 @@ public:
 	FUNC5(camera_set_frustum, RID, float, Vector2, float, float)
 	FUNC2(camera_set_transform, RID, const Transform3D &)
 	FUNC2(camera_set_cull_mask, RID, uint32_t)
-	FUNC2(camera_set_environment, RID, RID)
-	FUNC2(camera_set_camera_attributes, RID, RID)
 	FUNC2(camera_set_use_vertical_aspect, RID, bool)
 
 	/* OCCLUDER */
@@ -581,23 +579,6 @@ public:
 
 	FUNC1(decals_set_filter, RS::DecalFilter);
 	FUNC1(light_projectors_set_filter, RS::LightProjectorFilter);
-
-	/* CAMERA ATTRIBUTES */
-
-#undef server_name
-#undef ServerName
-//from now on, calls forwarded to this singleton
-#define ServerName RendererCameraAttributes
-#define server_name RSG::camera_attributes
-
-	FUNCRIDSPLIT(camera_attributes)
-
-	FUNC2(camera_attributes_set_dof_blur_quality, DOFBlurQuality, bool)
-	FUNC1(camera_attributes_set_dof_blur_bokeh_shape, DOFBokehShape)
-
-	FUNC8(camera_attributes_set_dof_blur, RID, bool, float, float, bool, float, float, float)
-	FUNC3(camera_attributes_set_exposure, RID, float, float)
-	FUNC6(camera_attributes_set_auto_exposure, RID, bool, float, float, float, float)
 
 	/* SCENARIO API */
 

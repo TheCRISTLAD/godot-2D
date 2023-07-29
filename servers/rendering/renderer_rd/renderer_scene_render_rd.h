@@ -35,7 +35,6 @@
 #include "core/templates/rid_owner.h"
 #include "servers/rendering/renderer_compositor.h"
 #include "servers/rendering/renderer_rd/cluster_builder_rd.h"
-#include "servers/rendering/renderer_rd/effects/bokeh_dof.h"
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
 #include "servers/rendering/renderer_rd/effects/luminance.h"
 #include "servers/rendering/renderer_rd/effects/tone_mapper.h"
@@ -58,7 +57,6 @@ struct RenderDataRD {
 	const PagedArray<RID> *decals = nullptr;
 	const PagedArray<RID> *lightmaps = nullptr;
 	RID environment;
-	RID camera_attributes;
 	RID shadow_atlas;
 	RID occluder_debug_tex;
 
@@ -90,7 +88,6 @@ struct RenderDataRD {
 class RendererSceneRenderRD : public RendererSceneRender {
 protected:
 	RendererRD::ForwardIDStorage *forward_id_storage = nullptr;
-	RendererRD::BokehDOF *bokeh_dof = nullptr;
 	RendererRD::CopyEffects *copy_effects = nullptr;
 	RendererRD::Luminance *luminance = nullptr;
 	RendererRD::ToneMapper *tone_mapper = nullptr;

@@ -80,34 +80,6 @@ public:
 	EditorPackedScenePreviewPlugin();
 };
 
-// class EditorMaterialPreviewPlugin : public EditorResourcePreviewGenerator {
-// 	GDCLASS(EditorMaterialPreviewPlugin, EditorResourcePreviewGenerator);
-
-// 	RID scenario;
-// 	RID sphere;
-// 	RID sphere_instance;
-// 	RID viewport;
-// 	RID viewport_texture;
-// 	RID light;
-// 	RID light_instance;
-// 	RID light2;
-// 	RID light_instance2;
-// 	RID camera;
-// 	RID camera_attributes;
-// 	Semaphore preview_done;
-
-// 	void _generate_frame_started();
-// 	void _preview_done();
-
-// public:
-// 	virtual bool handles(const String &p_type) const override;
-// 	virtual bool generate_small_preview_automatically() const override;
-// 	virtual Ref<Texture2D> generate(const Ref<Resource> &p_from, const Size2 &p_size, Dictionary &p_metadata) const override;
-
-// 	EditorMaterialPreviewPlugin();
-// 	~EditorMaterialPreviewPlugin();
-// };
-
 class EditorScriptPreviewPlugin : public EditorResourcePreviewGenerator {
 	GDCLASS(EditorScriptPreviewPlugin, EditorResourcePreviewGenerator);
 

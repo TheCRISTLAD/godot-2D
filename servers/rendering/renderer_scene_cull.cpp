@@ -87,18 +87,6 @@ void RendererSceneCull::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
 	camera->visible_layers = p_layers;
 }
 
-void RendererSceneCull::camera_set_environment(RID p_camera, RID p_env) {
-	Camera *camera = camera_owner.get_or_null(p_camera);
-	ERR_FAIL_COND(!camera);
-	camera->env = p_env;
-}
-
-void RendererSceneCull::camera_set_camera_attributes(RID p_camera, RID p_attributes) {
-	Camera *camera = camera_owner.get_or_null(p_camera);
-	ERR_FAIL_COND(!camera);
-	camera->attributes = p_attributes;
-}
-
 void RendererSceneCull::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
 	Camera *camera = camera_owner.get_or_null(p_camera);
 	ERR_FAIL_COND(!camera);

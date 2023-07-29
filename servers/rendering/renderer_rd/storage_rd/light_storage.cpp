@@ -576,10 +576,6 @@ void LightStorage::update_light_buffers(RenderDataRD *p_render_data, const Paged
 					light_data.energy *= Math_PI;
 				}
 
-				if (p_render_data->camera_attributes.is_valid()) {
-					light_data.energy *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_render_data->camera_attributes);
-				}
-
 				Color linear_col = light->color.srgb_to_linear();
 				light_data.color[0] = linear_col.r;
 				light_data.color[1] = linear_col.g;
@@ -799,10 +795,6 @@ void LightStorage::update_light_buffers(RenderDataRD *p_render_data, const Paged
 			}
 		} else {
 			energy *= Math_PI;
-		}
-
-		if (p_render_data->camera_attributes.is_valid()) {
-			energy *= RSG::camera_attributes->camera_attributes_get_exposure_normalization_factor(p_render_data->camera_attributes);
 		}
 
 		light_data.color[0] = linear_col.r * energy;

@@ -16,74 +16,6 @@
 		<link title="Optimization using Servers">$DOCS_URL/tutorials/performance/using_servers.html</link>
 	</tutorials>
 	<methods>
-		<method name="camera_attributes_create">
-			<return type="RID" />
-			<description>
-				Creates a camera attributes object and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]camera_attributes_[/code] RenderingServer functions.
-				Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] method.
-				[b]Note:[/b] The equivalent resource is [CameraAttributes].
-			</description>
-		</method>
-		<method name="camera_attributes_set_auto_exposure">
-			<return type="void" />
-			<param index="0" name="camera_attributes" type="RID" />
-			<param index="1" name="enable" type="bool" />
-			<param index="2" name="min_sensitivity" type="float" />
-			<param index="3" name="max_sensitivity" type="float" />
-			<param index="4" name="speed" type="float" />
-			<param index="5" name="scale" type="float" />
-			<description>
-				Sets the parameters to use with the auto-exposure effect. These parameters take on the same meaning as their counterparts in [CameraAttributes] and [CameraAttributesPractical].
-			</description>
-		</method>
-		<method name="camera_attributes_set_dof_blur">
-			<return type="void" />
-			<param index="0" name="camera_attributes" type="RID" />
-			<param index="1" name="far_enable" type="bool" />
-			<param index="2" name="far_distance" type="float" />
-			<param index="3" name="far_transition" type="float" />
-			<param index="4" name="near_enable" type="bool" />
-			<param index="5" name="near_distance" type="float" />
-			<param index="6" name="near_transition" type="float" />
-			<param index="7" name="amount" type="float" />
-			<description>
-				Sets the parameters to use with the DOF blur effect. These parameters take on the same meaning as their counterparts in [CameraAttributesPractical].
-			</description>
-		</method>
-		<method name="camera_attributes_set_dof_blur_bokeh_shape">
-			<return type="void" />
-			<param index="0" name="shape" type="int" enum="RenderingServer.DOFBokehShape" />
-			<description>
-				Sets the shape of the DOF bokeh pattern. Different shapes may be used to achieve artistic effect, or to meet performance targets. For more detail on available options see [enum DOFBokehShape].
-			</description>
-		</method>
-		<method name="camera_attributes_set_dof_blur_quality">
-			<return type="void" />
-			<param index="0" name="quality" type="int" enum="RenderingServer.DOFBlurQuality" />
-			<param index="1" name="use_jitter" type="bool" />
-			<description>
-				Sets the quality level of the DOF blur effect to one of the options in [enum DOFBlurQuality]. [param use_jitter] can be used to jitter samples taken during the blur pass to hide artifacts at the cost of looking more fuzzy.
-			</description>
-		</method>
-		<method name="camera_attributes_set_exposure">
-			<return type="void" />
-			<param index="0" name="camera_attributes" type="RID" />
-			<param index="1" name="multiplier" type="float" />
-			<param index="2" name="normalization" type="float" />
-			<description>
-				Sets the exposure values that will be used by the renderers. The normalization amount is used to bake a given Exposure Value (EV) into rendering calculations to reduce the dynamic range of the scene.
-				The normalization factor can be calculated from exposure value (EV100) as follows:
-				[codeblock]
-				func get_exposure_normalization(float ev100):
-				    			    return 1.0 / (pow(2.0, ev100) * 1.2)
-				[/codeblock]
-				The exposure value can be calculated from aperture (in f-stops), shutter speed (in seconds), and sensitivity (in ISO) as follows:
-				[codeblock]
-				func get_exposure(float aperture, float shutter_speed, float sensitivity):
-				    return log2((aperture * aperture) / shutterSpeed * (100.0 / sensitivity))
-				[/codeblock]
-			</description>
-		</method>
 		<method name="camera_create">
 			<return type="RID" />
 			<description>
@@ -92,28 +24,12 @@
 				[b]Note:[/b] The equivalent node is camera3d.
 			</description>
 		</method>
-		<method name="camera_set_camera_attributes">
-			<return type="void" />
-			<param index="0" name="camera" type="RID" />
-			<param index="1" name="effects" type="RID" />
-			<description>
-				Sets the camera_attributes created with [method camera_attributes_create] to the given camera.
-			</description>
-		</method>
 		<method name="camera_set_cull_mask">
 			<return type="void" />
 			<param index="0" name="camera" type="RID" />
 			<param index="1" name="layers" type="int" />
 			<description>
 				Sets the cull mask associated with this camera. The cull mask describes which 3D layers are rendered by this camera. Equivalent to [member Camera3D.cull_mask].
-			</description>
-		</method>
-		<method name="camera_set_environment">
-			<return type="void" />
-			<param index="0" name="camera" type="RID" />
-			<param index="1" name="env" type="RID" />
-			<description>
-				Sets the environment used by this camera. Equivalent to [member Camera3D.environment].
 			</description>
 		</method>
 		<method name="camera_set_frustum">
@@ -1611,7 +1527,7 @@
 			<param index="0" name="lightmap" type="RID" />
 			<param index="1" name="baked_exposure" type="float" />
 			<description>
-				Used to inform the renderer what exposure normalization value was used while baking the lightmap. This value will be used and modulated at run time to ensure that the lightmap maintains a consistent level of exposure even if the scene-wide exposure normalization is changed at run time. For more information see [method camera_attributes_set_exposure].
+				Used to inform the renderer what exposure normalization value was used while baking the lightmap. This value will be used and modulated at run time to ensure that the lightmap maintains a consistent level of exposure even if the scene-wide exposure normalization is changed at run time. For more information see method camera_attributes_set_exposure.
 			</description>
 		</method>
 		<method name="lightmap_set_probe_bounds">
@@ -3288,7 +3204,7 @@
 			<param index="0" name="voxel_gi" type="RID" />
 			<param index="1" name="baked_exposure" type="float" />
 			<description>
-				Used to inform the renderer what exposure normalization value was used while baking the voxel gi. This value will be used and modulated at run time to ensure that the voxel gi maintains a consistent level of exposure even if the scene-wide exposure normalization is changed at run time. For more information see [method camera_attributes_set_exposure].
+				Used to inform the renderer what exposure normalization value was used while baking the voxel gi. This value will be used and modulated at run time to ensure that the voxel gi maintains a consistent level of exposure even if the scene-wide exposure normalization is changed at run time. For more information see method camera_attributes_set_exposure.
 			</description>
 		</method>
 		<method name="voxel_gi_set_bias">

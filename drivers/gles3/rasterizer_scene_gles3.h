@@ -108,7 +108,6 @@ struct RenderDataGLES3 {
 	const PagedArray<RID> *lights = nullptr;
 	const PagedArray<RID> *reflection_probes = nullptr;
 	RID environment;
-	RID camera_attributes;
 	RID reflection_probe;
 	int reflection_probe_pass = 0;
 
@@ -471,91 +470,12 @@ protected:
 
 	/* Camera Attributes */
 
-	struct CameraAttributes {
-		float exposure_multiplier = 1.0;
-		float exposure_normalization = 1.0;
-	};
-
-	bool use_physical_light_units = false;
-	mutable RID_Owner<CameraAttributes, true> camera_attributes_owner;
-
-	/* Environment */
-
-	// RS::EnvironmentSSAOQuality ssao_quality = RS::ENV_SSAO_QUALITY_MEDIUM;
-	// bool ssao_half_size = false;
-	// float ssao_adaptive_target = 0.5;
-	// int ssao_blur_passes = 2;
-	// float ssao_fadeout_from = 50.0;
-	// float ssao_fadeout_to = 300.0;
-
-	// bool glow_bicubic_upscale = false;
-	// RS::EnvironmentSSRRoughnessQuality ssr_roughness_quality = RS::ENV_SSR_ROUGHNESS_QUALITY_LOW;
-
-	// /* Sky */
-
-	// struct SkyGlobals {
-	// 	float fog_aerial_perspective = 0.0;
-	// 	Color fog_light_color;
-	// 	float fog_sun_scatter = 0.0;
-	// 	bool fog_enabled = false;
-	// 	float fog_density = 0.0;
-	// 	float z_far = 0.0;
-	// 	uint32_t directional_light_count = 0;
-
-	// 	DirectionalLightData *directional_lights = nullptr;
-	// 	DirectionalLightData *last_frame_directional_lights = nullptr;
-	// 	uint32_t last_frame_directional_light_count = 0;
-	// 	GLuint directional_light_buffer = 0;
-
-	// 	RID shader_default_version;
-	// 	RID default_material;
-	// 	RID default_shader;
-	// 	RID fog_material;
-	// 	RID fog_shader;
-	// 	GLuint screen_triangle = 0;
-	// 	GLuint screen_triangle_array = 0;
-	// 	GLuint radical_inverse_vdc_cache_tex = 0;
-	// 	uint32_t max_directional_lights = 4;
-	// 	uint32_t roughness_layers = 8;
-	// 	uint32_t ggx_samples = 128;
-	// } sky_globals;
-
-	// struct Sky {
-	// 	// Screen Buffers
-	// 	GLuint half_res_pass = 0;
-	// 	GLuint half_res_framebuffer = 0;
-	// 	GLuint quarter_res_pass = 0;
-	// 	GLuint quarter_res_framebuffer = 0;
-	// 	Size2i screen_size = Size2i(0, 0);
-
-	// 	// Radiance Cubemap
-	// 	GLuint radiance = 0;
-	// 	GLuint radiance_framebuffer = 0;
-	// 	GLuint raw_radiance = 0;
-
-	// 	RID material;
-	// 	GLuint uniform_buffer;
-
-	// 	int radiance_size = 256;
-	// 	int mipmap_count = 1;
-
-	// 	RS::SkyMode mode = RS::SKY_MODE_AUTOMATIC;
-
-	// 	//ReflectionData reflection;
-	// 	bool reflection_dirty = false;
-	// 	bool dirty = false;
-	// 	int processing_layer = 0;
-	// 	Sky *dirty_list = nullptr;
-	// 	float baked_exposure = 1.0;
-
-	// 	//State to track when radiance cubemap needs updating
-	// 	// GLES3::SkyMaterialData *prev_material;
-	// 	Vector3 prev_position = Vector3(0.0, 0.0, 0.0);
-	// 	float prev_time = 0.0f;
+	// struct CameraAttributes {
+	// 	float exposure_multiplier = 1.0;
+	// 	float exposure_normalization = 1.0;
 	// };
 
-	// Sky *dirty_sky_list = nullptr;
-	// mutable RID_Owner<Sky, true> sky_owner;
+	bool use_physical_light_units = false;
 
 public:
 	static RasterizerSceneGLES3 *get_singleton() { return singleton; }

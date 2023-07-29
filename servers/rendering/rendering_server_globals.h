@@ -34,7 +34,6 @@
 #include "servers/rendering/renderer_canvas_cull.h"
 #include "servers/rendering/renderer_canvas_render.h"
 #include "servers/rendering/rendering_method.h"
-#include "servers/rendering/storage/camera_attributes_storage.h"
 #include "servers/rendering/storage/light_storage.h"
 #include "servers/rendering/storage/material_storage.h"
 #include "servers/rendering/storage/mesh_storage.h"
@@ -56,7 +55,6 @@ public:
 	static RendererMeshStorage *mesh_storage;
 	static RendererParticlesStorage *particles_storage;
 	static RendererTextureStorage *texture_storage;
-	static RendererCameraAttributes *camera_attributes;
 	static RendererCanvasRender *canvas_render;
 	static RendererCompositor *rasterizer;
 

@@ -36,7 +36,6 @@
 #include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
 #include "servers/rendering/renderer_rd/storage_rd/texture_storage.h"
 #include "servers/rendering/rendering_server_default.h"
-#include "servers/rendering/storage/camera_attributes_storage.h"
 
 void get_vogel_disk(float *r_kernel, int p_sample_count) {
 	const float golden_angle = 2.4;
@@ -164,82 +163,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 	RID render_target = rb->get_render_target();
 	RID internal_texture = rb->get_internal_texture();
 
-	if (can_use_effects && RSG::camera_attributes->camera_attributes_uses_dof(p_render_data->camera_attributes)) {
-		RENDER_TIMESTAMP("Depth of Field");
-		RD::get_singleton()->draw_command_begin_label("DOF");
-
-		rb->allocate_blur_textures();
-
-		RendererRD::BokehDOF::BokehBuffers buffers;
-
-		// Textures we use
-		buffers.base_texture_size = rb->get_internal_size();
-		buffers.secondary_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
-		buffers.half_texture[0] = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
-		buffers.half_texture[1] = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 1);
-
-		if (can_use_storage) {
-			for (uint32_t i = 0; i < rb->get_view_count(); i++) {
-				buffers.base_texture = rb->get_internal_texture(i);
-				buffers.depth_texture = rb->get_depth_texture(i);
-
-				// In stereo p_render_data->z_near and p_render_data->z_far can be offset for our combined frustrum
-				float z_near = p_render_data->scene_data->view_projection[i].get_z_near();
-				float z_far = p_render_data->scene_data->view_projection[i].get_z_far();
-				bokeh_dof->bokeh_dof_compute(buffers, p_render_data->camera_attributes, z_near, z_far, p_render_data->scene_data->cam_orthogonal);
-			};
-		} else {
-			// Set framebuffers.
-			buffers.secondary_fb = rb->weight_buffers[1].fb;
-			buffers.half_fb[0] = rb->weight_buffers[2].fb;
-			buffers.half_fb[1] = rb->weight_buffers[3].fb;
-			buffers.weight_texture[0] = rb->weight_buffers[0].weight;
-			buffers.weight_texture[1] = rb->weight_buffers[1].weight;
-			buffers.weight_texture[2] = rb->weight_buffers[2].weight;
-			buffers.weight_texture[3] = rb->weight_buffers[3].weight;
-
-			// Set weight buffers.
-			buffers.base_weight_fb = rb->weight_buffers[0].fb;
-
-			for (uint32_t i = 0; i < rb->get_view_count(); i++) {
-				buffers.base_texture = rb->get_internal_texture(i);
-				buffers.depth_texture = rb->get_depth_texture(i);
-				buffers.base_fb = FramebufferCacheRD::get_singleton()->get_cache(buffers.base_texture); // TODO move this into bokeh_dof_raster, we can do this internally
-
-				// In stereo p_render_data->z_near and p_render_data->z_far can be offset for our combined frustrum
-				float z_near = p_render_data->scene_data->view_projection[i].get_z_near();
-				float z_far = p_render_data->scene_data->view_projection[i].get_z_far();
-				bokeh_dof->bokeh_dof_raster(buffers, p_render_data->camera_attributes, z_near, z_far, p_render_data->scene_data->cam_orthogonal);
-			}
-		}
-		RD::get_singleton()->draw_command_end_label();
-	}
-
 	float auto_exposure_scale = 1.0;
-
-	if (can_use_effects && RSG::camera_attributes->camera_attributes_uses_auto_exposure(p_render_data->camera_attributes)) {
-		RENDER_TIMESTAMP("Auto exposure");
-
-		RD::get_singleton()->draw_command_begin_label("Auto exposure");
-
-		Ref<RendererRD::Luminance::LuminanceBuffers> luminance_buffers = luminance->get_luminance_buffers(rb);
-
-		uint64_t auto_exposure_version = RSG::camera_attributes->camera_attributes_get_auto_exposure_version(p_render_data->camera_attributes);
-		bool set_immediate = auto_exposure_version != rb->get_auto_exposure_version();
-		rb->set_auto_exposure_version(auto_exposure_version);
-
-		double step = RSG::camera_attributes->camera_attributes_get_auto_exposure_adjust_speed(p_render_data->camera_attributes) * time_step;
-		float auto_exposure_min_sensitivity = RSG::camera_attributes->camera_attributes_get_auto_exposure_min_sensitivity(p_render_data->camera_attributes);
-		float auto_exposure_max_sensitivity = RSG::camera_attributes->camera_attributes_get_auto_exposure_max_sensitivity(p_render_data->camera_attributes);
-		luminance->luminance_reduction(internal_texture, internal_size, luminance_buffers, auto_exposure_min_sensitivity, auto_exposure_max_sensitivity, step, set_immediate);
-
-		// Swap final reduce with prev luminance.
-
-		auto_exposure_scale = RSG::camera_attributes->camera_attributes_get_auto_exposure_scale(p_render_data->camera_attributes);
-
-		RenderingServerDefault::redraw_request(); // Redraw all the time if auto exposure rendering is on.
-		RD::get_singleton()->draw_command_end_label();
-	}
 
 	int max_glow_level = -1;
 
@@ -250,12 +174,8 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		RendererRD::ToneMapper::TonemapSettings tonemap;
 
 		tonemap.exposure_texture = luminance->get_current_luminance_buffer(rb);
-		if (can_use_effects && RSG::camera_attributes->camera_attributes_uses_auto_exposure(p_render_data->camera_attributes) && tonemap.exposure_texture.is_valid()) {
-			tonemap.use_auto_exposure = true;
-			tonemap.auto_exposure_scale = auto_exposure_scale;
-		} else {
-			tonemap.exposure_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
-		}
+
+		tonemap.exposure_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
 
 		tonemap.glow_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_BLACK);
 		tonemap.glow_map = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
@@ -409,12 +329,6 @@ void RendererSceneRenderRD::render_material(const Transform3D &p_cam_transform, 
 }
 
 bool RendererSceneRenderRD::free(RID p_rid) {
-	if (RSG::camera_attributes->owns_camera_attributes(p_rid)) {
-		RSG::camera_attributes->camera_attributes_free(p_rid);
-	} else {
-		return false;
-	}
-
 	return true;
 }
 
@@ -456,8 +370,6 @@ void RendererSceneRenderRD::init() {
 	{ //lights
 	}
 
-	RSG::camera_attributes->camera_attributes_set_dof_blur_bokeh_shape(RS::DOFBokehShape(int(GLOBAL_GET("rendering/camera/depth_of_field/depth_of_field_bokeh_shape"))));
-	RSG::camera_attributes->camera_attributes_set_dof_blur_quality(RS::DOFBlurQuality(int(GLOBAL_GET("rendering/camera/depth_of_field/depth_of_field_bokeh_quality"))), GLOBAL_GET("rendering/camera/depth_of_field/depth_of_field_use_jitter"));
 	use_physical_light_units = GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units");
 
 	glow_bicubic_upscale = int(GLOBAL_GET("rendering/environment/glow/upscale_mode")) > 0;
@@ -473,7 +385,6 @@ void RendererSceneRenderRD::init() {
 	cull_argument.set_page_pool(&cull_argument_pool);
 
 	bool can_use_storage = _render_buffers_can_be_storage();
-	bokeh_dof = memnew(RendererRD::BokehDOF(!can_use_storage));
 	copy_effects = memnew(RendererRD::CopyEffects(!can_use_storage));
 	luminance = memnew(RendererRD::Luminance(!can_use_storage));
 	tone_mapper = memnew(RendererRD::ToneMapper);
@@ -484,9 +395,6 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 		memdelete(forward_id_storage);
 	}
 
-	if (bokeh_dof) {
-		memdelete(bokeh_dof);
-	}
 	if (copy_effects) {
 		memdelete(copy_effects);
 	}

@@ -44,8 +44,6 @@ public:
 	virtual void camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) = 0;
 	virtual void camera_set_transform(RID p_camera, const Transform3D &p_transform) = 0;
 	virtual void camera_set_cull_mask(RID p_camera, uint32_t p_layers) = 0;
-	virtual void camera_set_environment(RID p_camera, RID p_env) = 0;
-	virtual void camera_set_camera_attributes(RID p_camera, RID p_attributes) = 0;
 	virtual void camera_set_use_vertical_aspect(RID p_camera, bool p_enable) = 0;
 	virtual bool is_camera(RID p_camera) const = 0;
 
