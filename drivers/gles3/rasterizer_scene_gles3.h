@@ -466,15 +466,6 @@ protected:
 	double time;
 	double time_step = 0;
 
-	void _render_buffers_debug_draw(Ref<RenderSceneBuffersGLES3> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer);
-
-	/* Camera Attributes */
-
-	// struct CameraAttributes {
-	// 	float exposure_multiplier = 1.0;
-	// 	float exposure_normalization = 1.0;
-	// };
-
 	bool use_physical_light_units = false;
 
 public:
@@ -482,22 +473,7 @@ public:
 
 	RasterizerCanvasGLES3 *canvas = nullptr;
 
-	RenderGeometryInstance *geometry_instance_create(RID p_base) override;
-	void geometry_instance_free(RenderGeometryInstance *p_geometry_instance) override;
-
-	uint32_t geometry_instance_get_pair_mask() override;
-
 	/* ENVIRONMENT API */
-
-	_FORCE_INLINE_ bool is_using_physical_light_units() {
-		return use_physical_light_units;
-	}
-
-	void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-
-	void set_scene_pass(uint64_t p_pass) override {
-		scene_pass = p_pass;
-	}
 
 	_FORCE_INLINE_ uint64_t get_scene_pass() {
 		return scene_pass;

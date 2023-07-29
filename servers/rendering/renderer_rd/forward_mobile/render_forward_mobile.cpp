@@ -434,121 +434,6 @@ void RenderForwardMobile::_render_shadow_end(uint32_t p_barrier) {
 
 /* */
 
-void RenderForwardMobile::_render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) {
-	RENDER_TIMESTAMP("Setup Rendering 3D Material");
-
-	RD::get_singleton()->draw_command_begin_label("Render 3D Material");
-
-	_update_render_base_uniform_set();
-
-	RenderSceneDataRD scene_data;
-	scene_data.cam_projection = p_cam_projection;
-	scene_data.cam_transform = p_cam_transform;
-	scene_data.view_projection[0] = p_cam_projection;
-	scene_data.dual_paraboloid_side = 0;
-	scene_data.material_uv2_mode = false;
-	scene_data.opaque_prepass_threshold = 0.0f;
-	scene_data.emissive_exposure_normalization = p_exposure_normalization;
-	scene_data.time = time;
-	scene_data.time_step = time_step;
-
-	RenderDataRD render_data;
-	render_data.scene_data = &scene_data;
-	render_data.instances = &p_instances;
-
-	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
-	render_list[RENDER_LIST_SECONDARY].sort_by_key();
-	_fill_element_info(RENDER_LIST_SECONDARY);
-
-	RID rp_uniform_set = RID();
-
-	RENDER_TIMESTAMP("Render 3D Material");
-
-	{
-		RenderListParameters render_list_params(render_list[RENDER_LIST_SECONDARY].elements.ptr(), render_list[RENDER_LIST_SECONDARY].element_info.ptr(), render_list[RENDER_LIST_SECONDARY].elements.size(), true, pass_mode, rp_uniform_set, 0);
-		//regular forward for now
-		Vector<Color> clear = {
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0)
-		};
-		RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(p_framebuffer, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_READ, clear, 1.0, 0, p_region);
-		_render_list(draw_list, RD::get_singleton()->framebuffer_get_format(p_framebuffer), &render_list_params, 0, render_list_params.element_count);
-		RD::get_singleton()->draw_list_end();
-	}
-
-	RD::get_singleton()->draw_command_end_label();
-}
-
-void RenderForwardMobile::_render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
-	RENDER_TIMESTAMP("Setup Rendering UV2");
-
-	RD::get_singleton()->draw_command_begin_label("Render UV2");
-
-	_update_render_base_uniform_set();
-
-	RenderSceneDataRD scene_data;
-	scene_data.dual_paraboloid_side = 0;
-	scene_data.material_uv2_mode = true;
-	scene_data.emissive_exposure_normalization = -1.0;
-
-	RenderDataRD render_data;
-	render_data.scene_data = &scene_data;
-	render_data.instances = &p_instances;
-
-	PassMode pass_mode = PASS_MODE_DEPTH_MATERIAL;
-	render_list[RENDER_LIST_SECONDARY].sort_by_key();
-	_fill_element_info(RENDER_LIST_SECONDARY);
-
-	RID rp_uniform_set = RID();
-
-	RENDER_TIMESTAMP("Render 3D Material");
-
-	{
-		RenderListParameters render_list_params(render_list[RENDER_LIST_SECONDARY].elements.ptr(), render_list[RENDER_LIST_SECONDARY].element_info.ptr(), render_list[RENDER_LIST_SECONDARY].elements.size(), true, pass_mode, rp_uniform_set, true, false);
-		//regular forward for now
-		Vector<Color> clear = {
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0),
-			Color(0, 0, 0, 0)
-		};
-
-		RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(p_framebuffer, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_READ, clear, 1.0, 0, p_region);
-
-		const int uv_offset_count = 9;
-		static const Vector2 uv_offsets[uv_offset_count] = {
-			Vector2(-1, 1),
-			Vector2(1, 1),
-			Vector2(1, -1),
-			Vector2(-1, -1),
-			Vector2(-1, 0),
-			Vector2(1, 0),
-			Vector2(0, -1),
-			Vector2(0, 1),
-			Vector2(0, 0),
-
-		};
-
-		for (int i = 0; i < uv_offset_count; i++) {
-			Vector2 ofs = uv_offsets[i];
-			ofs.x /= p_region.size.width;
-			ofs.y /= p_region.size.height;
-			render_list_params.uv_offset = ofs;
-			_render_list(draw_list, RD::get_singleton()->framebuffer_get_format(p_framebuffer), &render_list_params, 0, render_list_params.element_count); //first wireframe, for pseudo conservative
-		}
-		render_list_params.uv_offset = Vector2();
-		_render_list(draw_list, RD::get_singleton()->framebuffer_get_format(p_framebuffer), &render_list_params, 0, render_list_params.element_count); //second regular triangles
-
-		RD::get_singleton()->draw_list_end();
-	}
-
-	RD::get_singleton()->draw_command_end_label();
-}
-
 void RenderForwardMobile::base_uniforms_changed() {
 	if (!render_base_uniform_set.is_null() && RD::get_singleton()->uniform_set_is_valid(render_base_uniform_set)) {
 		RD::get_singleton()->free(render_base_uniform_set);
@@ -731,14 +616,6 @@ void RenderForwardMobile::_update_render_base_uniform_set() {
 
 		render_base_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, scene_shader.default_shader_rd, SCENE_UNIFORM_SET);
 	}
-}
-
-RID RenderForwardMobile::_render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
-	return RID();
-}
-
-RID RenderForwardMobile::_render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
-	return RID();
 }
 
 _FORCE_INLINE_ static uint32_t _indices_to_primitives(RS::PrimitiveType p_primitive, uint32_t p_indices) {
@@ -1038,24 +915,6 @@ void RenderForwardMobile::_render_list_template(RenderingDevice::DrawListID p_dr
 
 /* Geometry instance */
 
-RenderGeometryInstance *RenderForwardMobile::geometry_instance_create(RID p_base) {
-	RS::InstanceType type = RSG::utilities->get_base_type(p_base);
-	ERR_FAIL_COND_V(!((1 << type) & RS::INSTANCE_GEOMETRY_MASK), nullptr);
-
-	GeometryInstanceForwardMobile *ginstance = geometry_instance_alloc.alloc();
-	ginstance->data = memnew(GeometryInstanceForwardMobile::Data);
-
-	ginstance->data->base = p_base;
-	ginstance->data->base_type = type;
-	ginstance->data->dependency_tracker.userdata = ginstance;
-	ginstance->data->dependency_tracker.changed_callback = _geometry_instance_dependency_changed;
-	ginstance->data->dependency_tracker.deleted_callback = _geometry_instance_dependency_deleted;
-
-	ginstance->_mark_dirty();
-
-	return ginstance;
-}
-
 void RenderForwardMobile::GeometryInstanceForwardMobile::set_use_lightmap(RID p_lightmap_instance, const Rect2 &p_lightmap_uv_scale, int p_lightmap_slice_index) {
 	lightmap_instance = p_lightmap_instance;
 	lightmap_uv_scale = p_lightmap_uv_scale;
@@ -1078,26 +937,6 @@ void RenderForwardMobile::GeometryInstanceForwardMobile::set_lightmap_capture(co
 		}
 	}
 	_mark_dirty();
-}
-
-void RenderForwardMobile::geometry_instance_free(RenderGeometryInstance *p_geometry_instance) {
-	GeometryInstanceForwardMobile *ginstance = static_cast<GeometryInstanceForwardMobile *>(p_geometry_instance);
-	ERR_FAIL_COND(!ginstance);
-	if (ginstance->lightmap_sh != nullptr) {
-		geometry_instance_lightmap_sh.free(ginstance->lightmap_sh);
-	}
-	GeometryInstanceSurfaceDataCache *surf = ginstance->surface_caches;
-	while (surf) {
-		GeometryInstanceSurfaceDataCache *next = surf->next;
-		geometry_instance_surface_alloc.free(surf);
-		surf = next;
-	}
-	memdelete(ginstance->data);
-	geometry_instance_alloc.free(ginstance);
-}
-
-uint32_t RenderForwardMobile::geometry_instance_get_pair_mask() {
-	return ((1 << RS::INSTANCE_LIGHT) + (1 << RS::INSTANCE_DECAL));
 }
 
 void RenderForwardMobile::GeometryInstanceForwardMobile::pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) {

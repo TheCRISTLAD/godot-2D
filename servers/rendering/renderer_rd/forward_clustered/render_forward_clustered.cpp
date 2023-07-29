@@ -608,30 +608,6 @@ void RenderForwardClustered::setup_added_decal(const Transform3D &p_transform, c
 	}
 }
 
-void RenderForwardClustered::_render_buffers_debug_draw(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) {
-	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-	ERR_FAIL_COND(p_render_buffers.is_null());
-
-	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
-	ERR_FAIL_COND(rb_data.is_null());
-
-	RendererSceneRenderRD::_render_buffers_debug_draw(p_render_buffers, p_shadow_atlas, p_occlusion_buffer);
-
-	RID render_target = p_render_buffers->get_render_target();
-
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_SSAO && p_render_buffers->has_texture(RB_SCOPE_SSAO, RB_FINAL)) {
-		RID final = p_render_buffers->get_texture_slice(RB_SCOPE_SSAO, RB_FINAL, 0, 0);
-		Size2i rtsize = texture_storage->render_target_get_size(render_target);
-		copy_effects->copy_to_fb_rect(final, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2(Vector2(), rtsize), false, true);
-	}
-
-	if (get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_SSIL && p_render_buffers->has_texture(RB_SCOPE_SSIL, RB_FINAL)) {
-		RID final = p_render_buffers->get_texture_slice(RB_SCOPE_SSIL, RB_FINAL, 0, 0);
-		Size2i rtsize = texture_storage->render_target_get_size(render_target);
-		copy_effects->copy_to_fb_rect(final, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2(Vector2(), rtsize), false, false);
-	}
-}
-
 void RenderForwardClustered::_render_shadow_pass(RID p_light, RID p_shadow_atlas, int p_pass, const PagedArray<RenderGeometryInstance *> &p_instances, const Plane &p_camera_plane, float p_lod_distance_multiplier, float p_screen_mesh_lod_threshold, bool p_open_pass, bool p_close_pass, bool p_clear_region, RenderingMethod::RenderInfo *p_render_info) {
 	RendererRD::LightStorage *light_storage = RendererRD::LightStorage::get_singleton();
 
@@ -902,12 +878,6 @@ void RenderForwardClustered::_render_shadow_end(uint32_t p_barrier) {
 	RD::get_singleton()->draw_command_end_label();
 }
 
-void RenderForwardClustered::_render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) {
-}
-
-void RenderForwardClustered::_render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
-}
-
 void RenderForwardClustered::base_uniforms_changed() {
 	if (!render_base_uniform_set.is_null() && RD::get_singleton()->uniform_set_is_valid(render_base_uniform_set)) {
 		RD::get_singleton()->free(render_base_uniform_set);
@@ -1105,16 +1075,6 @@ void RenderForwardClustered::_update_render_base_uniform_set() {
 
 		render_base_uniform_set = RD::get_singleton()->uniform_set_create(uniforms, scene_shader.default_shader_rd, SCENE_UNIFORM_SET);
 	}
-}
-
-RID RenderForwardClustered::_render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
-	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
-
-	return rb_data->get_normal_roughness();
-}
-
-RID RenderForwardClustered::_render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
-	return p_render_buffers->get_velocity_buffer(false);
 }
 
 RenderForwardClustered *RenderForwardClustered::singleton = nullptr;
@@ -1483,24 +1443,6 @@ void RenderForwardClustered::_geometry_instance_dependency_deleted(const RID &p_
 	static_cast<GeometryInstanceForwardClustered *>(p_tracker->userdata)->data->dirty_dependencies = true;
 }
 
-RenderGeometryInstance *RenderForwardClustered::geometry_instance_create(RID p_base) {
-	RS::InstanceType type = RSG::utilities->get_base_type(p_base);
-	ERR_FAIL_COND_V(!((1 << type) & RS::INSTANCE_GEOMETRY_MASK), nullptr);
-
-	GeometryInstanceForwardClustered *ginstance = geometry_instance_alloc.alloc();
-	ginstance->data = memnew(GeometryInstanceForwardClustered::Data);
-
-	ginstance->data->base = p_base;
-	ginstance->data->base_type = type;
-	ginstance->data->dependency_tracker.userdata = ginstance;
-	ginstance->data->dependency_tracker.changed_callback = _geometry_instance_dependency_changed;
-	ginstance->data->dependency_tracker.deleted_callback = _geometry_instance_dependency_deleted;
-
-	ginstance->_mark_dirty();
-
-	return ginstance;
-}
-
 void RenderForwardClustered::GeometryInstanceForwardClustered::set_transform(const Transform3D &p_transform, const AABB &p_aabb, const AABB &p_transformed_aabbb) {
 	uint64_t frame = RSG::rasterizer->get_frame_number();
 	if (frame != prev_transform_change_frame) {
@@ -1534,26 +1476,6 @@ void RenderForwardClustered::GeometryInstanceForwardClustered::set_lightmap_capt
 		}
 	}
 	_mark_dirty();
-}
-
-void RenderForwardClustered::geometry_instance_free(RenderGeometryInstance *p_geometry_instance) {
-	GeometryInstanceForwardClustered *ginstance = static_cast<GeometryInstanceForwardClustered *>(p_geometry_instance);
-	ERR_FAIL_COND(!ginstance);
-	if (ginstance->lightmap_sh != nullptr) {
-		geometry_instance_lightmap_sh.free(ginstance->lightmap_sh);
-	}
-	GeometryInstanceSurfaceDataCache *surf = ginstance->surface_caches;
-	while (surf) {
-		GeometryInstanceSurfaceDataCache *next = surf->next;
-		geometry_instance_surface_alloc.free(surf);
-		surf = next;
-	}
-	memdelete(ginstance->data);
-	geometry_instance_alloc.free(ginstance);
-}
-
-uint32_t RenderForwardClustered::geometry_instance_get_pair_mask() {
-	return (1 << RS::INSTANCE_VOXEL_GI);
 }
 
 void RenderForwardClustered::GeometryInstanceForwardClustered::set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) {

@@ -42,28 +42,6 @@
 
 RasterizerSceneGLES3 *RasterizerSceneGLES3::singleton = nullptr;
 
-RenderGeometryInstance *RasterizerSceneGLES3::geometry_instance_create(RID p_base) {
-	RS::InstanceType type = RSG::utilities->get_base_type(p_base);
-	ERR_FAIL_COND_V(!((1 << type) & RS::INSTANCE_GEOMETRY_MASK), nullptr);
-
-	GeometryInstanceGLES3 *ginstance = geometry_instance_alloc.alloc();
-	ginstance->data = memnew(GeometryInstanceGLES3::Data);
-
-	ginstance->data->base = p_base;
-	ginstance->data->base_type = type;
-	ginstance->data->dependency_tracker.userdata = ginstance;
-	ginstance->data->dependency_tracker.changed_callback = _geometry_instance_dependency_changed;
-	ginstance->data->dependency_tracker.deleted_callback = _geometry_instance_dependency_deleted;
-
-	ginstance->_mark_dirty();
-
-	return ginstance;
-}
-
-uint32_t RasterizerSceneGLES3::geometry_instance_get_pair_mask() {
-	return (1 << RS::INSTANCE_LIGHT);
-}
-
 void RasterizerSceneGLES3::GeometryInstanceGLES3::pair_light_instances(const RID *p_light_instances, uint32_t p_light_instance_count) {
 	GLES3::Config *config = GLES3::Config::get_singleton();
 
@@ -91,19 +69,6 @@ void RasterizerSceneGLES3::GeometryInstanceGLES3::pair_light_instances(const RID
 				break;
 		}
 	}
-}
-
-void RasterizerSceneGLES3::geometry_instance_free(RenderGeometryInstance *p_geometry_instance) {
-	GeometryInstanceGLES3 *ginstance = static_cast<GeometryInstanceGLES3 *>(p_geometry_instance);
-	ERR_FAIL_COND(!ginstance);
-	GeometryInstanceSurface *surf = ginstance->surface_caches;
-	while (surf) {
-		GeometryInstanceSurface *next = surf->next;
-		geometry_instance_surface_alloc.free(surf);
-		surf = next;
-	}
-	memdelete(ginstance->data);
-	geometry_instance_alloc.free(ginstance);
 }
 
 void RasterizerSceneGLES3::GeometryInstanceGLES3::_mark_dirty() {
@@ -857,9 +822,6 @@ void RasterizerSceneGLES3::_render_list_template(RenderListParameters *p_params,
 	}
 }
 
-void RasterizerSceneGLES3::render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
-}
-
 void RasterizerSceneGLES3::set_time(double p_time, double p_step) {
 	time = p_time;
 	time_step = p_step;
@@ -873,9 +835,6 @@ Ref<RenderSceneBuffers> RasterizerSceneGLES3::render_buffers_create() {
 	Ref<RenderSceneBuffersGLES3> rb;
 	rb.instantiate();
 	return rb;
-}
-
-void RasterizerSceneGLES3::_render_buffers_debug_draw(Ref<RenderSceneBuffersGLES3> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) {
 }
 
 bool RasterizerSceneGLES3::free(RID p_rid) {
@@ -895,41 +854,41 @@ void RasterizerSceneGLES3::light_projectors_set_filter(RS::LightProjectorFilter 
 }
 
 RasterizerSceneGLES3::RasterizerSceneGLES3() {
-	singleton = this;
+	// singleton = this;
 
-	GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
-	GLES3::Config *config = GLES3::Config::get_singleton();
+	// GLES3::MaterialStorage *material_storage = GLES3::MaterialStorage::get_singleton();
+	// GLES3::Config *config = GLES3::Config::get_singleton();
 
-	// Quality settings.
-	use_physical_light_units = GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units");
+	// // Quality settings.
+	// use_physical_light_units = GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units");
 
-	{
-		// Setup Lights
+	// {
+	// 	// Setup Lights
 
-		config->max_renderable_lights = MIN(config->max_renderable_lights, config->max_uniform_buffer_size / (int)sizeof(RasterizerSceneGLES3::LightData));
-		config->max_lights_per_object = MIN(config->max_lights_per_object, config->max_renderable_lights);
+	// 	config->max_renderable_lights = MIN(config->max_renderable_lights, config->max_uniform_buffer_size / (int)sizeof(RasterizerSceneGLES3::LightData));
+	// 	config->max_lights_per_object = MIN(config->max_lights_per_object, config->max_renderable_lights);
 
-		uint32_t light_buffer_size = config->max_renderable_lights * sizeof(LightData);
-		scene_state.omni_lights = memnew_arr(LightData, config->max_renderable_lights);
-		scene_state.omni_light_sort = memnew_arr(InstanceSort<GLES3::LightInstance>, config->max_renderable_lights);
-		glGenBuffers(1, &scene_state.omni_light_buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, scene_state.omni_light_buffer);
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.omni_light_buffer, light_buffer_size, nullptr, GL_STREAM_DRAW, "OmniLight UBO");
+	// 	uint32_t light_buffer_size = config->max_renderable_lights * sizeof(LightData);
+	// 	scene_state.omni_lights = memnew_arr(LightData, config->max_renderable_lights);
+	// 	scene_state.omni_light_sort = memnew_arr(InstanceSort<GLES3::LightInstance>, config->max_renderable_lights);
+	// 	glGenBuffers(1, &scene_state.omni_light_buffer);
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, scene_state.omni_light_buffer);
+	// 	GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.omni_light_buffer, light_buffer_size, nullptr, GL_STREAM_DRAW, "OmniLight UBO");
 
-		scene_state.spot_lights = memnew_arr(LightData, config->max_renderable_lights);
-		scene_state.spot_light_sort = memnew_arr(InstanceSort<GLES3::LightInstance>, config->max_renderable_lights);
-		glGenBuffers(1, &scene_state.spot_light_buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, scene_state.spot_light_buffer);
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.spot_light_buffer, light_buffer_size, nullptr, GL_STREAM_DRAW, "SpotLight UBO");
+	// 	scene_state.spot_lights = memnew_arr(LightData, config->max_renderable_lights);
+	// 	scene_state.spot_light_sort = memnew_arr(InstanceSort<GLES3::LightInstance>, config->max_renderable_lights);
+	// 	glGenBuffers(1, &scene_state.spot_light_buffer);
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, scene_state.spot_light_buffer);
+	// 	GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.spot_light_buffer, light_buffer_size, nullptr, GL_STREAM_DRAW, "SpotLight UBO");
 
-		uint32_t directional_light_buffer_size = MAX_DIRECTIONAL_LIGHTS * sizeof(DirectionalLightData);
-		scene_state.directional_lights = memnew_arr(DirectionalLightData, MAX_DIRECTIONAL_LIGHTS);
-		glGenBuffers(1, &scene_state.directional_light_buffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, scene_state.directional_light_buffer);
-		GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.directional_light_buffer, directional_light_buffer_size, nullptr, GL_STREAM_DRAW, "DirectionalLight UBO");
+	// 	uint32_t directional_light_buffer_size = MAX_DIRECTIONAL_LIGHTS * sizeof(DirectionalLightData);
+	// 	scene_state.directional_lights = memnew_arr(DirectionalLightData, MAX_DIRECTIONAL_LIGHTS);
+	// 	glGenBuffers(1, &scene_state.directional_light_buffer);
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, scene_state.directional_light_buffer);
+	// 	GLES3::Utilities::get_singleton()->buffer_allocate_data(GL_UNIFORM_BUFFER, scene_state.directional_light_buffer, directional_light_buffer_size, nullptr, GL_STREAM_DRAW, "DirectionalLight UBO");
 
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
+	// 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	// }
 
 	// {
 	// 	sky_globals.max_directional_lights = 4;
@@ -944,16 +903,16 @@ RasterizerSceneGLES3::RasterizerSceneGLES3() {
 	// 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	// }
 
-	{
-		String global_defines;
-		global_defines += "#define MAX_GLOBAL_SHADER_UNIFORMS 256\n"; // TODO: this is arbitrary for now
-		global_defines += "\n#define MAX_LIGHT_DATA_STRUCTS " + itos(config->max_renderable_lights) + "\n";
-		global_defines += "\n#define MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS " + itos(MAX_DIRECTIONAL_LIGHTS) + "\n";
-		global_defines += "\n#define MAX_FORWARD_LIGHTS uint(" + itos(config->max_lights_per_object) + ")\n";
-		material_storage->shaders.scene_shader.initialize(global_defines);
-		scene_globals.shader_default_version = material_storage->shaders.scene_shader.version_create();
-		material_storage->shaders.scene_shader.version_bind_shader(scene_globals.shader_default_version, SceneShaderGLES3::MODE_COLOR);
-	}
+	// {
+	// 	String global_defines;
+	// 	global_defines += "#define MAX_GLOBAL_SHADER_UNIFORMS 256\n"; // TODO: this is arbitrary for now
+	// 	global_defines += "\n#define MAX_LIGHT_DATA_STRUCTS " + itos(config->max_renderable_lights) + "\n";
+	// 	global_defines += "\n#define MAX_DIRECTIONAL_LIGHT_DATA_STRUCTS " + itos(MAX_DIRECTIONAL_LIGHTS) + "\n";
+	// 	global_defines += "\n#define MAX_FORWARD_LIGHTS uint(" + itos(config->max_lights_per_object) + ")\n";
+	// 	material_storage->shaders.scene_shader.initialize(global_defines);
+	// 	scene_globals.shader_default_version = material_storage->shaders.scene_shader.version_create();
+	// 	material_storage->shaders.scene_shader.version_bind_shader(scene_globals.shader_default_version, SceneShaderGLES3::MODE_COLOR);
+	// }
 
 	// 	{
 	// 		//default material and shader
@@ -1061,12 +1020,12 @@ RasterizerSceneGLES3::RasterizerSceneGLES3() {
 	// 		glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 	// 	}
 
-#ifdef GLES_OVER_GL
-	glEnable(_EXT_TEXTURE_CUBE_MAP_SEAMLESS);
-#endif
+	// #ifdef GLES_OVER_GL
+	// 	glEnable(_EXT_TEXTURE_CUBE_MAP_SEAMLESS);
+	// #endif
 
-	// MultiMesh may read from color when color is disabled, so make sure that the color defaults to white instead of black;
-	glVertexAttrib4f(RS::ARRAY_COLOR, 1.0, 1.0, 1.0, 1.0);
+	// 	// MultiMesh may read from color when color is disabled, so make sure that the color defaults to white instead of black;
+	// 	glVertexAttrib4f(RS::ARRAY_COLOR, 1.0, 1.0, 1.0, 1.0);
 }
 
 RasterizerSceneGLES3::~RasterizerSceneGLES3() {

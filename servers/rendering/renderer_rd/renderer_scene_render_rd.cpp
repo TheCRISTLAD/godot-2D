@@ -216,72 +216,6 @@ void RendererSceneRenderRD::_disable_clear_request(const RenderDataRD *p_render_
 	texture_storage->render_target_disable_clear_request(p_render_data->render_buffers->get_render_target());
 }
 
-void RendererSceneRenderRD::_render_buffers_debug_draw(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) {
-	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
-
-	ERR_FAIL_COND(p_render_buffers.is_null());
-
-	RID render_target = p_render_buffers->get_render_target();
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_SHADOW_ATLAS) {
-		if (p_shadow_atlas.is_valid()) {
-			RID shadow_atlas_texture = RendererRD::LightStorage::get_singleton()->shadow_atlas_get_texture(p_shadow_atlas);
-
-			if (shadow_atlas_texture.is_null()) {
-				shadow_atlas_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_BLACK);
-			}
-
-			Size2 rtsize = texture_storage->render_target_get_size(render_target);
-			copy_effects->copy_to_fb_rect(shadow_atlas_texture, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2i(Vector2(), rtsize / 2), false, true);
-		}
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_DIRECTIONAL_SHADOW_ATLAS) {
-		if (RendererRD::LightStorage::get_singleton()->directional_shadow_get_texture().is_valid()) {
-			RID shadow_atlas_texture = RendererRD::LightStorage::get_singleton()->directional_shadow_get_texture();
-			Size2i rtsize = texture_storage->render_target_get_size(render_target);
-
-			copy_effects->copy_to_fb_rect(shadow_atlas_texture, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2i(Vector2(), rtsize / 2), false, true);
-		}
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_DECAL_ATLAS) {
-		RID decal_atlas = RendererRD::TextureStorage::get_singleton()->decal_atlas_get_texture();
-
-		if (decal_atlas.is_valid()) {
-			Size2i rtsize = texture_storage->render_target_get_size(render_target);
-
-			copy_effects->copy_to_fb_rect(decal_atlas, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2i(Vector2(), rtsize / 2), false, false, true);
-		}
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_SCENE_LUMINANCE) {
-		RID luminance_texture = luminance->get_current_luminance_buffer(p_render_buffers);
-		if (luminance_texture.is_valid()) {
-			Size2i rtsize = texture_storage->render_target_get_size(render_target);
-
-			copy_effects->copy_to_fb_rect(luminance_texture, texture_storage->render_target_get_rd_framebuffer(render_target), Rect2(Vector2(), rtsize / 8), false, true);
-		}
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_NORMAL_BUFFER && _render_buffers_get_normal_texture(p_render_buffers).is_valid()) {
-		Size2 rtsize = texture_storage->render_target_get_size(render_target);
-		copy_effects->copy_to_fb_rect(_render_buffers_get_normal_texture(p_render_buffers), texture_storage->render_target_get_rd_framebuffer(render_target), Rect2(Vector2(), rtsize), false, false);
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_OCCLUDERS) {
-		if (p_occlusion_buffer.is_valid()) {
-			Size2i rtsize = texture_storage->render_target_get_size(render_target);
-			copy_effects->copy_to_fb_rect(texture_storage->texture_get_rd_texture(p_occlusion_buffer), texture_storage->render_target_get_rd_framebuffer(render_target), Rect2i(Vector2(), rtsize), true, false);
-		}
-	}
-
-	if (debug_draw == RS::VIEWPORT_DEBUG_DRAW_MOTION_VECTORS && _render_buffers_get_velocity_texture(p_render_buffers).is_valid()) {
-		Size2i rtsize = texture_storage->render_target_get_size(render_target);
-		copy_effects->copy_to_fb_rect(_render_buffers_get_velocity_texture(p_render_buffers), texture_storage->render_target_get_rd_framebuffer(render_target), Rect2(Vector2(), rtsize), false, false);
-	}
-}
-
 float RendererSceneRenderRD::_render_buffers_get_luminance_multiplier() {
 	return 1.0;
 }
@@ -322,10 +256,6 @@ void RendererSceneRenderRD::_pre_resolve_render(RenderDataRD *p_render_data, boo
 			RD::get_singleton()->compute_list_end();
 		}
 	}
-}
-
-void RendererSceneRenderRD::render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) {
-	_render_material(p_cam_transform, p_cam_projection, p_cam_orthogonal, p_instances, p_framebuffer, p_region, 1.0);
 }
 
 bool RendererSceneRenderRD::free(RID p_rid) {

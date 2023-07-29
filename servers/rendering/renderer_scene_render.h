@@ -46,12 +46,6 @@ public:
 		MAX_RENDER_VIEWS = 2
 	};
 
-	/* Geometry Instance */
-
-	virtual RenderGeometryInstance *geometry_instance_create(RID p_base) = 0;
-	virtual void geometry_instance_free(RenderGeometryInstance *p_geometry_instance) = 0;
-	virtual uint32_t geometry_instance_get_pair_mask() = 0;
-
 	/* ENVIRONMENT API */
 
 	struct RenderShadowData {
@@ -95,9 +89,6 @@ public:
 		void set_multiview_camera(uint32_t p_view_count, const Transform3D *p_transforms, const Projection *p_projections, bool p_is_orthogonal, bool p_vaspect);
 	};
 
-	virtual void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) = 0;
-
-	virtual void set_scene_pass(uint64_t p_pass) = 0;
 	virtual void set_time(double p_time, double p_step) = 0;
 	virtual void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) = 0;
 

@@ -552,19 +552,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 	/* Debug */
 	void _debug_draw_cluster(Ref<RenderSceneBuffersRD> p_render_buffers);
 
-protected:
-	/* setup */
-
-	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
-	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
-
-	/* Rendering */
-
-	virtual void _render_buffers_debug_draw(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer) override;
-
-	virtual void _render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) override;
-	virtual void _render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-
 public:
 	static RenderForwardClustered *get_singleton() { return singleton; }
 
@@ -580,13 +567,6 @@ public:
 		base_uniform_set_updated = true;
 		_update_render_base_uniform_set();
 	}
-
-	/* GEOMETRY INSTANCE */
-
-	virtual RenderGeometryInstance *geometry_instance_create(RID p_base) override;
-	virtual void geometry_instance_free(RenderGeometryInstance *p_geometry_instance) override;
-
-	virtual uint32_t geometry_instance_get_pair_mask() override;
 
 	virtual bool free(RID p_rid) override;
 

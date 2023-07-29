@@ -570,11 +570,7 @@ void LightStorage::update_light_buffers(RenderDataRD *p_render_data, const Paged
 
 				light_data.energy = sign * light->param[RS::LIGHT_PARAM_ENERGY];
 
-				if (RendererSceneRenderRD::get_singleton()->is_using_physical_light_units()) {
-					light_data.energy *= light->param[RS::LIGHT_PARAM_INTENSITY];
-				} else {
-					light_data.energy *= Math_PI;
-				}
+				light_data.energy *= Math_PI;
 
 				Color linear_col = light->color.srgb_to_linear();
 				light_data.color[0] = linear_col.r;
@@ -782,20 +778,7 @@ void LightStorage::update_light_buffers(RenderDataRD *p_render_data, const Paged
 
 		float energy = sign * light->param[RS::LIGHT_PARAM_ENERGY] * fade;
 
-		if (RendererSceneRenderRD::get_singleton()->is_using_physical_light_units()) {
-			energy *= light->param[RS::LIGHT_PARAM_INTENSITY];
-
-			// Convert from Luminous Power to Luminous Intensity
-			if (type == RS::LIGHT_OMNI) {
-				energy *= 1.0 / (Math_PI * 4.0);
-			} else {
-				// Spot Lights are not physically accurate, Luminous Intensity should change in relation to the cone angle.
-				// We make this assumption to keep them easy to control.
-				energy *= 1.0 / Math_PI;
-			}
-		} else {
-			energy *= Math_PI;
-		}
+		energy *= Math_PI;
 
 		light_data.color[0] = linear_col.r * energy;
 		light_data.color[1] = linear_col.g * energy;

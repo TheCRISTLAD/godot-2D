@@ -106,15 +106,6 @@ protected:
 
 	virtual void setup_render_buffer_data(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 
-	// virtual void _render_scene(RenderDataRD *p_render_data, const Color &p_default_color) = 0;
-	virtual void _render_buffers_debug_draw(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_shadow_atlas, RID p_occlusion_buffer);
-
-	virtual void _render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) = 0;
-	virtual void _render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) = 0;
-
-	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
-	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
-
 	bool _needs_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi);
 	void _post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi);
 	void _pre_resolve_render(RenderDataRD *p_render_data, bool p_use_gi);
@@ -173,12 +164,6 @@ public:
 	virtual void setup_added_light(const RS::LightType p_type, const Transform3D &p_transform, float p_radius, float p_spot_aperture){};
 	virtual void setup_added_decal(const Transform3D &p_transform, const Vector3 &p_half_size){};
 
-	/* ENVIRONMENT API */
-
-	_FORCE_INLINE_ bool is_using_physical_light_units() {
-		return use_physical_light_units;
-	}
-
 	/* render buffers */
 
 	virtual float _render_buffers_get_luminance_multiplier();
@@ -189,11 +174,6 @@ public:
 	virtual void base_uniforms_changed() = 0;
 	virtual void update_uniform_sets(){};
 
-	virtual void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-
-	virtual void set_scene_pass(uint64_t p_pass) override {
-		scene_pass = p_pass;
-	}
 	_FORCE_INLINE_ uint64_t get_scene_pass() {
 		return scene_pass;
 	}

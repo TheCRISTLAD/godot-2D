@@ -339,9 +339,6 @@ protected:
 	virtual RD::DataFormat _render_buffers_get_color_format() override;
 	virtual bool _render_buffers_can_be_storage() override;
 
-	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
-	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) override;
-
 	/* Geometry instance */
 
 	class GeometryInstanceForwardMobile;
@@ -484,13 +481,6 @@ protected:
 		virtual void set_softshadow_projector_pairing(bool p_softshadow, bool p_projector) override;
 	};
 
-	/* Rendering */
-
-	// virtual void _render_scene(RenderDataRD *p_render_data, const Color &p_default_bg_color) override;
-
-	virtual void _render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region, float p_exposure_normalization) override;
-	virtual void _render_uv2(const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override;
-
 	/* Forward ID */
 
 	class ForwardIDStorageMobile : public RendererRD::ForwardIDStorage {
@@ -537,11 +527,6 @@ public:
 	void _geometry_instance_add_surface(GeometryInstanceForwardMobile *ginstance, uint32_t p_surface, RID p_material, RID p_mesh);
 	void _geometry_instance_update(RenderGeometryInstance *p_geometry_instance);
 	void _update_dirty_geometry_instances();
-
-	virtual RenderGeometryInstance *geometry_instance_create(RID p_base) override;
-	virtual void geometry_instance_free(RenderGeometryInstance *p_geometry_instance) override;
-
-	virtual uint32_t geometry_instance_get_pair_mask() override;
 
 	virtual bool free(RID p_rid) override;
 

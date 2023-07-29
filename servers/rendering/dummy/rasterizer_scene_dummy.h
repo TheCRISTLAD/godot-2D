@@ -74,29 +74,8 @@ public:
 	PagedAllocator<GeometryInstanceDummy> geometry_instance_alloc;
 
 public:
-	RenderGeometryInstance *geometry_instance_create(RID p_base) override {
-		RS::InstanceType type = RendererDummy::Utilities::get_singleton()->get_base_type(p_base);
-		ERR_FAIL_COND_V(!((1 << type) & RS::INSTANCE_GEOMETRY_MASK), nullptr);
-
-		GeometryInstanceDummy *ginstance = geometry_instance_alloc.alloc();
-
-		return ginstance;
-	}
-
-	void geometry_instance_free(RenderGeometryInstance *p_geometry_instance) override {
-		GeometryInstanceDummy *ginstance = static_cast<GeometryInstanceDummy *>(p_geometry_instance);
-		ERR_FAIL_COND(!ginstance);
-
-		geometry_instance_alloc.free(ginstance);
-	}
-
-	uint32_t geometry_instance_get_pair_mask() override { return 0; }
-
 	/* ENVIRONMENT API */
 
-	void render_material(const Transform3D &p_cam_transform, const Projection &p_cam_projection, bool p_cam_orthogonal, const PagedArray<RenderGeometryInstance *> &p_instances, RID p_framebuffer, const Rect2i &p_region) override {}
-
-	void set_scene_pass(uint64_t p_pass) override {}
 	void set_time(double p_time, double p_step) override {}
 	void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) override {}
 
