@@ -705,8 +705,6 @@ void register_scene_types() {
 #ifndef DISABLE_DEPRECATED
 	// Dropped in 4.0, near approximation.
 	ClassDB::add_compatibility_class("AnimationTreePlayer", "AnimationTree");
-	ClassDB::add_compatibility_class("BakedLightmap", "LightmapGI");
-	ClassDB::add_compatibility_class("BakedLightmapData", "LightmapGIData");
 	ClassDB::add_compatibility_class("BitmapFont", "FontFile");
 	ClassDB::add_compatibility_class("DynamicFont", "FontFile");
 	ClassDB::add_compatibility_class("DynamicFontData", "FontFile");

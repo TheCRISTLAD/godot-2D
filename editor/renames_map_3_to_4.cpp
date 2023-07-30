@@ -81,8 +81,6 @@ const char *RenamesMap3To4::enum_renames[][2] = {
 	{ "ARVR_NORMAL_TRACKING", "XR_NORMAL_TRACKING" }, // XRInterface
 	{ "ARVR_NOT_TRACKING", "XR_NOT_TRACKING" }, // XRInterface
 	{ "ARVR_STEREO", "XR_STEREO" }, // XRInterface
-	{ "ARVR_UNKNOWN_TRACKING", "XR_UNKNOWN_TRACKING" }, // XRInterface
-	{ "BAKE_ERROR_INVALID_MESH", "BAKE_ERROR_MESHES_INVALID" }, // LightmapGI
 	{ "BODY_MODE_CHARACTER", "BODY_MODE_RIGID_LINEAR" }, // PhysicsServer
 	{ "CLEAR_MODE_ONLY_NEXT_FRAME", "CLEAR_MODE_ONCE" }, // SubViewport
 	{ "COMPRESS_PVRTC4", "COMPRESS_PVRTC1_4" }, // Image
@@ -328,7 +326,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "get_iterations_per_second", "get_physics_ticks_per_second" }, // Engine
 	{ "get_last_mouse_speed", "get_last_mouse_velocity" }, // Input
 	{ "get_len", "get_length" }, // File
-	{ "get_max_atlas_size", "get_max_texture_size" }, // LightmapGI
 	{ "get_metakey", "is_meta_pressed" }, // InputEventWithModifiers
 	{ "get_mid_height", "get_height" }, // CapsuleMesh
 	{ "get_motion_remainder", "get_remainder" }, // PhysicsTestMotionResult2D
@@ -518,7 +515,6 @@ const char *RenamesMap3To4::gdscript_function_renames[][2] = {
 	{ "set_is_primary", "set_primary" }, // XRInterface
 	{ "set_iterations_per_second", "set_physics_ticks_per_second" }, // Engine
 	{ "set_margins_preset", "set_offsets_preset" }, //  Control
-	{ "set_max_atlas_size", "set_max_texture_size" }, // LightmapGI
 	{ "set_metakey", "set_meta_pressed" }, // InputEventWithModifiers
 	{ "set_mid_height", "set_height" }, // CapsuleMesh
 	{ "set_network_master", "set_multiplayer_authority" }, // Node
@@ -731,7 +727,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "GetIterationsPerSecond", "GetPhysicsTicksPerSecond" }, // Engine
 	{ "GetLastMouseSpeed", "GetLastMouseVelocity" }, // Input
 	{ "GetLen", "GetLength" }, // File
-	{ "GetMaxAtlasSize", "GetMaxTextureSize" }, // LightmapGI
 	{ "GetMetakey", "IsMetaPressed" }, // InputEventWithModifiers
 	{ "GetMidHeight", "GetHeight" }, // CapsuleMesh
 	{ "GetMotionRemainder", "GetRemainder" }, // PhysicsTestMotionResult2D
@@ -907,7 +902,6 @@ const char *RenamesMap3To4::csharp_function_renames[][2] = {
 	{ "SetIsPrimary", "SetPrimary" }, // XRInterface
 	{ "SetIterationsPerSecond", "SetPhysicsTicksPerSecond" }, // Engine
 	{ "SetMarginsPreset", "SetOffsetsPreset" }, // Control
-	{ "SetMaxAtlasSize", "SetMaxTextureSize" }, // LightmapGI
 	{ "SetMetakey", "SetMetaPressed" }, // InputEventWithModifiers
 	{ "SetMidHeight", "SetHeight" }, // CapsuleMesh
 	{ "SetNetworkMaster", "SetMultiplayerAuthority" }, // Node
@@ -1050,7 +1044,6 @@ const char *RenamesMap3To4::gdscript_properties_renames[][2] = {
 	{ "drag_margin_top", "drag_top_margin" }, // Camera2D
 	{ "drag_margin_v_enabled", "drag_vertical_enabled" }, // Camera2D
 	{ "enabled_focus_mode", "focus_mode" }, // BaseButton - Removed
-	{ "extents", "size" }, // BoxShape3D, LightmapGI, ReflectionProbe
 	{ "extra_spacing_bottom", "spacing_bottom" }, // Font
 	{ "extra_spacing_top", "spacing_top" }, // Font
 	{ "focus_neighbour_bottom", "focus_neighbor_bottom" }, // Control
@@ -1141,7 +1134,6 @@ const char *RenamesMap3To4::csharp_properties_renames[][2] = {
 	{ "DragMarginTop", "DragTopMargin" }, // Camera2D
 	{ "DragMarginVEnabled", "DragVerticalEnabled" }, // Camera2D
 	{ "EnabledFocusMode", "FocusMode" }, // BaseButton - Removed
-	{ "Extents", "Size" }, // BoxShape3D, LightmapGI, ReflectionProbe
 	{ "ExtraSpacingBottom", "SpacingBottom" }, // Font
 	{ "ExtraSpacingTop", "SpacingTop" }, // Font
 	{ "FocusNeighbourBottom", "FocusNeighborBottom" }, // Control
@@ -1399,73 +1391,25 @@ const char *RenamesMap3To4::shaders_renames[][2] = {
 };
 
 const char *RenamesMap3To4::class_renames[][2] = {
-	// { "Particles", "GPUParticles3D" }, // Common word, and incompatible class.
-	// { "World", "World3D" }, // Too common.
-
 	// Risky as fairly common words, but worth it given how ubiquitous they are.
-	{ "Area", "Area3D" },
-	{ "Camera", "Camera3D" },
-	{ "Path", "Path3D" },
 	{ "Reference", "RefCounted" },
-	// { "Shape", "Shape3D" },
 	{ "Tabs", "TabBar" },
 
-	{ "ARVRAnchor", "XRAnchor3D" },
-	{ "ARVRCamera", "XRCamera3D" },
-	{ "ARVRController", "XRController3D" },
-	{ "ARVRInterface", "XRInterface" },
-	{ "ARVRInterfaceGDNative", "Node3D" },
-	{ "ARVROrigin", "XROrigin3D" },
-	{ "ARVRPositionalTracker", "XRPositionalTracker" },
-	{ "ARVRServer", "XRServer" },
-	{ "AStar", "AStar3D" },
 	{ "AnimatedSprite", "AnimatedSprite2D" },
 	{ "AudioStreamOGGVorbis", "AudioStreamOggVorbis" },
 	{ "AudioStreamRandomPitch", "AudioStreamRandomizer" },
 	{ "AudioStreamSample", "AudioStreamWAV" },
-	{ "BakedLightmap", "LightmapGI" },
-	{ "BakedLightmapData", "LightmapGIData" },
 	{ "BitmapFont", "FontFile" },
-	{ "BoneAttachment", "BoneAttachment3D" },
-	// { "BoxShape", "BoxShape3D" },
-	{ "CPUParticles", "CPUParticles3D" },
-	{ "CSGBox", "CSGBox3D" },
-	{ "CSGCombiner", "CSGCombiner3D" },
-	{ "CSGCylinder", "CSGCylinder3D" },
-	{ "CSGMesh", "CSGMesh3D" },
-	{ "CSGPolygon", "CSGPolygon3D" },
-	{ "CSGPrimitive", "CSGPrimitive3D" },
-	// { "CSGShape", "CSGShape3D" },
-	{ "CSGSphere", "CSGSphere3D" },
-	{ "CSGTorus", "CSGTorus3D" },
-	// { "CapsuleShape", "CapsuleShape3D" },
-	{ "ClippedCamera", "Camera3D" },
-	{ "CollisionObject", "CollisionObject3D" },
-	{ "CollisionPolygon", "CollisionPolygon3D" },
-	// { "CollisionShape", "CollisionShape3D" },
-	// { "ConcavePolygonShape", "ConcavePolygonShape3D" },
-	{ "ConeTwistJoint", "ConeTwistJoint3D" },
-	// { "ConvexPolygonShape", "ConvexPolygonShape3D" },
 	{ "CubeMap", "Cubemap" },
 	{ "CubeMesh", "BoxMesh" },
-	// { "CylinderShape", "CylinderShape3D" },
-	{ "DirectionalLight", "DirectionalLight3D" },
 	{ "Directory", "DirAccess" },
 	{ "DynamicFont", "FontFile" },
 	{ "DynamicFontData", "FontFile" },
 	{ "EditorSceneImporter", "EditorSceneFormatImporter" },
 	{ "EditorSceneImporterFBX", "EditorSceneFormatImporterFBX" },
 	{ "EditorSceneImporterGLTF", "EditorSceneFormatImporterGLTF" },
-	{ "EditorSpatialGizmo", "EditorNode3DGizmo" },
-	{ "EditorSpatialGizmoPlugin", "EditorNode3DGizmoPlugin" },
 	{ "ExternalTexture", "ImageTexture" },
-	{ "GIProbe", "VoxelGI" },
-	{ "GIProbeData", "VoxelGIData" },
-	{ "Generic6DOFJoint", "Generic6DOFJoint3D" },
-	{ "GeometryInstance", "GeometryInstance3D" },
 	{ "GradientTexture", "GradientTexture2D" },
-	// { "HeightMapShape", "HeightMapShape3D" },
-	{ "HingeJoint", "HingeJoint3D" },
 	{ "IP_Unix", "IPUnix" },
 	{ "ImmediateGeometry", "ImmediateMesh" },
 	{ "ImmediateGeometry3D", "ImmediateMesh" },
@@ -1483,7 +1427,6 @@ const char *RenamesMap3To4::class_renames[][2] = {
 	{ "OpenSimplexNoise", "FastNoiseLite" },
 	{ "PHashTranslation", "OptimizedTranslation" },
 	{ "PacketPeerGDNative", "PacketPeerExtension" },
-	{ "PanoramaSky", "Sky" },
 	{ "Particles2D", "GPUParticles2D" },
 	{ "ParticlesMaterial", "ParticleProcessMaterial" },
 	{ "Physics2DDirectBodyState", "PhysicsDirectBodyState2D" },
@@ -1517,11 +1460,8 @@ const char *RenamesMap3To4::class_renames[][2] = {
 	{ "VideoPlayer", "VideoStreamPlayer" },
 	{ "Viewport", "SubViewport" },
 	{ "ViewportContainer", "SubViewportContainer" },
-	{ "VisibilityEnabler", "VisibleOnScreenEnabler3D" },
 	{ "VisibilityEnabler2D", "VisibleOnScreenEnabler2D" },
-	{ "VisibilityNotifier", "VisibleOnScreenNotifier3D" },
 	{ "VisibilityNotifier2D", "VisibleOnScreenNotifier2D" },
-	{ "VisibilityNotifier3D", "VisibleOnScreenNotifier3D" },
 	{ "VisualServer", "RenderingServer" },
 	{ "VisualShaderNodeCubeMap", "VisualShaderNodeCubemap" },
 	{ "VisualShaderNodeScalarClamp", "VisualShaderNodeClamp" },
@@ -1553,9 +1493,6 @@ const char *RenamesMap3To4::class_renames[][2] = {
 	{ "WebRTCMultiplayer", "WebRTCMultiplayerPeer" },
 	{ "WebRTCPeerConnectionGDNative", "WebRTCPeerConnectionExtension" },
 	{ "WindowDialog", "Window" },
-	{ "XRAnchor", "XRAnchor3D" },
-	{ "XRController", "XRController3D" },
-	{ "XROrigin", "XROrigin3D" },
 	{ "YSort", "Node2D" }, // CanvasItem has a new "y_sort_enabled" property.
 
 	{ nullptr, nullptr },

@@ -1578,6 +1578,8 @@ void LightStorage::update_directional_shadow_atlas() {
 		directional_shadow.fb = RD::get_singleton()->framebuffer_create(fb_tex);
 	}
 }
+
+// used to update 2d/3d shadow atlas size
 void LightStorage::directional_shadow_atlas_set_size(int p_size, bool p_16_bits) {
 	p_size = nearest_power_of_2_templated(p_size);
 
