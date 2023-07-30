@@ -221,12 +221,8 @@ private:
 		uint32_t index_count = 0;
 
 		void *surface = nullptr;
-		GLES3::SceneShaderData *shader = nullptr;
-		GLES3::SceneMaterialData *material = nullptr;
 
 		void *surface_shadow = nullptr;
-		GLES3::SceneShaderData *shader_shadow = nullptr;
-		GLES3::SceneMaterialData *material_shadow = nullptr;
 
 		GeometryInstanceSurface *next = nullptr;
 		GeometryInstanceGLES3 *owner = nullptr;
@@ -291,8 +287,6 @@ private:
 	PagedAllocator<GeometryInstanceGLES3> geometry_instance_alloc;
 	PagedAllocator<GeometryInstanceSurface> geometry_instance_surface_alloc;
 
-	void _geometry_instance_add_surface_with_material(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, GLES3::SceneMaterialData *p_material, uint32_t p_material_id, uint32_t p_shader_id, RID p_mesh);
-	void _geometry_instance_add_surface_with_material_chain(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, GLES3::SceneMaterialData *p_material, RID p_mat_src, RID p_mesh);
 	void _geometry_instance_add_surface(GeometryInstanceGLES3 *ginstance, uint32_t p_surface, RID p_material, RID p_mesh);
 	void _geometry_instance_update(RenderGeometryInstance *p_geometry_instance);
 	void _update_dirty_geometry_instances();
@@ -363,10 +357,10 @@ private:
 
 		bool used_depth_prepass = false;
 
-		GLES3::SceneShaderData::BlendMode current_blend_mode = GLES3::SceneShaderData::BLEND_MODE_MIX;
-		GLES3::SceneShaderData::DepthDraw current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_OPAQUE;
-		GLES3::SceneShaderData::DepthTest current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_DISABLED;
-		GLES3::SceneShaderData::Cull cull_mode = GLES3::SceneShaderData::CULL_BACK;
+		// GLES3::SceneShaderData::BlendMode current_blend_mode = GLES3::SceneShaderData::BLEND_MODE_MIX;
+		// GLES3::SceneShaderData::DepthDraw current_depth_draw = GLES3::SceneShaderData::DEPTH_DRAW_OPAQUE;
+		// GLES3::SceneShaderData::DepthTest current_depth_test = GLES3::SceneShaderData::DEPTH_TEST_DISABLED;
+		// GLES3::SceneShaderData::Cull cull_mode = GLES3::SceneShaderData::CULL_BACK;
 
 		bool texscreen_copied = false;
 		bool used_screen_texture = false;

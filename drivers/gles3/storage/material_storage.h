@@ -189,120 +189,120 @@ MaterialData *_create_canvas_material_func(ShaderData *p_shader);
 
 /* Scene Materials */
 
-struct SceneShaderData : public ShaderData {
-	enum BlendMode { //used internally
-		BLEND_MODE_MIX,
-		BLEND_MODE_ADD,
-		BLEND_MODE_SUB,
-		BLEND_MODE_MUL,
-		BLEND_MODE_ALPHA_TO_COVERAGE
-	};
+// struct SceneShaderData : public ShaderData {
+// 	enum BlendMode { //used internally
+// 		BLEND_MODE_MIX,
+// 		BLEND_MODE_ADD,
+// 		BLEND_MODE_SUB,
+// 		BLEND_MODE_MUL,
+// 		BLEND_MODE_ALPHA_TO_COVERAGE
+// 	};
 
-	enum DepthDraw {
-		DEPTH_DRAW_DISABLED,
-		DEPTH_DRAW_OPAQUE,
-		DEPTH_DRAW_ALWAYS
-	};
+// 	enum DepthDraw {
+// 		DEPTH_DRAW_DISABLED,
+// 		DEPTH_DRAW_OPAQUE,
+// 		DEPTH_DRAW_ALWAYS
+// 	};
 
-	enum DepthTest {
-		DEPTH_TEST_DISABLED,
-		DEPTH_TEST_ENABLED
-	};
+// 	enum DepthTest {
+// 		DEPTH_TEST_DISABLED,
+// 		DEPTH_TEST_ENABLED
+// 	};
 
-	enum Cull {
-		CULL_DISABLED,
-		CULL_FRONT,
-		CULL_BACK
-	};
+// 	enum Cull {
+// 		CULL_DISABLED,
+// 		CULL_FRONT,
+// 		CULL_BACK
+// 	};
 
-	enum AlphaAntiAliasing {
-		ALPHA_ANTIALIASING_OFF,
-		ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE,
-		ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE_AND_TO_ONE
-	};
+// 	enum AlphaAntiAliasing {
+// 		ALPHA_ANTIALIASING_OFF,
+// 		ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE,
+// 		ALPHA_ANTIALIASING_ALPHA_TO_COVERAGE_AND_TO_ONE
+// 	};
 
-	bool valid;
-	RID version;
+// 	bool valid;
+// 	RID version;
 
-	Vector<ShaderCompiler::GeneratedCode::Texture> texture_uniforms;
+// 	Vector<ShaderCompiler::GeneratedCode::Texture> texture_uniforms;
 
-	Vector<uint32_t> ubo_offsets;
-	uint32_t ubo_size;
+// 	Vector<uint32_t> ubo_offsets;
+// 	uint32_t ubo_size;
 
-	String code;
+// 	String code;
 
-	BlendMode blend_mode;
-	AlphaAntiAliasing alpha_antialiasing_mode;
-	DepthDraw depth_draw;
-	DepthTest depth_test;
-	Cull cull_mode;
+// 	BlendMode blend_mode;
+// 	AlphaAntiAliasing alpha_antialiasing_mode;
+// 	DepthDraw depth_draw;
+// 	DepthTest depth_test;
+// 	Cull cull_mode;
 
-	bool uses_point_size;
-	bool uses_alpha;
-	bool uses_blend_alpha;
-	bool uses_alpha_clip;
-	bool uses_depth_prepass_alpha;
-	bool uses_discard;
-	bool uses_roughness;
-	bool uses_normal;
-	bool uses_particle_trails;
-	bool wireframe;
+// 	bool uses_point_size;
+// 	bool uses_alpha;
+// 	bool uses_blend_alpha;
+// 	bool uses_alpha_clip;
+// 	bool uses_depth_prepass_alpha;
+// 	bool uses_discard;
+// 	bool uses_roughness;
+// 	bool uses_normal;
+// 	bool uses_particle_trails;
+// 	bool wireframe;
 
-	bool unshaded;
-	bool uses_vertex;
-	bool uses_position;
-	bool uses_sss;
-	bool uses_transmittance;
-	bool uses_screen_texture;
-	bool uses_screen_texture_mipmaps;
-	bool uses_depth_texture;
-	bool uses_normal_texture;
-	bool uses_time;
-	bool uses_vertex_time;
-	bool uses_fragment_time;
-	bool writes_modelview_or_projection;
-	bool uses_world_coordinates;
-	bool uses_tangent;
-	bool uses_color;
-	bool uses_uv;
-	bool uses_uv2;
-	bool uses_custom0;
-	bool uses_custom1;
-	bool uses_custom2;
-	bool uses_custom3;
-	bool uses_bones;
-	bool uses_weights;
+// 	bool unshaded;
+// 	bool uses_vertex;
+// 	bool uses_position;
+// 	bool uses_sss;
+// 	bool uses_transmittance;
+// 	bool uses_screen_texture;
+// 	bool uses_screen_texture_mipmaps;
+// 	bool uses_depth_texture;
+// 	bool uses_normal_texture;
+// 	bool uses_time;
+// 	bool uses_vertex_time;
+// 	bool uses_fragment_time;
+// 	bool writes_modelview_or_projection;
+// 	bool uses_world_coordinates;
+// 	bool uses_tangent;
+// 	bool uses_color;
+// 	bool uses_uv;
+// 	bool uses_uv2;
+// 	bool uses_custom0;
+// 	bool uses_custom1;
+// 	bool uses_custom2;
+// 	bool uses_custom3;
+// 	bool uses_bones;
+// 	bool uses_weights;
 
-	uint32_t vertex_input_mask = 0;
+// 	uint32_t vertex_input_mask = 0;
 
-	uint64_t last_pass = 0;
-	uint32_t index = 0;
+// 	uint64_t last_pass = 0;
+// 	uint32_t index = 0;
 
-	virtual void set_code(const String &p_Code);
-	virtual bool is_animated() const;
-	virtual bool casts_shadows() const;
-	virtual RS::ShaderNativeSourceCode get_native_source_code() const;
+// 	virtual void set_code(const String &p_Code);
+// 	virtual bool is_animated() const;
+// 	virtual bool casts_shadows() const;
+// 	virtual RS::ShaderNativeSourceCode get_native_source_code() const;
 
-	SceneShaderData();
-	virtual ~SceneShaderData();
-};
+// 	SceneShaderData();
+// 	virtual ~SceneShaderData();
+// };
 
-ShaderData *_create_scene_shader_func();
+// ShaderData *_create_scene_shader_func();
 
-struct SceneMaterialData : public MaterialData {
-	SceneShaderData *shader_data = nullptr;
-	uint64_t last_pass = 0;
-	uint32_t index = 0;
-	RID next_pass;
-	uint8_t priority = 0;
-	virtual void set_render_priority(int p_priority);
-	virtual void set_next_pass(RID p_pass);
-	virtual void update_parameters(const HashMap<StringName, Variant> &p_parameters, bool p_uniform_dirty, bool p_textures_dirty);
-	virtual void bind_uniforms();
-	virtual ~SceneMaterialData();
-};
+// struct SceneMaterialData : public MaterialData {
+// 	SceneShaderData *shader_data = nullptr;
+// 	uint64_t last_pass = 0;
+// 	uint32_t index = 0;
+// 	RID next_pass;
+// 	uint8_t priority = 0;
+// 	virtual void set_render_priority(int p_priority);
+// 	virtual void set_next_pass(RID p_pass);
+// 	virtual void update_parameters(const HashMap<StringName, Variant> &p_parameters, bool p_uniform_dirty, bool p_textures_dirty);
+// 	virtual void bind_uniforms();
+// 	virtual ~SceneMaterialData();
+// };
 
-MaterialData *_create_scene_material_func(ShaderData *p_shader);
+// MaterialData *_create_scene_material_func(ShaderData *p_shader);
 
 /* Particle Shader */
 

@@ -459,8 +459,6 @@ class RenderForwardClustered : public RendererSceneRenderRD {
 	PagedAllocator<GeometryInstanceSurfaceDataCache> geometry_instance_surface_alloc;
 	PagedAllocator<GeometryInstanceLightmapSH> geometry_instance_lightmap_sh;
 
-	void _geometry_instance_add_surface_with_material(GeometryInstanceForwardClustered *ginstance, uint32_t p_surface, SceneShaderForwardClustered::MaterialData *p_material, uint32_t p_material_id, uint32_t p_shader_id, RID p_mesh);
-	void _geometry_instance_add_surface_with_material_chain(GeometryInstanceForwardClustered *ginstance, uint32_t p_surface, SceneShaderForwardClustered::MaterialData *p_material, RID p_mat_src, RID p_mesh);
 	void _geometry_instance_add_surface(GeometryInstanceForwardClustered *ginstance, uint32_t p_surface, RID p_material, RID p_mesh);
 	void _geometry_instance_update(RenderGeometryInstance *p_geometry_instance);
 	void _update_dirty_geometry_instances();
