@@ -85,7 +85,7 @@ protected:
 	bool drag_vertical_offset_changed = false;
 
 	Point2 camera_screen_center;
-	bool _is_editing_in_editor();
+	bool _is_editing_in_editor() const;
 	void _update_process_callback();
 	void _update_scroll();
 
@@ -102,7 +102,7 @@ protected:
 
 	Camera2DProcessCallback process_callback = CAMERA2D_PROCESS_IDLE;
 
-	Size2 _get_camera_screen_size() const;
+	Size2 _get_camera_screen_size();
 
 protected:
 	virtual Transform2D get_camera_transform();
