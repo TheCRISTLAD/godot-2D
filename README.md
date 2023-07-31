@@ -97,13 +97,13 @@ We believe that a specialized 2D-only version of the Godot Engine will empower d
 
 The Godot game engine source code follows a modular structure that is organized into different directories and files. Here is an overview of the main directories in the Godot 4 source code:
 
-- [core](core/) : Contains the core engine code, including the main engine loop, memory management, math utilities, and platform-specific code.
+- [core](core/) : Contains the core engine code, memory management, math utilities, and platform-specific code.
 
 - [drivers](drivers/) : Contains platform-specific code and drivers, such as for input devices, graphics APIs, and audio systems.
 
 - [editor](editor/) : Contains the code for the Godot editor, used for creating and editing game assets, scenes, and scripts.
 
-- [main](main/) : Contains the entry point and core initialization code for the engine. It serves as the starting point of execution when running a Godot game or editor.
+- [main](main/) : Contains the entry point and core initialization code for the engine including the main engine loop. It serves as the starting point of execution when running a Godot game or editor.
 
 - [misc](misc/) : Contains miscellaneous files and resources that are not directly related to the core functionality of the engine. The contents of the "misc" folder may vary depending on the specific version and organization of the project.
 
