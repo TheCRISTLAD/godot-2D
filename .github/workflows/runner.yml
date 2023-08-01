@@ -6,8 +6,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  clear-cache:
+    name: Clear actions cache
+    uses: ./.github/workflows/clear_cache.yml
+
   static-checks:
     name: 📊 Static checks
+    needs: clear-cache
     uses: ./.github/workflows/static_checks.yml
 
   android-build:
